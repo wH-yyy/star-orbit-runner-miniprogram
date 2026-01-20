@@ -8,6 +8,14 @@ Page({
     codeText: '获取验证码',
     counting: false,
     phone: '',
+    studentId: '',
+    name: '',
+    gender: '',
+    campusIndex: 0,
+    campusList: ['(请选择)', '兴庆校区', '雁塔校区', '创新港校区'],
+    class: '',
+    collegeIndex: 0,
+    collegeList: ['(请选择)', '彭康书院', '文治书院', '宗濂书院', '南洋书院', '崇实书院', '仲英书院', '励志书院', '启德书院', '钱学森书院'],
     code: '',
     password: '',
     confirmPassword: ''
@@ -17,6 +25,48 @@ Page({
   onPhoneInput(e) {
     this.setData({
       phone: e.detail.value
+    })
+  },
+  
+  // 学号输入
+  onStudentIdInput(e) {
+    this.setData({
+      studentId: e.detail.value
+    })
+  },
+  
+  // 姓名输入
+  onNameInput(e) {
+    this.setData({
+      name: e.detail.value
+    })
+  },
+  
+  // 性别选择
+  onGenderChange(e) {
+    this.setData({
+      gender: e.detail.value
+    })
+  },
+  
+  // 校区选择
+  onCampusChange(e) {
+    this.setData({
+      campusIndex: e.detail.value
+    })
+  },
+  
+  // 班级输入
+  onClassInput(e) {
+    this.setData({
+      class: e.detail.value
+    })
+  },
+  
+  // 书院选择
+  onCollegeChange(e) {
+    this.setData({
+      collegeIndex: e.detail.value
     })
   },
   
@@ -76,7 +126,7 @@ Page({
   getVerificationCode(phone) {
     // 这里预留获取验证码的后端接口调用
     wx.request({
-      url: 'https://your-api-domain.com/api/send-code', // 后端接口地址
+      url: 'https://your-api-domain.com/api/send-code', // 后端接口地址（需要修改）
       method: 'POST',
       data: {
         phone: phone
@@ -123,8 +173,12 @@ Page({
   
   // 注册
   register() {
-    const { phone, code, password, confirmPassword } = this.data;
+    const { phone, studentId, name, gender, campusIndex, campusList, class: className, collegeIndex, collegeList, code, password, confirmPassword } = this.data;
     
+    console.log('用户点击了注册按钮！'); // 调试信息
+    console.log('campusIndex = ', campusIndex);
+    console.log('collegeIndex = ', collegeIndex);
+
     // 表单验证
     if (!phone) {
       wx.showToast({
@@ -137,6 +191,66 @@ Page({
     if (!/^1[3-9]\d{9}$/.test(phone)) {
       wx.showToast({
         title: '请输入正确的手机号',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    if (!studentId) {
+      wx.showToast({
+        title: '请输入学号',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    if (studentId.length !== 10) {
+      wx.showToast({
+        title: '学号长度必须为10位',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    if (!name) {
+      wx.showToast({
+        title: '请输入姓名',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    if (!gender) {
+      wx.showToast({
+        title: '请选择性别',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    if (!className) {
+      wx.showToast({
+        title: '请输入班级',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    // 校区验证
+    if (campusIndex === 0) {
+      console.log('请选择校区');
+      wx.showToast({
+        title: '请选择校区',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    // 书院验证
+    if (collegeIndex === 0) {
+      console.log('请选择书院');
+      wx.showToast({
+        title: '请选择书院',
         icon: 'none'
       })
       return;
@@ -166,9 +280,11 @@ Page({
       return;
     }
     
-    if (password.length < 6) {
+    // 密码必须包含字母和数字，可以包含@#$%&-_，长度8-20位
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@#$%&-_]{8,20}$/;
+    if (!passwordRegex.test(password)) {
       wx.showToast({
-        title: '密码长度不能少于6位',
+        title: '密码必须包含字母和数字，可包含@#$%&-_，长度8-20位',
         icon: 'none'
       })
       return;
@@ -182,18 +298,28 @@ Page({
       return;
     }
     
+    // 获取校区和书院名称
+    const campus = campusList[campusIndex];
+    const college = collegeList[collegeIndex];
+    
     // 调用注册接口
-    this.registerUser(phone, code, password);
+    this.registerUser(phone, studentId, name, gender, campus, className, college, code, password);
   },
   
   // 调用注册接口
-  registerUser(phone, code, password) {
+  registerUser(phone, studentId, name, gender, campus, className, college, code, password) {
     // 这里预留注册的后端接口调用
     wx.request({
       url: 'https://your-api-domain.com/api/register', // 后端接口地址
       method: 'POST',
       data: {
         phone: phone,
+        studentId: studentId,
+        name: name,
+        gender: gender,
+        campus: campus,
+        class: className,
+        college: college,
         code: code,
         password: password
       },
