@@ -1,0 +1,61 @@
+<!--pages/login/login.wxml-->
+<view class="container">
+  <view class="login-box">
+    <view class="logo">
+      <image src="../../images/avatar.png" mode="aspectFill"></image>
+      <text class="title">星轨Runner</text>
+    </view>
+    
+    <view class="form">
+      <view class="form-item">
+        <view class="label">学号</view>
+        <input 
+          class="input {{studentIdError ? 'input-error' : ''}}" 
+          placeholder="请输入10位学号" 
+          placeholder-class="placeholder" 
+          bindinput="onStudentIdInput" 
+          bindblur="onStudentIdBlur"
+          value="{{studentId}}"
+          type="number"
+        />
+        <view wx:if="{{studentIdError}}" class="error-tip">{{studentIdErrorMsg}}</view>
+      </view>
+      
+      <view class="form-item">
+        <view class="label">密码</view>
+        <input 
+          class="input" 
+          placeholder="请输入密码" 
+          placeholder-class="placeholder" 
+          bindinput="onPasswordInput" 
+          value="{{password}}"
+          password="{{true}}"
+        />
+      </view>
+      
+      <view class="agreement">
+        <view class="checkbox-item" bindtap="toggleAgreement">
+          <view class="custom-checkbox-container">
+            <view class="custom-checkbox {{agreementChecked ? 'checked' : ''}}">
+              <view class="checkbox-inner" wx:if="{{agreementChecked}}"></view>
+            </view>
+          </view>
+          <text class="agreement-text">我已阅读并同意<text class="agreement-link" bindtap="showAgreements">服务协议</text></text>
+        </view>
+      </view>
+      
+      <button 
+        class="login-btn" 
+        type="primary" 
+        bindtap="login" 
+        disabled="{{loginDisabled || !agreementChecked}}"
+      >
+        {{loginText}}
+      </button>
+      
+      <view class="register-link">
+        <text>还没有账号？</text><navigator url="/pages/register/register" class="link">立即注册</navigator>
+      </view>
+    </view>
+  </view>
+</view>
