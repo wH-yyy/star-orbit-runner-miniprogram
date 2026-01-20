@@ -1,35 +1,96 @@
 <!--pages/register/register.wxml-->
 <view class="top-box">
-  <view>注册账号</view>
+  <view class="title">注册账号</view>
   <view class="next-text">星轨Runner</view>
 </view>
 <!-- 注册 -->
 <view class="center-box">
+  <view class="login-link" bindtap="toLogin">
+    <text>已有账号，去登录→</text>
+  </view>
   <view class="input-box">
-    <view class="wei-input">
-      <icon type="waiting" color="#44ADFB" size="16"></icon>
-      <input class="input" bindinput="onPhoneInput" placeholder="请输入手机号" maxlength="11" type="number"/>
+    <view class="form-item">
+      <view class="item-label">学号</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onStudentIdInput" placeholder="请输入学号" type="number"/>
+      </view>
     </view>
-    <view class="wei-input">
-      <icon type="waiting" color="#44ADFB" size="16"></icon>
-      <input class="input" bindinput="onCodeInput" placeholder="请输入6位验证码" maxlength="6" type="number"/>
-      <text class="input-code" bindtap="getCode">{{codeText}}</text>
+    <view class="form-item">
+      <view class="item-label">姓名</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onNameInput" placeholder="请输入姓名" type="text"/>
+      </view>
     </view>
-    <view class="wei-input">
-      <icon type="success" color="#44ADFB" size="16"></icon>
-      <input class="input" bindinput="onPasswordInput" placeholder="请输入密码" password="{{true}}"/>
+    <view class="form-item">
+      <view class="item-label">性别</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <radio-group bindchange="onGenderChange" class="radio-group">
+          <radio value="男" class="radio">男</radio>
+          <radio value="女" class="radio">女</radio>
+        </radio-group>
+      </view>
     </view>
-    <view class="wei-input">
-      <icon type="success" color="#44ADFB" size="16"></icon>
-      <input class="input" bindinput="onConfirmPasswordInput" placeholder="请确认密码" password="{{true}}"/>
+    <view class="form-item">
+      <view class="item-label">校区</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <picker bindchange="onCampusChange" value="{{campusIndex}}" range="{{campusList}}" class="picker">
+          <view class="picker-text">{{campusList[campusIndex] || '请选择校区'}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="form-item">
+      <view class="item-label">班级</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onClassInput" placeholder="请输入班级" type="text"/>
+      </view>
+    </view>
+    <view class="form-item">
+      <view class="item-label">书院</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <picker bindchange="onCollegeChange" value="{{collegeIndex}}" range="{{collegeList}}" class="picker">
+          <view class="picker-text">{{collegeList[collegeIndex] || '请选择书院'}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="form-item">
+      <view class="item-label">手机号</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onPhoneInput" placeholder="请输入手机号" maxlength="11" type="number"/>
+      </view>
+    </view>
+    <view class="form-item">
+      <view class="item-label">验证码</view>
+      <view class="wei-input">
+        <icon type="waiting" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onCodeInput" placeholder="请输入6位验证码" maxlength="6" type="number"/>
+        <text class="input-code" bindtap="getCode">{{codeText}}</text>
+      </view>
+    </view>
+    <view class="form-item">
+      <view class="item-label">设置密码</view>
+      <view class="wei-input">
+        <icon type="success" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onPasswordInput" placeholder="请输入密码" password="{{true}}"/>
+      </view>
+    </view>
+    <view class="form-item">
+      <view class="item-label">确认密码</view>
+      <view class="wei-input">
+        <icon type="success" color="#44ADFB" size="16"></icon>
+        <input class="input" bindinput="onConfirmPasswordInput" placeholder="请确认密码" password="{{true}}"/>
+      </view>
     </view>
   </view>
   <view class="sumbit-btn">
     <button class="button" 
     style="background-color: #33ccff;font-size: 30rpx;" 
     type="primary" bindtap="register">立即注册</button>
-  </view>
-  <view class="login-link" bindtap="toLogin">
-    <text>已有账号，去登录→</text>
   </view>
 </view>

@@ -19,22 +19,37 @@ page{
   box-shadow: 0 4rpx 12rpx rgba(68, 173, 251, 0.2);
 }
 
-.top-box view:first-child {
+.title {
   font-size: 48rpx;
   font-weight: 600;
   margin-bottom: 10rpx;
+  text-align: center;
 }
 
 .next-text{
   font-size: 32rpx;
   opacity: 0.9;
   font-weight: 400;
+  text-align: center;
+}
+
+/* 表单项样式 */
+.form-item {
+  margin-top: 30rpx;
+}
+
+.item-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+  display: block;
+  font-weight: 500;
 }
 
 /* 内容 */
 .center-box{
   background-color: white;
-  margin: -25% 30rpx 0rpx 30rpx;
+  margin: 30rpx 0rpx 30rpx;
   padding: 40rpx;
   border-radius: 20rpx;
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
@@ -116,11 +131,60 @@ page{
   box-shadow: 0 4rpx 16rpx rgba(68, 173, 251, 0.4);
   transition: all 0.3s ease;
   border: none;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .button:active {
   transform: scale(0.98);
   box-shadow: 0 2rpx 8rpx rgba(68, 173, 251, 0.4);
+}
+
+/* 单选框组样式 */
+.radio-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.radio {
+  margin-right: 60rpx;
+  font-size: 32rpx;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.radio .wx-radio-input {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+}
+
+.radio .wx-radio-input.wx-radio-input-checked {
+  border-color: #44ADFB;
+  background-color: #44ADFB;
+}
+
+/* 选择器样式 */
+.picker {
+  flex: 1;
+  height: 60rpx;
+  line-height: 60rpx;
+}
+
+.picker-text {
+  font-size: 32rpx;
+  color: #333;
+}
+
+.picker-text:empty::before {
+  content: attr(placeholder);
+  color: #999;
+  font-size: 30rpx;
 }
 
 /* 跳转到登录页面 */

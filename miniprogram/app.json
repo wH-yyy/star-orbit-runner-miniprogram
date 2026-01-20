@@ -4,6 +4,7 @@
     "pages/example/index",
     "pages/register/register",
     "pages/login/login"
+    "pages/home/home"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
