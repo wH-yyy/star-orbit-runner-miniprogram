@@ -1,0 +1,142 @@
+/* pages/register/register.wxss */
+page{
+  height: 100%;
+  background-color: #f5f7fa;
+  margin: 0px;
+  padding: 0px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 顶部背景 */
+.top-box{
+  height: 30%;
+  background-image: linear-gradient(135deg, #44ADFB 0%, #5ed6fd 100%);
+  padding: 60rpx 30rpx;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(68, 173, 251, 0.2);
+}
+
+.top-box view:first-child {
+  font-size: 48rpx;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+}
+
+.next-text{
+  font-size: 32rpx;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* 内容 */
+.center-box{
+  background-color: white;
+  margin: -25% 30rpx 0rpx 30rpx;
+  padding: 40rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* 输入框容器 */
+.input-box{
+  margin: 0;
+}
+
+/* 输入项 */
+.wei-input{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 50rpx;
+  padding-bottom: 15rpx;
+  border-bottom: 2rpx solid #f0f2f5;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.wei-input:focus-within {
+  border-bottom-color: #44ADFB;
+}
+
+.wei-input icon {
+  margin-right: 20rpx;
+}
+
+.input{
+  flex: 1;
+  padding-left: 0;
+  font-size: 32rpx;
+  color: #333;
+  height: 60rpx;
+  line-height: 60rpx;
+}
+
+.input::placeholder {
+  color: #999;
+  font-size: 30rpx;
+}
+
+/* 获取验证码按钮 */
+.input-code{
+  position: absolute;
+  right: 0;
+  font-size: 28rpx;
+  padding: 12rpx 24rpx;
+  color: white;
+  background-color: #FF8C69;
+  border-radius: 20rpx;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(255, 140, 105, 0.3);
+  transition: all 0.3s ease;
+}
+
+.input-code:active {
+  transform: scale(0.95);
+  box-shadow: 0 1rpx 4rpx rgba(255, 140, 105, 0.3);
+}
+
+/* 提交按钮 */
+.sumbit-btn{
+  margin: 80rpx 0 40rpx 0;
+}
+
+.button {
+  width: 100%;
+  height: 90rpx;
+  line-height: 90rpx;
+  border-radius: 45rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  background-image: linear-gradient(135deg, #44ADFB 0%, #5ed6fd 100%);
+  box-shadow: 0 4rpx 16rpx rgba(68, 173, 251, 0.4);
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(68, 173, 251, 0.4);
+}
+
+/* 跳转到登录页面 */
+.login-link {
+  text-align: center;
+  margin-top: 20rpx;
+}
+
+.login-link text {
+  font-size: 28rpx;
+  color: #44ADFB;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.login-link text:active {
+  color: #3399ff;
+}

@@ -1,4 +1,5 @@
 // app.js
+// wangyu git test
 App({
   onLaunch: function () {
     this.globalData = {
