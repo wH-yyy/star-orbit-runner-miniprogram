@@ -3,7 +3,7 @@
     "pages/index/index",
     "pages/example/index",
     "pages/register/register",
-    "pages/login/login"
+    "pages/login/login",
     "pages/home/home"
   ],
   "window": {
