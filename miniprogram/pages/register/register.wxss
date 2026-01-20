@@ -103,7 +103,7 @@ page{
   font-size: 28rpx;
   padding: 12rpx 24rpx;
   color: white;
-  background-color: #FF8C69;
+  background-color: #44ADFB;
   border-radius: 20rpx;
   font-weight: 500;
   box-shadow: 0 2rpx 8rpx rgba(255, 140, 105, 0.3);

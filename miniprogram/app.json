@@ -4,7 +4,9 @@
     "pages/example/index",
     "pages/register/register",
     "pages/login/login",
-    "pages/home/home"
+    "pages/home/home",
+    "pages/submit/submit",
+    "pages/record/record"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
@@ -12,6 +14,32 @@
     "navigationBarBackgroundColor": "#F6F6F6",
     "navigationBarTitleText": "星轨Runner",
     "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#07c160",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "我的",
+        "iconPath": "images/icons/usercenter.png",
+        "selectedIconPath": "images/icons/usercenter-active.png"
+      },
+      {
+        "pagePath": "pages/submit/submit",
+        "text": "提交",
+        "iconPath": "images/icons/business.png",
+        "selectedIconPath": "images/icons/business-active.png"
+      },
+      {
+        "pagePath": "pages/record/record",
+        "text": "记录",
+        "iconPath": "images/icons/examples.png",
+        "selectedIconPath": "images/icons/examples-active.png"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
