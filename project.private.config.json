@@ -22,7 +22,7 @@
     "miniprogram": {
       "list": [
         {
-          "name": "登录页",
+          "name": "pages/login/login",
           "pathName": "pages/login/login",
           "query": "",
           "scene": null,
