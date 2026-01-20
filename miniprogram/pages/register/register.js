@@ -21,13 +21,6 @@ Page({
     confirmPassword: ''
   },
   
-  // 手机号输入
-  onPhoneInput(e) {
-    this.setData({
-      phone: e.detail.value
-    })
-  },
-  
   // 学号输入
   onStudentIdInput(e) {
     this.setData({
@@ -70,6 +63,13 @@ Page({
     })
   },
   
+  // 手机号输入
+  onPhoneInput(e) {
+    this.setData({
+      phone: e.detail.value
+    })
+  },
+
   // 验证码输入
   onCodeInput(e) {
     this.setData({
@@ -179,23 +179,7 @@ Page({
     console.log('campusIndex = ', campusIndex);
     console.log('collegeIndex = ', collegeIndex);
 
-    // 表单验证
-    if (!phone) {
-      wx.showToast({
-        title: '请输入手机号',
-        icon: 'none'
-      })
-      return;
-    }
-    
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({
-        title: '请输入正确的手机号',
-        icon: 'none'
-      })
-      return;
-    }
-    
+    // 表单验证  
     if (!studentId) {
       wx.showToast({
         title: '请输入学号',
@@ -256,6 +240,22 @@ Page({
       return;
     }
     
+    if (!phone) {
+      wx.showToast({
+        title: '请输入手机号',
+        icon: 'none'
+      })
+      return;
+    }
+    
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+      wx.showToast({
+        title: '请输入正确的手机号',
+        icon: 'none'
+      })
+      return;
+    }
+
     if (!code) {
       wx.showToast({
         title: '请输入验证码',
