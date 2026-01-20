@@ -113,11 +113,6 @@ Page({
     
     // 调用登录接口
     this.loginRequest(studentId, password)
-
-    this.setData({
-      loginDisabled: false,
-      loginText: '登录'
-    })
   },
 
   /**
@@ -168,8 +163,6 @@ Page({
         password: password
       },
       success: res => {
-        wx.hideLoading()  // 隐藏加载框
-        
         const result = res.result
         
         // 3. 根据返回码处理结果
@@ -179,28 +172,28 @@ Page({
             wx.showToast({
               title: '登录成功',
               icon: 'none'
-            }),
-            wx.navigateTo({
+            });
+            wx.switchTab({
               url: '/pages/home/home'
-            })
-            break
+            });
+            break;
           case 401:
             wx.showToast({
               title: '账号或密码错误',
               icon: 'none'
-            })
-            break
+            });
+            break;
           case 500:
             wx.showToast({
               title: '服务器错误，请稍后重试',
               icon: 'none'
-            })
-            break
+            });
+            break;
           default:
             wx.showToast({
               title: result.message || '登录失败',
               icon: 'none'
-            })
+            });
         }
       },
       fail: err => {
@@ -212,7 +205,12 @@ Page({
         })
       },
       complete: () => {
-        wx.hideLoading()
+        wx.hideLoading();
+        // 恢复按钮状态
+        this.setData({
+          loginDisabled: false,
+          loginText: '登录'
+        });
       }
     })
   },
