@@ -1,2 +1,33 @@
 <!--pages/home/home.wxml-->
-<text>pages/home/home.wxml</text>
+<view class="home-container">
+  <!-- 用户信息区域 -->
+  <view class="user-info-section" bindtap="navigateToEditProfile">
+    <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+    <view class="user-details">
+      <view class="user-name">{{userInfo.name}}</view>
+      <view class="user-meta">
+        <text class="meta-item">{{userInfo.studentId}}</text>
+        <text class="meta-divider">|</text>
+        <text class="meta-item">{{userInfo.academy}}</text>
+        <text class="meta-divider">|</text>
+        <text class="meta-item">{{userInfo.className}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计数据区域 -->
+  <view class="stats-section" bindtap="navigateToRecord">
+    <view class="stat-item" wx:for="{{stats}}" wx:key="index">
+      <view class="stat-value">{{item.value}}</view>
+      <view class="stat-label">{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 菜单选项区域 -->
+  <view class="menu-section">
+    <view class="menu-item" wx:for="{{menuItems}}" wx:key="id" bindtap="handleMenuClick" data-id="{{item.id}}">
+      <text class="menu-name">{{item.name}}</text>
+      <text class="menu-arrow">></text>
+    </view>
+  </view>
+</view>

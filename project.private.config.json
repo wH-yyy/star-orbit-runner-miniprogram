@@ -29,8 +29,13 @@
           "launchMode": "default"
         },
         {
+<<<<<<< HEAD
           "name": "pages/login/login",
           "pathName": "pages/login/login",
+=======
+          "name": "pages/register/register",
+          "pathName": "pages/register/register",
+>>>>>>> e1b46a8b482dc73fe129e1ae0356cc067c2fe721
           "query": "",
           "launchMode": "default",
           "scene": null

@@ -149,45 +149,68 @@ Page({
    * 登录请求
    */
   loginRequest(studentId, password) {
-    // 这里预留登录的后端接口调用
-    wx.request({
-      url: 'https://your-api-domain.com/api/login', // 后端接口地址
-      method: 'POST',
-      data: {
-        studentId: studentId,
+    // 1. 显示加载中状态
+    wx.showLoading({
+      title: '登录中...',
+      mask: true  // 防止触摸穿透
+    })
+  
+    // 2. 调用云函数
+    wx.cloud.callFunction({
+      name: 'login',  // 云函数名称
+      data: {  // 传递给云函数的参数
+        account: studentId,
         password: password
       },
-      success: (res) => {
-        if (res.data.success) {
-          wx.showToast({
-            title: '登录成功',
-          })
-          
-          // 登录成功后跳转到首页
-          setTimeout(() => {
+      success: res => {
+        const result = res.result
+        
+        // 3. 根据返回码处理结果
+        switch(result.code) {
+          case 200:
+            // 登录成功
+            wx.showToast({
+              title: '登录成功',
+              icon: 'none'
+            });
             wx.switchTab({
-              url: '/pages/index/index'
-            })
-          }, 1500)
-        } else {
-          wx.showToast({
-            title: res.data.message || '登录失败',
-            icon: 'none'
-          })
+              url: '/pages/home/home'
+            });
+            break;
+          case 401:
+            wx.showToast({
+              title: '账号或密码错误',
+              icon: 'none'
+            });
+            break;
+          case 500:
+            wx.showToast({
+              title: '服务器错误，请稍后重试',
+              icon: 'none'
+            });
+            break;
+          default:
+            wx.showToast({
+              title: result.message || '登录失败',
+              icon: 'none'
+            });
         }
       },
-      fail: () => {
+      fail: err => {
+        console.error('调用云函数失败:', err)
+        // 4. 网络错误处理
         wx.showToast({
-          title: '网络错误，请稍后重试',
+          title: '网络错误，请检查网络连接',
           icon: 'none'
         })
       },
       complete: () => {
-        // 恢复登录按钮状态
+        wx.hideLoading();
+        // 恢复按钮状态
         this.setData({
           loginDisabled: false,
           loginText: '登录'
-        })
+        });
       }
     })
   },

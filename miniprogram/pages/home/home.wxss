@@ -1,1 +1,127 @@
 /* pages/home/home.wxss */
+/* 全局样式重置 */
+page {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 主容器 */
+.home-container {
+  padding-bottom: 60px; /* 为底部导航栏留出空间 */
+}
+
+/* 用户信息区域 */
+.user-info-section {
+  background-color: #ffffff;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eeeeee;
+}
+
+/* 头像 */
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+}
+
+/* 用户详情 */
+.user-details {
+  flex: 1;
+}
+
+/* 用户名 */
+.user-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 12rpx;
+}
+
+/* 用户元信息 */
+.user-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* 元信息项 */
+.meta-item {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 元信息分隔符 */
+.meta-divider {
+  margin: 0 12rpx;
+  color: #999999;
+  font-size: 24rpx;
+}
+
+/* 统计数据区域 */
+.stats-section {
+  background-color: #ffffff;
+  margin-top: 20rpx;
+  padding: 40rpx 0;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid #eeeeee;
+}
+
+/* 统计项 */
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 33.33%;
+}
+
+/* 统计值 */
+.stat-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+/* 统计标签 */
+.stat-label {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 菜单选项区域 */
+.menu-section {
+  background-color: #ffffff;
+  margin-top: 20rpx;
+}
+
+/* 菜单项 */
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1px solid #eeeeee;
+}
+
+/* 菜单项最后一项去除边框 */
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+/* 菜单名称 */
+.menu-name {
+  font-size: 32rpx;
+  color: #333333;
+}
+
+/* 菜单箭头 */
+.menu-arrow {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 底部导航栏样式会通过app.json配置，这里不需要额外添加 */

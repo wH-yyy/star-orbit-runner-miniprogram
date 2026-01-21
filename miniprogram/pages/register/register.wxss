@@ -72,6 +72,7 @@ page{
   border-bottom: 2rpx solid #f0f2f5;
   position: relative;
   transition: all 0.3s ease;
+  min-height: 60rpx;
 }
 
 .wei-input:focus-within {
@@ -84,6 +85,7 @@ page{
 
 .input{
   flex: 1;
+  padding-right: 160rpx;
   padding-left: 0;
   font-size: 32rpx;
   color: #333;
@@ -100,14 +102,18 @@ page{
 .input-code{
   position: absolute;
   right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 28rpx;
   padding: 12rpx 24rpx;
   color: white;
-  background-color: #FF8C69;
+  background-color: #44ADFB;
   border-radius: 20rpx;
   font-weight: 500;
   box-shadow: 0 2rpx 8rpx rgba(255, 140, 105, 0.3);
   transition: all 0.3s ease;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .input-code:active {

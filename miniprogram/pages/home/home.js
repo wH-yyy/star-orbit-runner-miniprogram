@@ -5,14 +5,59 @@ Page({
    * 页面的初始数据
    */
   data: {
-
+    // 用户信息
+    userInfo: {
+      avatar: '/images/avatar.png',
+      name: '张三',
+      studentId: '2230000000',
+      academy: '仲英书院',
+      className: '软件2305'
+    },
+    // 统计数据
+    stats: [
+      {
+        value: '20 次',
+        label: '打卡记录'
+      },
+      {
+        value: '35 km',
+        label: '累计里程'
+      },
+      {
+        value: '15 天',
+        label: '连续打卡'
+      }
+    ],
+    // 菜单选项
+    menuItems: [
+      {
+        id: 'edit',
+        name: '编辑个人信息',
+        icon: ''
+      },
+      {
+        id: 'awards',
+        name: '我的奖项',
+        icon: ''
+      },
+      {
+        id: 'help',
+        name: '帮助与反馈',
+        icon: ''
+      },
+      {
+        id: 'logout',
+        name: '退出登录',
+        icon: ''
+      }
+    ]
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-
+    
   },
 
   /**
@@ -62,5 +107,49 @@ Page({
    */
   onShareAppMessage() {
 
+  },
+
+  /**
+   * 跳转到编辑个人信息页面
+   */
+  navigateToEditProfile() {
+    wx.navigateTo({
+      url: '/pages/edit-profile/edit-profile',
+      animationType: 'slide-in-right',
+      animationDuration: 200
+    })
+  },
+
+  /**
+   * 跳转到记录页面
+   */
+  navigateToRecord() {
+    wx.switchTab({
+      url: '/pages/record/record'
+    })
+  },
+
+  /**
+   * 菜单点击事件
+   */
+  handleMenuClick(e) {
+    const id = e.currentTarget.dataset.id;
+    switch(id) {
+      case 'edit':
+        // 跳转到编辑个人信息页面
+        this.navigateToEditProfile();
+        break;
+      case 'awards':
+        // 跳转到我的奖项页面
+        break;
+      case 'help':
+        // 跳转到帮助与反馈页面
+        break;
+      case 'logout':
+        // 退出登录逻辑
+        break;
+      default:
+        break;
+    }
   }
 })
