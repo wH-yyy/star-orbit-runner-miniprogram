@@ -1,4 +1,4 @@
-// pages/exampleDetail/index.js
+//pages/exampleDetail/index.js
 Page({
   data: {
     type: "",

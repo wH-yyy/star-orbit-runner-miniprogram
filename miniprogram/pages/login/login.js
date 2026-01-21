@@ -171,8 +171,9 @@ Page({
             // 登录成功
             wx.showToast({
               title: '登录成功',
-              icon: 'none'
+              icon: 'success'
             });
+            // 跳转到tabBar中的home页面
             wx.switchTab({
               url: '/pages/home/home'
             });
