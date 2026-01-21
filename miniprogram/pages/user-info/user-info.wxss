@@ -90,6 +90,19 @@ input {
   width: 100%;
 }
 
+/* picker样式 */
+picker {
+  width: 100%;
+}
+
+/* picker内部文本样式 */
+.picker {
+  font-size: 32rpx;
+  color: #333333;
+  width: 100%;
+  padding: 8rpx 0;
+}
+
 /* 保存按钮 */
 .save-button {
   margin-top: 60rpx;

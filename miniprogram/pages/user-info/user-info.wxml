@@ -27,11 +27,23 @@
       </view>
     </view>
 
+    <!-- 校区 -->
+        <view class="form-item">
+              <text class="form-label">校区</text>
+              <view class="form-value">
+                <picker bindchange="onCampusChange" value="{{campusIndex}}" range="{{campusList}}">
+                  <view class="picker">{{userInfo.campus || campusList[0]}}</view>
+                </picker>
+              </view>
+            </view>
+
     <!-- 书院 -->
     <view class="form-item">
       <text class="form-label">书院</text>
       <view class="form-value">
-        <input type="text" value="{{userInfo.academy}}" placeholder="请输入书院" />
+        <picker bindchange="onAcademyChange" value="{{academyIndex}}" range="{{academyList}}">
+          <view class="picker">{{userInfo.academy || academyList[0]}}</view>
+        </picker>
       </view>
     </view>
 

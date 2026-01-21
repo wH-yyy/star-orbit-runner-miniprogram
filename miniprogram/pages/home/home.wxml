@@ -1,12 +1,14 @@
 <!--pages/home/home.wxml-->
 <view class="home-container">
   <!-- 用户信息区域 -->
-  <view class="user-info-section" bindtap="navigateToEditProfile">
+  <view class="user-info-section" bindtap="navigateToUserInfo">
     <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
     <view class="user-details">
       <view class="user-name">{{userInfo.name}}</view>
       <view class="user-meta">
         <text class="meta-item">{{userInfo.studentId}}</text>
+        <text class="meta-divider">|</text>
+        <text class="meta-item">{{userInfo.campus}}</text>
         <text class="meta-divider">|</text>
         <text class="meta-item">{{userInfo.academy}}</text>
         <text class="meta-divider">|</text>
