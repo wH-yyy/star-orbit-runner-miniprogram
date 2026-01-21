@@ -6,12 +6,6 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 
-// 密码加密（简单示例，生产环境建议使用bcrypt等更安全的加密方式）
-function encryptPassword(password) {
-  const crypto = require('crypto')
-  return crypto.createHash('sha256').update(password).digest('hex')
-}
-
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { 
@@ -124,8 +118,6 @@ exports.main = async (event, context) => {
       })
     
     // 5. 创建用户记录
-    const encryptedPassword = encryptPassword(password)
-    
     const userResult = await db.collection('Users').add({
       data: {
         stu_id: studentId,
@@ -135,7 +127,7 @@ exports.main = async (event, context) => {
         class: className,
         college: college,
         phone: phone,
-        password: encryptedPassword,
+        password: password,  // 明文存储密码
         openid: wxContext.OPENID,
         createTime: db.serverDate(),
         updateTime: db.serverDate(),

@@ -93,11 +93,14 @@ Page({
   
   // 获取验证码 
   getCode() {
+    console.log('=== 点击了获取验证码按钮 ===')
     var that = this;
     const phone = that.data.phone;
+    console.log('当前手机号:', phone)
     
     // 手机号验证
     if (!phone) {
+      console.log('手机号为空')
       wx.showToast({
         title: '请输入手机号',
         icon: 'none'
@@ -106,6 +109,7 @@ Page({
     }
     
     if (!/^1[3-9]\d{9}$/.test(phone)) {
+      console.log('手机号格式不正确')
       wx.showToast({
         title: '请输入正确的手机号',
         icon: 'none'
@@ -114,19 +118,37 @@ Page({
     }
     
     if (!that.data.counting) {
+      console.log('开始获取验证码...')
       // 调用获取验证码接口
       that.getVerificationCode(phone);
       
       // 开始倒计时60秒
       that.countDown(that, 60);
-    } 
+    } else {
+      console.log('正在倒计时，不能重复获取')
+    }
   },
   
   // 调用获取验证码接口
   getVerificationCode(phone) {
+    console.log('准备调用云函数 sendVerificationCode')
+    console.log('手机号:', phone)
+    
     wx.showLoading({
       title: '发送中...',
     })
+    
+    // 检查云开发是否初始化
+    if (!wx.cloud) {
+      console.error('云开发未初始化！')
+      wx.hideLoading()
+      wx.showModal({
+        title: '错误',
+        content: '云开发未初始化，请检查app.js中的云开发配置',
+        showCancel: false
+      })
+      return
+    }
     
     // 调用云函数发送验证码
     wx.cloud.callFunction({
@@ -136,9 +158,10 @@ Page({
       }
     }).then(res => {
       wx.hideLoading()
-      console.log('发送验证码结果:', res)
+      console.log('✅ 云函数调用成功！')
+      console.log('完整返回结果:', JSON.stringify(res, null, 2))
       
-      if (res.result.success) {
+      if (res.result && res.result.success) {
         wx.showToast({
           title: '验证码已发送',
           icon: 'success'
@@ -146,11 +169,14 @@ Page({
         
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
-          console.log('验证码（测试用）:', res.result.devCode)
-          // 可选：在开发环境下自动填充验证码
+          console.log('==========================================')
+          console.log('🔑 验证码（测试用）:', res.result.devCode)
+          console.log('==========================================')
+          // 可选：在开发环境下自动填充验证码（方便测试）
           // this.setData({ code: res.result.devCode })
         }
       } else {
+        console.error('❌ 云函数返回失败:', res.result)
         wx.showToast({
           title: res.result.message || '发送失败',
           icon: 'none',
@@ -159,10 +185,24 @@ Page({
       }
     }).catch(err => {
       wx.hideLoading()
-      console.error('发送验证码失败:', err)
-      wx.showToast({
-        title: '网络错误，请稍后重试',
-        icon: 'none'
+      console.error('❌ 云函数调用失败:', err)
+      console.error('错误详情:', JSON.stringify(err, null, 2))
+      
+      let errorMsg = '网络错误，请稍后重试'
+      
+      // 详细的错误提示
+      if (err.errMsg) {
+        if (err.errMsg.includes('cloud function execution error')) {
+          errorMsg = '云函数执行错误，请检查云函数是否已上传'
+        } else if (err.errMsg.includes('cloud.callFunction:fail')) {
+          errorMsg = '调用失败，请检查云函数名称和部署状态'
+        }
+      }
+      
+      wx.showModal({
+        title: '调用失败',
+        content: errorMsg + '\n\n详细信息请查看控制台',
+        showCancel: false
       })
     })
   },
@@ -329,7 +369,7 @@ Page({
     
     // 调用云函数注册
     wx.cloud.callFunction({
-      name: 'register',
+      name: 'Register',
       data: {
         phone: phone,
         studentId: studentId,
