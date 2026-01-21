@@ -22,15 +22,15 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/home/home",
-          "pathName": "pages/home/home",
+          "name": "pages/login/login",
+          "pathName": "pages/login/login",
           "query": "",
           "scene": null,
           "launchMode": "default"
         },
         {
-          "name": "pages/login/login",
-          "pathName": "pages/login/login",
+          "name": "pages/register/register",
+          "pathName": "pages/register/register",
           "query": "",
           "launchMode": "default",
           "scene": null

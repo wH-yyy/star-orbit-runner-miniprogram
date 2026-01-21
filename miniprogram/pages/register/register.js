@@ -124,31 +124,46 @@ Page({
   
   // 调用获取验证码接口
   getVerificationCode(phone) {
-    // 这里预留获取验证码的后端接口调用
-    wx.request({
-      url: 'https://your-api-domain.com/api/send-code', // 后端接口地址（需要修改）
-      method: 'POST',
+    wx.showLoading({
+      title: '发送中...',
+    })
+    
+    // 调用云函数发送验证码
+    wx.cloud.callFunction({
+      name: 'sendVerificationCode',
       data: {
         phone: phone
-      },
-      success: function(res) {
-        if (res.data.success) {
-          wx.showToast({
-            title: '验证码已发送',
-          })
-        } else {
-          wx.showToast({
-            title: res.data.message || '发送失败',
-            icon: 'none'
-          })
-        }
-      },
-      fail: function() {
+      }
+    }).then(res => {
+      wx.hideLoading()
+      console.log('发送验证码结果:', res)
+      
+      if (res.result.success) {
         wx.showToast({
-          title: '网络错误，请稍后重试',
-          icon: 'none'
+          title: '验证码已发送',
+          icon: 'success'
+        })
+        
+        // 开发环境下显示验证码（生产环境删除）
+        if (res.result.devCode) {
+          console.log('验证码（测试用）:', res.result.devCode)
+          // 可选：在开发环境下自动填充验证码
+          // this.setData({ code: res.result.devCode })
+        }
+      } else {
+        wx.showToast({
+          title: res.result.message || '发送失败',
+          icon: 'none',
+          duration: 2000
         })
       }
+    }).catch(err => {
+      wx.hideLoading()
+      console.error('发送验证码失败:', err)
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
     })
   },
   
@@ -308,45 +323,54 @@ Page({
   
   // 调用注册接口
   registerUser(phone, studentId, name, gender, campus, className, college, code, password) {
-    // 这里预留注册的后端接口调用
-    wx.request({
-      url: 'https://your-api-domain.com/api/register', // 后端接口地址
-      method: 'POST',
+    wx.showLoading({
+      title: '注册中...',
+    })
+    
+    // 调用云函数注册
+    wx.cloud.callFunction({
+      name: 'register',
       data: {
         phone: phone,
         studentId: studentId,
         name: name,
         gender: gender,
         campus: campus,
-        class: className,
+        className: className,
         college: college,
         code: code,
         password: password
-      },
-      success: function(res) {
-        if (res.data.success) {
-          wx.showToast({
-            title: '注册成功',
-          })
-          // 注册成功后跳转到登录页面
-          setTimeout(() => {
-            wx.navigateTo({
-              url: '/pages/login/login'
-            })
-          }, 1500);
-        } else {
-          wx.showToast({
-            title: res.data.message || '注册失败',
-            icon: 'none'
-          })
-        }
-      },
-      fail: function() {
+      }
+    }).then(res => {
+      wx.hideLoading()
+      console.log('注册结果:', res)
+      
+      if (res.result.success) {
         wx.showToast({
-          title: '网络错误，请稍后重试',
-          icon: 'none'
+          title: '注册成功',
+          icon: 'success'
+        })
+        
+        // 注册成功后跳转到登录页面
+        setTimeout(() => {
+          wx.redirectTo({
+            url: '/pages/login/login'
+          })
+        }, 1500)
+      } else {
+        wx.showToast({
+          title: res.result.message || '注册失败',
+          icon: 'none',
+          duration: 2000
         })
       }
+    }).catch(err => {
+      wx.hideLoading()
+      console.error('注册失败:', err)
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
     })
   },
   
