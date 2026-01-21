@@ -1,7 +1,7 @@
 <!--pages/home/home.wxml-->
 <view class="home-container">
   <!-- 用户信息区域 -->
-  <view class="user-info-section">
+  <view class="user-info-section" bindtap="navigateToEditProfile">
     <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
     <view class="user-details">
       <view class="user-name">{{userInfo.name}}</view>
@@ -16,7 +16,7 @@
   </view>
 
   <!-- 统计数据区域 -->
-  <view class="stats-section">
+  <view class="stats-section" bindtap="navigateToRecord">
     <view class="stat-item" wx:for="{{stats}}" wx:key="index">
       <view class="stat-value">{{item.value}}</view>
       <view class="stat-label">{{item.label}}</view>

@@ -6,7 +6,8 @@
     "pages/login/login",
     "pages/home/home",
     "pages/submit/submit",
-    "pages/record/record"
+    "pages/record/record",
+    "pages/edit-profile/edit-profile"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
@@ -22,10 +23,10 @@
     "borderStyle": "black",
     "list": [
       {
-        "pagePath": "pages/home/home",
-        "text": "我的",
-        "iconPath": "images/icons/usercenter.png",
-        "selectedIconPath": "images/icons/usercenter-active.png"
+        "pagePath": "pages/record/record",
+        "text": "记录",
+        "iconPath": "images/icons/examples.png",
+        "selectedIconPath": "images/icons/examples-active.png"
       },
       {
         "pagePath": "pages/submit/submit",
@@ -34,10 +35,10 @@
         "selectedIconPath": "images/icons/business-active.png"
       },
       {
-        "pagePath": "pages/record/record",
-        "text": "记录",
-        "iconPath": "images/icons/examples.png",
-        "selectedIconPath": "images/icons/examples-active.png"
+        "pagePath": "pages/home/home",
+        "text": "我的",
+        "iconPath": "images/icons/usercenter.png",
+        "selectedIconPath": "images/icons/usercenter-active.png"
       }
     ]
   },

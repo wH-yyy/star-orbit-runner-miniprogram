@@ -57,7 +57,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-
+    
   },
 
   /**
@@ -110,6 +110,26 @@ Page({
   },
 
   /**
+   * 跳转到编辑个人信息页面
+   */
+  navigateToEditProfile() {
+    wx.navigateTo({
+      url: '/pages/edit-profile/edit-profile',
+      animationType: 'slide-in-right',
+      animationDuration: 200
+    })
+  },
+
+  /**
+   * 跳转到记录页面
+   */
+  navigateToRecord() {
+    wx.switchTab({
+      url: '/pages/record/record'
+    })
+  },
+
+  /**
    * 菜单点击事件
    */
   handleMenuClick(e) {
@@ -117,6 +137,7 @@ Page({
     switch(id) {
       case 'edit':
         // 跳转到编辑个人信息页面
+        this.navigateToEditProfile();
         break;
       case 'awards':
         // 跳转到我的奖项页面
