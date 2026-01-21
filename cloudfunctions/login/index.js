@@ -10,11 +10,21 @@ exports.main = async (event, context) => {
 
   const { account, password } = event
 
+  // 验证参数
+  if (!account || !password) {
+    return {
+      code: 400,
+      message: '账号和密码不能为空',
+      data: null
+    }
+  }
+
   try {
+    // 直接使用明文密码进行比对
     const result = await db.collection('Users')
       .where({
         stu_id: account,
-        password: password
+        password: password  // 明文密码对比
       })
       .get()
 
