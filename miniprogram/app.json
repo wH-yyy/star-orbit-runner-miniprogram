@@ -4,6 +4,7 @@
     "pages/example/index",
     "pages/register/register",
     "pages/login/login",
+    "pages/phone-login/phone-login",
     "pages/home/home",
     "pages/submit/submit",
     "pages/record/record",

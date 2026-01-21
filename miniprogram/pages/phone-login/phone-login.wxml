@@ -1,0 +1,50 @@
+<!--pages/phone-login/phone-login.wxml-->
+<view class="container">
+  <view class="login-box">
+    <view class="logo">
+      <image src="../../images/avatar.png" mode="aspectFill"></image>
+      <text class="title">星轨Runner</text>
+    </view>
+    
+    <view class="form">
+      <view class="welcome-text">
+        <text class="main-text">欢迎使用星轨Runner</text>
+        <text class="sub-text">手机号一键登录，快速便捷</text>
+      </view>
+      
+      <!-- 手机号显示区域 -->
+      <view wx:if="{{phoneNumber}}" class="phone-display">
+        <text class="label">当前手机号：</text>
+        <text class="phone-text">{{phoneNumber}}</text>
+      </view>
+      
+      <!-- 手机号一键登录按钮 -->
+      <button 
+        class="phone-login-btn" 
+        open-type="getPhoneNumber" 
+        bindgetphonenumber="getPhoneNumber"
+        disabled="{{loginDisabled}}"
+      >
+        {{loginText}}
+      </button>
+      
+      <!-- 验证码登录入口 -->
+      <view class="other-login">
+        <text>其他登录方式：</text>
+        <navigator url="/pages/login/login" class="link">账号密码登录</navigator>
+      </view>
+      
+      <!-- 用户协议 -->
+      <view class="agreement">
+        <view class="checkbox-item" bindtap="toggleAgreement">
+          <view class="custom-checkbox-container">
+            <view class="custom-checkbox {{agreementChecked ? 'checked' : ''}}">
+              <view class="checkbox-inner" wx:if="{{agreementChecked}}"></view>
+            </view>
+          </view>
+          <text class="agreement-text">我已阅读并同意<text class="agreement-link" bindtap="showAgreements">服务协议</text></text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

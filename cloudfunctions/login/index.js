@@ -1,7 +1,11 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV }) // 使用当前云环境
+// 使用动态环境，确保与小程序端使用的环境一致
+cloud.init({
+  env: cloud.DYNAMIC_CURRENT_ENV,
+  traceUser: true
+})
 
 // 云函数入口函数
 exports.main = async (event, context) => {
@@ -9,6 +13,8 @@ exports.main = async (event, context) => {
   const db = cloud.database()
 
   const { account, password } = event
+
+  console.log('登录请求参数:', { account, password })
 
   // 验证参数
   if (!account || !password) {
@@ -20,6 +26,9 @@ exports.main = async (event, context) => {
   }
 
   try {
+    // 检查数据库连接
+    console.log('连接数据库...')
+    
     // 直接使用明文密码进行比对
     const result = await db.collection('Users')
       .where({
@@ -28,6 +37,8 @@ exports.main = async (event, context) => {
       })
       .get()
 
+    console.log('数据库查询结果:', result)
+      
       if (result.data.length > 0) {
         // 登录成功
         return {
@@ -54,7 +65,7 @@ exports.main = async (event, context) => {
     console.error('登录失败:', error)
     return {
       code: 500,
-      message: '服务器内部错误',
+      message: `服务器内部错误: ${error.message}`,
       data: null
     }
   }

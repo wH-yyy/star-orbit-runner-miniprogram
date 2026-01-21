@@ -2,8 +2,8 @@
   "permissions": {
     "openapi": [],
     "database": {
-      "read": ["Users"],
-      "write": ["Users"]
+      "read": ["RunningRecords"],
+      "write": ["RunningRecords"]
     }
   }
 }
