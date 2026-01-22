@@ -7,40 +7,21 @@ page {
 
 /* 主容器 */
 .edit-profile-container {
-  padding: 0 30rpx 60rpx;
-}
-
-/* 返回按钮 */
-.back-button {
-  position: absolute;
-  left: 30rpx;
-  top: 30rpx;
-  z-index: 100;
-  width: 60rpx;
-  height: 60rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.back-arrow {
-  font-size: 48rpx;
-  color: #333333;
+  padding: 30rpx 30rpx 60rpx;
 }
 
 /* 表单容器 */
 .profile-form {
   background-color: #ffffff;
-  margin-top: 30rpx;
   border-radius: 16rpx;
-  padding: 30rpx;
+  overflow: hidden;
 }
 
 /* 表单项 */
 .form-item {
   display: flex;
   align-items: center;
-  padding: 30rpx 0;
+  padding: 30rpx 24rpx;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -54,6 +35,7 @@ page {
   width: 160rpx;
   font-size: 32rpx;
   color: #333333;
+  flex-shrink: 0;
 }
 
 /* 表单值 */
@@ -63,24 +45,25 @@ page {
   color: #333333;
 }
 
-/* 头像容器 */
-.avatar-container {
+/* 禁用状态 */
+.form-value.disabled {
   display: flex;
   align-items: center;
 }
 
-/* 头像 */
-.avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  margin-right: 24rpx;
+.disabled-text {
+  color: #999999;
 }
 
-/* 更换头像文字 */
-.change-avatar {
-  font-size: 28rpx;
-  color: #07c160;
+.tip-text {
+  font-size: 24rpx;
+  color: #999999;
+  margin-left: 12rpx;
+}
+
+/* picker样式 */
+.picker {
+  color: #333333;
 }
 
 /* 输入框样式 */
@@ -90,18 +73,70 @@ input {
   width: 100%;
 }
 
+/* 密码区域 */
+.password-section {
+  background-color: #ffffff;
+  margin-top: 30rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+/* 区域标题 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 24rpx;
+  cursor: pointer;
+}
+
+.section-title {
+  font-size: 32rpx;
+  color: #333333;
+  font-weight: bold;
+}
+
+.toggle-icon {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 密码表单 */
+.password-form {
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 密码输入框 */
+.password-input {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.password-input input {
+  flex: 1;
+  padding-right: 60rpx;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 0;
+  font-size: 40rpx;
+  padding: 0 10rpx;
+}
+
 /* 保存按钮 */
 .save-button {
   margin-top: 60rpx;
-  padding: 0 30rpx;
 }
 
 /* 按钮样式 */
 .save-button button {
-  width: 100%;
-  height: 90rpx;
-  font-size: 34rpx;
-  border-radius: 45rpx;
   background-color: #07c160;
   color: #ffffff;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  width: 100%;
 }

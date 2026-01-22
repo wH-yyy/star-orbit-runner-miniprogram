@@ -2,28 +2,57 @@
 <view class="edit-profile-container">
   <!-- 个人信息编辑表单 -->
   <view class="profile-form">
-    <!-- 头像 -->
-    <view class="form-item">
-      <text class="form-label">头像</text>
-      <view class="form-value avatar-container">
-        <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
-        <text class="change-avatar">更换</text>
-      </view>
-    </view>
-
     <!-- 姓名 -->
     <view class="form-item">
       <text class="form-label">姓名</text>
       <view class="form-value">
-        <input type="text" value="{{userInfo.name}}" placeholder="请输入姓名" />
+        <input 
+          type="text" 
+          value="{{userInfo.name}}" 
+          placeholder="请输入姓名"
+          data-field="name"
+          bindinput="onInputChange" />
       </view>
     </view>
 
-    <!-- 学号 -->
+    <!-- 学号（不可修改） -->
     <view class="form-item">
       <text class="form-label">学号</text>
+      <view class="form-value disabled">
+        <text class="disabled-text">{{userInfo.studentId}}</text>
+        <text class="tip-text">（不可修改）</text>
+      </view>
+    </view>
+
+    <!-- 性别 -->
+    <view class="form-item">
+      <text class="form-label">性别</text>
       <view class="form-value">
-        <input type="text" value="{{userInfo.studentId}}" placeholder="请输入学号" />
+        <picker 
+          mode="selector" 
+          range="{{genderOptions}}" 
+          value="{{genderIndex}}"
+          bindchange="onGenderChange">
+          <view class="picker">
+            {{userInfo.gender || '请选择性别'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 校区 -->
+    <view class="form-item">
+      <text class="form-label">校区</text>
+      <view class="form-value">
+        <picker 
+          mode="selector" 
+          range="{{campusOptions}}" 
+          value="{{campusIndex}}"
+          bindchange="onCampusChange">
+          <view class="picker">
+            {{userInfo.campus || '请选择校区'}}
+          </view>
+        </picker>
       </view>
     </view>
 
@@ -31,7 +60,15 @@
     <view class="form-item">
       <text class="form-label">书院</text>
       <view class="form-value">
-        <input type="text" value="{{userInfo.academy}}" placeholder="请输入书院" />
+        <picker 
+          mode="selector" 
+          range="{{collegeOptions}}" 
+          value="{{collegeIndex}}"
+          bindchange="onCollegeChange">
+          <view class="picker">
+            {{userInfo.college || '请选择书院'}}
+          </view>
+        </picker>
       </view>
     </view>
 
@@ -39,13 +76,99 @@
     <view class="form-item">
       <text class="form-label">班级</text>
       <view class="form-value">
-        <input type="text" value="{{userInfo.className}}" placeholder="请输入班级" />
+        <input 
+          type="text" 
+          value="{{userInfo.className}}" 
+          placeholder="请输入班级"
+          data-field="className"
+          bindinput="onInputChange" />
+      </view>
+    </view>
+
+    <!-- 手机号 -->
+    <view class="form-item">
+      <text class="form-label">手机号</text>
+      <view class="form-value">
+        <input 
+          type="number" 
+          value="{{userInfo.phone}}" 
+          placeholder="请输入手机号"
+          maxlength="11"
+          data-field="phone"
+          bindinput="onInputChange" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 修改密码区域 -->
+  <view class="password-section">
+    <view class="section-header" bindtap="togglePasswordChange">
+      <text class="section-title">修改密码</text>
+      <text class="toggle-icon">{{isChangingPassword ? '▲' : '▼'}}</text>
+    </view>
+    
+    <view class="password-form" wx:if="{{isChangingPassword}}">
+      <!-- 旧密码 -->
+      <view class="form-item">
+        <text class="form-label">旧密码</text>
+        <view class="form-value password-input">
+          <input 
+            password="{{!showOldPassword}}"
+            value="{{passwordData.oldPassword}}" 
+            placeholder="请输入旧密码"
+            data-field="oldPassword"
+            bindinput="onPasswordInput" />
+          <text 
+            class="eye-icon" 
+            bindtap="togglePasswordVisibility"
+            data-field="showOldPassword">
+            {{showOldPassword ? '👁️' : '👁️‍🗨️'}}
+          </text>
+        </view>
+      </view>
+
+      <!-- 新密码 -->
+      <view class="form-item">
+        <text class="form-label">新密码</text>
+        <view class="form-value password-input">
+          <input 
+            password="{{!showNewPassword}}"
+            value="{{passwordData.newPassword}}" 
+            placeholder="8-20位，含字母和数字"
+            data-field="newPassword"
+            bindinput="onPasswordInput" />
+          <text 
+            class="eye-icon" 
+            bindtap="togglePasswordVisibility"
+            data-field="showNewPassword">
+            {{showNewPassword ? '👁️' : '👁️‍🗨️'}}
+          </text>
+        </view>
+      </view>
+
+      <!-- 确认新密码 -->
+      <view class="form-item">
+        <text class="form-label">确认密码</text>
+        <view class="form-value password-input">
+          <input 
+            password="{{!showConfirmPassword}}"
+            value="{{passwordData.confirmPassword}}" 
+            placeholder="再次输入新密码"
+            data-field="confirmPassword"
+            bindinput="onPasswordInput" />
+          <text 
+            class="eye-icon" 
+            bindtap="togglePasswordVisibility"
+            data-field="showConfirmPassword">
+            {{showConfirmPassword ? '👁️' : '👁️‍🗨️'}}
+          </text>
+        </view>
       </view>
     </view>
   </view>
 
   <!-- 保存按钮 -->
   <view class="save-button">
-    <button type="primary" size="default">保存</button>
+    <button type="primary" size="default" bindtap="saveUserInfo">保存</button>
   </view>
 </view>

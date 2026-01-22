@@ -152,7 +152,7 @@ Page({
     // 1. 显示加载中状态
     wx.showLoading({
       title: '登录中...',
-      mask: true  // 防止触摸穿透
+      mask: true
     })
   
     // 2. 调用云函数
@@ -168,15 +168,45 @@ Page({
         // 3. 根据返回码处理结果
         switch(result.code) {
           case 200:
-            // 登录成功
+            // 登录成功 - 保存用户信息
+            const userInfo = result.data.userInfo
+            
+            // 保存到本地存储
+            wx.setStorageSync('studentId', userInfo.stu_id)
+            wx.setStorageSync('userInfo', {
+              studentId: userInfo.stu_id,
+              name: userInfo.name,
+              gender: userInfo.gender,
+              campus: userInfo.campus,
+              className: userInfo.class_name,
+              college: userInfo.college,
+              phone: userInfo.phone
+            })
+            
+            // 保存到全局数据
+            const app = getApp()
+            app.globalData.userInfo = {
+              studentId: userInfo.stu_id,
+              name: userInfo.name,
+              gender: userInfo.gender,
+              campus: userInfo.campus,
+              className: userInfo.class_name,
+              college: userInfo.college,
+              phone: userInfo.phone
+            }
+            
             wx.showToast({
               title: '登录成功',
-              icon: 'none'
-            });
-            wx.switchTab({
-              url: '/pages/home/home'
-            });
-            break;
+              icon: 'success'
+            })
+            
+            // 延迟跳转，让用户看到成功提示
+            setTimeout(() => {
+              wx.switchTab({
+                url: '/pages/home/home'
+              })
+            }, 1000)
+            break
           case 401:
             wx.showToast({
               title: '账号或密码错误',
@@ -198,19 +228,24 @@ Page({
       },
       fail: err => {
         console.error('调用云函数失败:', err)
+        wx.hideLoading()
         // 4. 网络错误处理
         wx.showToast({
           title: '网络错误，请检查网络连接',
           icon: 'none'
         })
-      },
-      complete: () => {
-        wx.hideLoading();
         // 恢复按钮状态
         this.setData({
           loginDisabled: false,
           loginText: '登录'
-        });
+        })
+      },
+      complete: () => {
+        // 恢复按钮状态
+        this.setData({
+          loginDisabled: false,
+          loginText: '登录'
+        })
       }
     })
   },
