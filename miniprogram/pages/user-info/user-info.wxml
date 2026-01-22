@@ -15,12 +15,12 @@
       </view>
     </view>
 
-    <!-- 学号（不可修改） -->
+    <!-- 学号（联系管理员修改） -->
     <view class="form-item">
       <text class="form-label">学号</text>
       <view class="form-value disabled">
         <text class="disabled-text">{{userInfo.studentId}}</text>
-        <text class="tip-text">（不可修改）</text>
+        <text class="tip-text">（请联系管理员修改）</text>
       </view>
     </view>
 
