@@ -1,0 +1,137 @@
+<!--pages/record-detail/record-detail.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">跑步打卡记录</text>
+    <text class="subtitle">记录详情</text>
+  </view>
+  
+  <!-- 记录卡片 -->
+  <view class="detail-card">
+    <!-- 状态标识 -->
+    <view class="status-badge large {{record.status === 'passed' ? 'status-passed' : record.status === 'failed' ? 'status-failed' : 'status-pending'}}">
+      {{record.status === 'passed' ? '已通过' : record.status === 'failed' ? '未通过' : '审核中'}}
+    </view>
+    
+    <!-- 基本信息 -->
+    <view class="info-item">
+      <text class="info-label">记录时间</text>
+      <text class="info-value">{{record.date}} {{record.time}}</text>
+    </view>
+    <view class="info-item">
+      <text class="info-label">打卡方式</text>
+      <view class="info-value type-value">
+        {{record.type === 'gps' ? 'GPS打卡' : record.type === 'manual' ? '手动打卡' : '其他'}}
+      </view>
+    </view>
+    
+    <!-- 不通过原因 -->
+    <view wx:if="{{record.status === 'failed'}}" class="fail-reason">
+      <text class="reason-label">未通过原因</text>
+      <text class="reason-content">{{record.failReason || '未提供具体原因'}}</text>
+    </view>
+    
+    <!-- 跑步数据 -->
+    <view class="data-grid">
+      <view class="data-item">
+        <text class="data-value">{{record.distance}} km</text>
+        <text class="data-label">跑步距离</text>
+      </view>
+      <view class="data-item">
+        <text class="data-value">{{record.duration}}</text>
+        <text class="data-label">跑步时长</text>
+      </view>
+      <view class="data-item">
+        <text class="data-value">{{record.pace}}'{{record.paceSeconds}}''</text>
+        <text class="data-label">配速</text>
+      </view>
+      <view class="data-item">
+        <text class="data-value">{{record.steps}} 步</text>
+        <text class="data-label">步数</text>
+      </view>
+    </view>
+    
+    <!-- 跑步轨迹（模拟） -->
+    <view wx:if="{{record.type === 'gps'}}" class="map-placeholder">
+      <image src="/images/map-placeholder.png" class="map-image" mode="aspectFill"></image>
+      <text class="map-text">GPS轨迹地图</text>
+    </view>
+    
+    <!-- 手动打卡图片 -->
+    <view wx:if="{{record.type === 'manual' && record.images && record.images.length > 0}}" class="manual-images">
+      <text class="images-title">打卡图片</text>
+      <view class="images-grid">
+        <view wx:for="{{record.images}}" wx:key="index" class="image-item">
+          <image src="{{item}}" class="manual-image" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"></image>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 申诉按钮，仅未通过记录显示 -->
+    <button wx:if="{{record.status === 'failed'}}" class="appeal-btn" type="warn" bindtap="showAppealModal">提交申诉</button>
+  </view>
+  
+  <!-- 申诉模态框 -->
+  <view wx:if="{{showAppealModal}}" class="modal-overlay" bindtap="hideAppealModal"></view>
+  <view wx:if="{{showAppealModal}}" class="modal-content" catchtap="">
+    <!-- 模态框头部 -->
+    <view class="modal-header">
+      <text class="modal-title">申诉申请</text>
+      <view class="modal-close" bindtap="hideAppealModal">
+        <text class="close-text">×</text>
+      </view>
+    </view>
+    
+    <!-- 模态框内容 -->
+    <view class="modal-body">
+      <text class="modal-desc">请说明您的申诉理由，并上传相关证明材料</text>
+      
+      <!-- 申诉理由输入 -->
+      <view class="form-item">
+        <text class="form-label">申诉理由</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请详细说明您的申诉理由..." 
+          placeholder-class="placeholder" 
+          bindinput="onAppealReasonInput" 
+          value="{{appealReason}}"
+          maxlength="500"
+          auto-height
+          show-confirm-bar
+        ></textarea>
+        <text class="count-text">{{appealReason.length}}/500</text>
+      </view>
+      
+      <!-- 图片上传 -->
+      <view class="form-item">
+        <text class="form-label">上传证明材料</text>
+        <text class="form-desc">最多可上传5张图片，支持jpg、png格式</text>
+        <view class="uploader-container">
+          <!-- 已上传图片 -->
+          <view wx:for="{{uploadedImages}}" wx:key="index" class="uploaded-image-item">
+            <image src="{{item}}" class="uploaded-image" mode="aspectFit"></image>
+            <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">
+              <image src="/images/delete.png" class="delete-icon" mode="aspectFit"></image>
+            </view>
+          </view>
+          
+          <!-- 上传按钮 -->
+          <view wx:if="{{uploadedImages.length < 5}}" class="upload-btn" bindtap="uploadImage">
+            <image src="/images/upload.png" class="upload-icon" mode="aspectFit"></image>
+            <text class="upload-text">+ 上传图片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 模态框底部按钮 -->
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" type="default" bindtap="cancelAppeal">
+        <text>取消</text>
+      </button>
+      <button class="modal-btn submit-btn" type="warn" bindtap="submitAppeal" disabled="{{!appealReason.trim()}}">
+        <text>提交申诉</text>
+      </button>
+    </view>
+  </view>
+</view>

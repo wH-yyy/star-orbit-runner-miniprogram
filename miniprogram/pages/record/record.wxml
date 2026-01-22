@@ -1,2 +1,67 @@
 <!--pages/record/record.wxml-->
-<text>pages/record/record.wxml</text>
+<view class="container">
+  <view class="header">
+    <text class="title">跑步打卡记录</text>
+    <text class="subtitle">共 {{records.length}} 条记录</text>
+  </view>
+  
+  <!-- 记录列表 -->
+  <view class="records-list">
+    <view wx:if="{{records.length === 0}}" class="empty-state">
+      <image src="/images/empty.png" class="empty-icon" mode="aspectFit"></image>
+      <text class="empty-text">暂无打卡记录</text>
+      <text class="empty-subtext">快去跑步打卡吧</text>
+    </view>
+    
+    <view wx:for="{{records}}" wx:key="id" class="record-card">
+      <!-- 记录头部 -->
+      <view class="record-header">
+        <view class="record-info">
+          <text class="record-time">{{item.date}} {{item.time}}</text>
+          <text class="record-type">{{item.type === 'gps' ? 'GPS打卡' : item.type === 'manual' ? '手动打卡' : '其他'}}</text>
+        </view>
+        <view class="status-badge {{item.status === 'passed' ? 'status-passed' : item.status === 'failed' ? 'status-failed' : 'status-pending'}}">
+          {{item.status === 'passed' ? '已通过' : item.status === 'failed' ? '未通过' : '审核中'}}
+        </view>
+      </view>
+      
+      <!-- 记录详情 -->
+      <view class="record-details">
+        <view class="detail-item">
+          <text class="detail-label">距离</text>
+          <text class="detail-value">{{item.distance}} km</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">时长</text>
+          <text class="detail-value">{{item.duration}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">配速</text>
+          <text class="detail-value">{{item.pace}}'{{item.paceSeconds}}''</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">步数</text>
+          <text class="detail-value">{{item.steps}} 步</text>
+        </view>
+      </view>
+      
+      <!-- 不通过原因 -->
+      <view wx:if="{{item.status === 'failed'}}" class="fail-reason">
+        <view class="reason-header">
+          <text class="reason-title">未通过原因</text>
+        </view>
+        <text class="reason-content">{{item.failReason || '未提供具体原因'}}</text>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="record-actions">
+        <button class="action-btn view-btn" bindtap="viewRecord" data-id="{{item.id}}">查看详情</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 加载更多 -->
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">
+    <text class="load-text">加载更多</text>
+  </view>
+</view>

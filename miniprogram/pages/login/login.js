@@ -77,7 +77,7 @@ Page({
    * 登录按钮点击事件
    */
   login() {
-    const { studentId, password } = this.data
+    const { studentId, password, agreementChecked } = this.data
     
     // 表单验证
     if (!studentId) {
@@ -100,6 +100,15 @@ Page({
     if (!password) {
       wx.showToast({
         title: '请输入密码',
+        icon: 'none'
+      })
+      return
+    }
+    
+    // 验证用户是否同意协议
+    if (!agreementChecked) {
+      wx.showToast({
+        title: '请阅读并同意服务协议',
         icon: 'none'
       })
       return

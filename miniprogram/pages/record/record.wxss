@@ -1,1 +1,349 @@
 /* pages/record/record.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 30rpx 20rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  margin-bottom: 40rpx;
+  padding: 0 20rpx;
+  text-align: center;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #333333;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12rpx;
+  display: block;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #666666;
+  animation: fadeIn 0.6s ease 0.2s forwards;
+  opacity: 0;
+  display: block;
+}
+
+/* 记录列表 */
+.records-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666666;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.empty-subtext {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 记录卡片 */
+.record-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.08), 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(20rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.5);
+  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.record-card:hover {
+  box-shadow: 0 16rpx 50rpx rgba(102, 126, 234, 0.15), 0 8rpx 24rpx rgba(102, 126, 234, 0.1);
+  transform: translateY(-4rpx);
+}
+
+/* 记录头部 */
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+
+.record-info {
+  flex: 1;
+}
+
+.record-time {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.record-type {
+  font-size: 26rpx;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-weight: 500;
+}
+
+/* 状态徽章 */
+.status-badge {
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  color: #ffffff;
+}
+
+.status-passed {
+  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+  box-shadow: 0 4rpx 16rpx rgba(103, 194, 58, 0.3);
+}
+
+.status-failed {
+  background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
+  box-shadow: 0 4rpx 16rpx rgba(245, 108, 108, 0.3);
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
+  box-shadow: 0 4rpx 16rpx rgba(230, 162, 60, 0.3);
+}
+
+/* 记录详情 */
+.record-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24rpx;
+  margin-bottom: 28rpx;
+  padding: 28rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.15);
+}
+
+.detail-label {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 8rpx;
+}
+
+.detail-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* 不通过原因 */
+.fail-reason {
+  background: rgba(245, 108, 108, 0.08);
+  border: 2rpx solid rgba(245, 108, 108, 0.2);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.reason-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.warning-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+}
+
+.reason-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #f56c6c;
+}
+
+.reason-content {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 40rpx;
+  padding-left: 44rpx;
+}
+
+/* 操作按钮 */
+.record-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 20rpx 0;
+  border-radius: 20rpx;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  color: #666666;
+  height: 80rpx;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: normal;
+}
+
+.action-btn::after {
+  border: none;
+  border-radius: 20rpx;
+}
+
+.action-btn:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.15);
+}
+
+.view-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff !important;
+}
+
+.view-btn:hover {
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
+  color: #ffffff;
+}
+
+.delete-btn:hover {
+  box-shadow: 0 8rpx 24rpx rgba(245, 108, 108, 0.3);
+}
+
+/* 加载更多 */
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 40rpx;
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #666666;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.load-more:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.15);
+  color: #667eea;
+}
+
+.load-icon {
+  width: 32rpx;
+  height: 32rpx;
+  animation: rotate 1.5s linear infinite;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 375px) {
+  .container {
+    padding: 20rpx 10rpx;
+  }
+  
+  .record-details {
+    grid-template-columns: 1fr;
+    gap: 16rpx;
+  }
+  
+  .record-actions {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    padding: 24rpx 0;
+  }
+}
