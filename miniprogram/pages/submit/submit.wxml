@@ -1,2 +1,72 @@
 <!--pages/submit/submit.wxml-->
-<text>pages/submit/submit.wxml</text>
+<view class="container">
+  <text class="title">上传跑步记录</text>
+  
+  <!-- 跑步时间 -->
+  <view class="form-item">
+    <text class="label">跑步时间</text>
+    <view class="datetime-display">
+      {{date}}
+    </view>
+    <view wx:if="{{dateError}}" class="error-tip">{{dateErrorMsg}}</view>
+  </view>
+  
+  <!-- 跑步记录截图 -->
+  <view class="form-item">
+    <text class="label">跑步记录截图</text>
+    <view class="upload-section">
+      <!-- 已上传图片预览 -->
+      <view class="uploaded-images">
+        <view class="image-item" wx:for="{{images}}" wx:key="index">
+          <image src="{{item}}" mode="aspectFill" class="uploaded-image"></image>
+          <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">
+            <text class="delete-icon">×</text>
+          </view>
+        </view>
+        
+        <!-- 上传按钮 -->
+        <view class="upload-btn" wx:if="{{images.length < maxImages}}" bindtap="chooseImage">
+          <view class="upload-icon">+</view>
+          <text class="upload-text">上传截图</text>
+          <text class="upload-hint">(最多{{maxImages}}张)</text>
+        </view>
+      </view>
+      <view wx:if="{{imageError}}" class="error-tip">{{imageErrorMsg}}</view>
+    </view>
+  </view>
+  
+  <!-- 跑步地点 -->
+  <view class="form-item">
+    <text class="label">跑步地点</text>
+    <picker 
+      class="picker" 
+      bindchange="onLocationChange" 
+      value="{{locationIndex}}" 
+      range="{{locationOptions}}"
+    >
+      <view class="picker-content">
+        {{locationOptions[locationIndex]}}
+      </view>
+    </picker>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <button 
+    class="submit-btn" 
+    type="primary" 
+    bindtap="submitForm"
+    disabled="{{submitDisabled}}"
+  >
+    {{submitText}}
+  </button>
+  
+  <!-- 成功提示 -->
+  <view wx:if="{{showSuccess}}" class="success-modal" catchtouchmove="preventTouchMove">
+    <view class="success-content">
+      <view class="success-icon">✓</view>
+      <text class="success-title">上传成功</text>
+      <text class="success-text">您的跑步记录已成功上传</text>
+      <button class="success-btn" bindtap="onSuccessClose">确定</button>
+    </view>
+  </view>
+</view>

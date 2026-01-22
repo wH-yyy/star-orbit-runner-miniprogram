@@ -32,7 +32,7 @@ Page({
     menuItems: [
       {
         id: 'edit',
-        name: '编辑个人信息',
+        name: '个人信息',
         icon: ''
       },
       {
@@ -184,11 +184,9 @@ Page({
   /**
    * 跳转到编辑个人信息页面
    */
-  navigateToEditProfile() {
+  navigateToUserInfo() {
     wx.navigateTo({
-      url: '/pages/edit-profile/edit-profile',
-      animationType: 'slide-in-right',
-      animationDuration: 200
+      url: '/pages/user-info/user-info'
     })
   },
 
@@ -243,7 +241,7 @@ Page({
     switch(id) {
       case 'edit':
         // 跳转到编辑个人信息页面
-        this.navigateToEditProfile();
+        this.navigateToUserInfo();
         break;
       case 'awards':
         // 跳转到我的奖项页面
