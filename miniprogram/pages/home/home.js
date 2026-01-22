@@ -10,6 +10,7 @@ Page({
       avatar: '/images/avatar.png',
       name: '加载中...',
       studentId: '',
+      campus: '',
       academy: '',
       className: ''
     },
@@ -148,6 +149,7 @@ Page({
             avatar: '/images/avatar.png',
             name: userData.name,
             studentId: userData.stu_id,
+            campus: userData.campus,
             academy: userData.college,
             className: userData.class_name
           }

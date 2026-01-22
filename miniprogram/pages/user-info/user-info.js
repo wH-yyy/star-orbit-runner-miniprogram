@@ -19,10 +19,10 @@ Page({
     genderOptions: ['男', '女'],
     genderIndex: 0,
     // 校区选项
-    campusOptions: ['兴庆校区', '雁塔校区', '曲江校区', '创新港'],
+    campusOptions: ['兴庆校区', '雁塔校区', '曲江校区', '创新港校区'],
     campusIndex: 0,
     // 书院选项
-    collegeOptions: ['仲英书院', '文治书院', '彭康书院', '启德书院', '励志书院', '崇实书院', '南洋书院', '宗濂书院', '厚德书院'],
+    collegeOptions: ['仲英书院', '文治书院', '彭康书院', '启德书院', '励志书院', '崇实书院', '南洋书院', '宗濂书院', '钱学森书院'],
     collegeIndex: 0,
     // 是否正在修改密码
     isChangingPassword: false,
