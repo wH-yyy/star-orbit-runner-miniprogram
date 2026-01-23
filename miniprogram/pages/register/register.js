@@ -8,12 +8,12 @@ Page({
     codeText: '获取验证码',
     counting: false,
     phone: '',
-    studentId: '',
+    stu_id: '',          // 规范为stu_id
     name: '',
     gender: '',
     campusIndex: 0,
     campusList: ['(请选择)', '兴庆校区', '雁塔校区', '创新港校区'],
-    class: '',
+    class_name: '',      // 规范为class_name
     collegeIndex: 0,
     collegeList: ['(请选择)', '彭康书院', '文治书院', '宗濂书院', '南洋书院', '崇实书院', '仲英书院', '励志书院', '启德书院', '钱学森书院'],
     code: '',
@@ -24,7 +24,7 @@ Page({
   // 学号输入
   onStudentIdInput(e) {
     this.setData({
-      studentId: e.detail.value
+      stu_id: e.detail.value   // 规范为stu_id
     })
   },
   
@@ -52,7 +52,7 @@ Page({
   // 班级输入
   onClassInput(e) {
     this.setData({
-      class: e.detail.value
+      class_name: e.detail.value   // 规范为class_name
     })
   },
   
@@ -228,14 +228,14 @@ Page({
   
   // 注册
   register() {
-    const { phone, studentId, name, gender, campusIndex, campusList, class: className, collegeIndex, collegeList, code, password, confirmPassword } = this.data;
+    const { phone, stu_id, name, gender, campusIndex, campusList, class_name, collegeIndex, collegeList, code, password, confirmPassword } = this.data;
     
     console.log('用户点击了注册按钮！'); // 调试信息
     console.log('campusIndex = ', campusIndex);
     console.log('collegeIndex = ', collegeIndex);
 
     // 表单验证  
-    if (!studentId) {
+    if (!stu_id) {
       wx.showToast({
         title: '请输入学号',
         icon: 'none'
@@ -243,7 +243,7 @@ Page({
       return;
     }
     
-    if (studentId.length !== 10) {
+    if (stu_id.length !== 10) {
       wx.showToast({
         title: '学号长度必须为10位',
         icon: 'none'
@@ -267,7 +267,7 @@ Page({
       return;
     }
     
-    if (!className) {
+    if (!class_name) {
       wx.showToast({
         title: '请输入班级',
         icon: 'none'
@@ -358,11 +358,24 @@ Page({
     const college = collegeList[collegeIndex];
     
     // 调用注册接口
-    this.registerUser(phone, studentId, name, gender, campus, className, college, code, password);
+    this.registerUser(phone, stu_id, name, gender, campus, class_name, college, code, password);
   },
   
   // 调用注册接口
-  registerUser(phone, studentId, name, gender, campus, className, college, code, password) {
+  registerUser(phone, stu_id, name, gender, campus, class_name, college, code, password) {
+    // 添加调试信息，检查所有参数
+    console.log('=== 注册参数检查 ===')
+    console.log('phone:', phone)
+    console.log('stu_id:', stu_id)
+    console.log('name:', name)
+    console.log('gender:', gender)
+    console.log('campus:', campus)
+    console.log('class_name:', class_name)
+    console.log('college:', college)
+    console.log('code:', code)
+    console.log('password:', password)
+    console.log('==================')
+    
     wx.showLoading({
       title: '注册中...',
     })
@@ -372,11 +385,11 @@ Page({
       name: 'Register',
       data: {
         phone: phone,
-        studentId: studentId,
+        stu_id: stu_id,
         name: name,
         gender: gender,
         campus: campus,
-        className: className,
+        class_name: class_name,
         college: college,
         code: code,
         password: password
