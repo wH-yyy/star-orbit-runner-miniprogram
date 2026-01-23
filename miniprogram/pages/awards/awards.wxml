@@ -26,7 +26,7 @@
       <!-- 参与次数 -->
       <view class="stat-item">
         <view class="stat-number">{{userParticipations}}</view>
-        <view class="stat-label">我的参与次数</view>
+        <view class="stat-label">参与次数</view>
       </view>
       
       <!-- 参与比例 -->
