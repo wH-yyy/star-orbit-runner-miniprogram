@@ -1,7 +1,7 @@
 <!--pages/edit-profile/edit-profile.wxml-->
 <view class="edit-profile-container">
   <!-- 统计数据卡片 -->
-  <view class="stats-card">
+  <!-- <view class="stats-card">
     <view class="stat-item">
       <view class="stat-value">{{userInfo.totalCount}}</view>
       <view class="stat-label">总次数</view>
@@ -14,7 +14,7 @@
       <view class="stat-value">{{totalDurationMinutes}}</view>
       <view class="stat-label">总时长(分钟)</view>
     </view>
-  </view>
+  </view> -->
 
   <!-- 个人信息编辑表单 -->
   <view class="profile-form">
@@ -118,10 +118,12 @@
     <view class="form-item">
       <text class="form-label">手机号</text>
       <view class="form-value">
-        <view wx:if="!isChangingPhone" class="phone-display-container" bindtap="showChangePhoneConfirm">
-          <text class="phone-display">{{userInfo.phone}}</text>
+        <!-- 正常显示状态 -->
+        <view wx:if="{{!isChangingPhone}}" class="phone-display-container" bindtap="showChangePhoneConfirm">
+          <text class="phone-display">{{userInfo.phone || '未设置'}}</text>
           <text class="change-phone-hint">换绑</text>
         </view>
+        <!-- 换绑表单状态 -->
         <view wx:else class="phone-change-form">
           <input 
             type="number" 
