@@ -39,19 +39,20 @@
     
     <view wx:else class="record-items">
       <view class="record-item" wx:for="{{recordList}}" wx:key="_id">
-        <view class="record-date">{{item.date}}</view>
-        <view class="record-location">地点：{{item.location}}</view>
-        <view class="record-images">
-          <image 
-            wx:for="{{item.images}}" 
-            wx:key="index" 
-            wx:for-item="img"
-            src="{{img}}" 
-            mode="aspectFill"
-            class="record-image">
-          </image>
+          <view class="record-date">{{item.date}}</view>
+          <view class="record-location">地点：{{item.location}}</view>
+          <view class="record-images">
+            <image 
+              wx:for="{{item.images}}" 
+              wx:key="index" 
+              wx:for-item="img"
+              src="{{img}}" 
+              mode="aspectFill"
+              class="record-image">
+            </image>
+          </view>
+          <button class="view-detail-btn" bindtap="viewRecord" data-id="{{item._id}}">查看详情</button>
         </view>
-      </view>
     </view>
   </view>
 </view>

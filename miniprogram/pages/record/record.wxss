@@ -126,3 +126,29 @@ page {
   height: 200rpx;
   border-radius: 8rpx;
 }
+
+/* 查看详情按钮 */
+.view-detail-btn {
+  margin-top: 15rpx;
+  padding: 12rpx 0;
+  background-color: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  width: 180rpx;
+  height: auto;
+  line-height: normal;
+}
+
+.view-detail-btn::after {
+  border: none;
+}
+
+.view-detail-btn:hover {
+  background-color: #40a9ff;
+}
+
+.view-detail-btn:active {
+  background-color: #096dd9;
+}
