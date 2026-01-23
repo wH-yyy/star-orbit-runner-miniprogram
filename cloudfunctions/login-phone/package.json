@@ -1,0 +1,21 @@
+{
+  "name": "login-phone",
+  "version": "1.0.0",
+  "description": "手机号一键登录云函数",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "wechat",
+    "cloud",
+    "function",
+    "login",
+    "phone"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.4.0"
+  }
+}
