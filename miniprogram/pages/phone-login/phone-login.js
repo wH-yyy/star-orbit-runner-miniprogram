@@ -67,25 +67,16 @@ Page({
           // 延迟跳转，让用户看到提示
           setTimeout(() => {
             if (result.data.existingStatus) {
-              const userInfo = result.data.userInfo
-              
-              // 安全存储 - 不存储敏感信息
-              const safeUserInfo = {
-                _id: userInfo._id,
-                avatar: userInfo.avatar,
-                name: userInfo.name,
-                campus: userInfo.campus,
-                // 只存储必要字段，不存储密码等敏感信息
-              }
-              
-              wx.setStorageSync('userInfo', safeUserInfo)
+              const userInfo = result.data.userInfo              
+              wx.setStorageSync('userInfo', userInfo)
               const app = getApp()
-              app.globalData.userInfo = safeUserInfo
+              app.globalData.userInfo = userInfo
               
               // 检查是否是tabBar页面
               wx.switchTab({
                 url: '/pages/home/home'
               })
+              console.log("userInfo:", app.globalData.userInfo)
             } else {
               wx.navigateTo({
                 url: '/pages/user-info/user-info'
