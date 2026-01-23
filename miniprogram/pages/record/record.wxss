@@ -80,7 +80,8 @@ page {
   margin-bottom: 20rpx;
 }
 
-.loading, .empty {
+.loading,
+.empty {
   text-align: center;
   padding: 60rpx 0;
   color: #999;
