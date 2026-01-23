@@ -156,7 +156,7 @@ Page({
         const totalDur = userData.totalDuration || 0
         const totalCount = userData.totalCount || 0
         const totalDistanceKm = (totalDist / 1000).toFixed(2)
-        const totalDurationMinutes = Math.round(totalDur / 60)
+        const totalDurationMinutes = Math.round(totalDur)
         
         console.log('统计数据:', { totalCount, totalDistanceKm, totalDurationMinutes })
         
@@ -179,7 +179,7 @@ Page({
               label: '累计里程'
             },
             {
-              value: '0 天',
+              value: totalDurationMinutes + ' 天',
               label: '连续打卡'
             }
           ]
