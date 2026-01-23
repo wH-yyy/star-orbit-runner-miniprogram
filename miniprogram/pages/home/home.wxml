@@ -6,13 +6,13 @@
     <view class="user-details">
       <view class="user-name">{{userInfo.name}}</view>
       <view class="user-meta">
-        <text class="meta-item">{{userInfo.studentId}}</text>
+        <text class="meta-item">{{userInfo.stu_id}}</text>
         <text class="meta-divider">|</text>
         <text class="meta-item">{{userInfo.campus}}</text>
         <text class="meta-divider">|</text>
-        <text class="meta-item">{{userInfo.academy}}</text>
+        <text class="meta-item">{{userInfo.college}}</text>
         <text class="meta-divider">|</text>
-        <text class="meta-item">{{userInfo.className}}</text>
+        <text class="meta-item">{{userInfo.class_name}}</text>
       </view>
     </view>
   </view>

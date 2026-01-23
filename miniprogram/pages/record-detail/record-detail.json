@@ -1,0 +1,8 @@
+{
+  "usingComponents": {},
+  "navigationBarBackgroundColor": "#F6F6F6",
+  "navigationBarTitleText": "跑步记录详情",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#F6F6F6",
+  "backgroundTextStyle": "light"
+}

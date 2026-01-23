@@ -1,2 +1,58 @@
 <!--pages/record/record.wxml-->
-<text>pages/record/record.wxml</text>
+<view class="record-container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="user-info">
+      <view class="name">{{userInfo.name || '未知用户'}}</view>
+      <view class="stu-id">学号：{{userInfo.stu_id || '无'}}</view>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <view class="stat-value">{{totalCount}}</view>
+      <view class="stat-label">总次数</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{totalDistanceKm}}</view>
+      <view class="stat-label">总距离(km)</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{totalDurationMinutes}}</view>
+      <view class="stat-label">总时长(分钟)</view>
+    </view>
+  </view>
+
+  <!-- 跑步记录列表 -->
+  <view class="record-list">
+    <view class="list-title">跑步记录</view>
+    
+    <view wx:if="{{loading}}" class="loading">
+      <text>加载中...</text>
+    </view>
+    
+    <view wx:elif="{{recordList.length === 0}}" class="empty">
+      <text>暂无跑步记录</text>
+    </view>
+    
+    <view wx:else class="record-items">
+      <view class="record-item" wx:for="{{recordList}}" wx:key="_id">
+          <view class="record-date">{{item.date}}</view>
+          <view class="record-location">地点：{{item.location}}</view>
+          <view class="record-images">
+            <image 
+              wx:for="{{item.images}}" 
+              wx:key="index" 
+              wx:for-item="img"
+              src="{{img}}" 
+              mode="aspectFill"
+              class="record-image">
+            </image>
+          </view>
+          <button class="view-detail-btn" bindtap="viewRecord" data-id="{{item._id}}">查看详情</button>
+        </view>
+    </view>
+  </view>
+</view>

@@ -9,19 +9,19 @@ const _ = db.command
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { 
-    phone, 
-    studentId, 
-    name, 
-    gender, 
-    campus, 
-    className, 
-    college, 
-    code, 
-    password 
+    phone,           // 手机号
+    stu_id,          // 学号
+    name,            // 姓名
+    gender,          // 性别
+    campus,          // 校区
+    class_name,      // 班级
+    college,         // 书院
+    code,            // 验证码
+    password         // 密码
   } = event
   
   // 参数验证
-  if (!phone || !studentId || !name || !gender || !campus || !className || !college || !code || !password) {
+  if (!phone || !stu_id || !name || !gender || !campus || !class_name || !college || !code || !password) {
     return {
       success: false,
       code: 400,
@@ -30,7 +30,7 @@ exports.main = async (event, context) => {
   }
   
   // 学号格式验证（10位数字）
-  if (!/^\d{10}$/.test(studentId)) {
+  if (!/^\d{10}$/.test(stu_id)) {
     return {
       success: false,
       code: 400,
@@ -80,7 +80,7 @@ exports.main = async (event, context) => {
     // 2. 检查学号是否已被注册
     const studentIdCheck = await db.collection('Users')
       .where({
-        stu_id: studentId
+        stu_id: stu_id
       })
       .count()
     
@@ -117,25 +117,24 @@ exports.main = async (event, context) => {
         }
       })
     
-    // 5. 创建用户记录
+    // 5. 创建用户记录 - 对应Users表所有字段
     const userResult = await db.collection('Users').add({
       data: {
-        stu_id: studentId,
-        name: name,
-        gender: gender,
-        campus: campus,
-        class: className,
-        college: college,
-        phone: phone,
-        password: password,  // 明文存储密码
-        openid: wxContext.OPENID,
-        createTime: db.serverDate(),
-        updateTime: db.serverDate(),
-        status: 'active', // 账户状态：active-正常, banned-禁用
-        totalDistance: 0, // 总跑步距离（米）
-        totalDuration: 0, // 总跑步时长（秒）
-        totalCount: 0, // 总跑步次数
-        avatar: '', // 头像URL
+        openid: wxContext.OPENID,              // 微信openid
+        stu_id: stu_id,                        // 学号
+        name: name,                            // 姓名
+        gender: gender,                        // 性别
+        campus: campus,                        // 校区
+        class_name: class_name,                // 班级
+        college: college,                      // 书院
+        phone: phone,                          // 手机号
+        password: password,                    // 密码（明文存储，需改进）
+        avatar: '',                            // 头像URL（初始为空，用户后续可上传）
+        createTime: db.serverDate(),           // 创建时间
+        updateTime: db.serverDate(),           // 更新时间
+        totalDistance: 0,                      // 总跑步距离（米）
+        totalDuration: 0,                      // 总跑步时长（秒）
+        totalCount: 0                          // 总跑步次数
       }
     })
     
@@ -144,8 +143,8 @@ exports.main = async (event, context) => {
       code: 200,
       message: '注册成功',
       data: {
-        userId: userResult._id,
-        studentId: studentId,
+        _id: userResult._id,
+        stu_id: stu_id,
         name: name
       }
     }

@@ -5,6 +5,9 @@ Page({
    * 页面的初始数据
    */
   data: {
+    // 用户信息
+    stu_id: '',  // 从数据库获取的用户学号
+    
     // 跑步数据
     date: '',
     locationIndex: 0,
@@ -42,6 +45,42 @@ Page({
     this.setData({
       date: formattedDateTime
     })
+    
+    // 加载用户信息
+    this.loadUserInfo()
+  },
+
+  /**
+   * 加载用户信息
+   */
+  async loadUserInfo() {
+    try {
+      const app = getApp()
+      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      
+      console.log('Submit页面 - 获取到的stu_id:', stuId)
+      
+      if (!stuId) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none'
+        })
+        setTimeout(() => {
+          wx.redirectTo({
+            url: '/pages/login/login'
+          })
+        }, 1500)
+        return
+      }
+      
+      // 保存学号用于后续提交
+      this.setData({
+        stu_id: stuId
+      })
+      
+    } catch (error) {
+      console.error('加载用户信息失败:', error)
+    }
   },
 
   /**
@@ -274,6 +313,7 @@ Page({
         return wx.cloud.callFunction({
           name: 'submitRunningRecord',
           data: {
+            stu_id: that.data.stu_id,  // 添加用户学号
             date: that.data.date,
             location: that.data.locationOptions[that.data.locationIndex],
             images: fileIDs

@@ -77,7 +77,7 @@ Page({
    * 登录按钮点击事件
    */
   login() {
-    const { studentId, password } = this.data
+    const { studentId, password, agreementChecked } = this.data
     
     // 表单验证
     if (!studentId) {
@@ -100,6 +100,15 @@ Page({
     if (!password) {
       wx.showToast({
         title: '请输入密码',
+        icon: 'none'
+      })
+      return
+    }
+    
+    // 验证用户是否同意协议
+    if (!agreementChecked) {
+      wx.showToast({
+        title: '请阅读并同意服务协议',
         icon: 'none'
       })
       return
@@ -168,32 +177,51 @@ Page({
         // 3. 根据返回码处理结果
         switch(result.code) {
           case 200:
-            // 登录成功 - 保存用户信息
+            // 登录成功 - 保存用户信息（规范字段名）
             const userInfo = result.data.userInfo
             
-            // 保存到本地存储
-            wx.setStorageSync('studentId', userInfo.stu_id)
+            console.log('=== 登录成功，返回的用户信息 ===')
+            console.log('userInfo:', userInfo)
+            console.log('学号:', userInfo.stu_id)
+            console.log('姓名:', userInfo.name)
+            
+            // 保存到本地存储 - 使用规范的数据库字段名
+            wx.setStorageSync('stu_id', userInfo.stu_id)
             wx.setStorageSync('userInfo', {
-              studentId: userInfo.stu_id,
+              _id: userInfo._id,
+              stu_id: userInfo.stu_id,
               name: userInfo.name,
               gender: userInfo.gender,
               campus: userInfo.campus,
-              className: userInfo.class_name,
+              class_name: userInfo.class_name,
               college: userInfo.college,
-              phone: userInfo.phone
+              phone: userInfo.phone,
+              avatar: userInfo.avatar || '',
+              totalCount: userInfo.totalCount || 0,
+              totalDuration: userInfo.totalDuration || 0,
+              totalDistance: userInfo.totalDistance || 0
             })
             
-            // 保存到全局数据
+            console.log('已保存到本地存储:', wx.getStorageSync('userInfo'))
+            
+            // 保存到全局数据 - 使用规范的数据库字段名
             const app = getApp()
             app.globalData.userInfo = {
-              studentId: userInfo.stu_id,
+              _id: userInfo._id,
+              stu_id: userInfo.stu_id,
               name: userInfo.name,
               gender: userInfo.gender,
               campus: userInfo.campus,
-              className: userInfo.class_name,
+              class_name: userInfo.class_name,
               college: userInfo.college,
-              phone: userInfo.phone
+              phone: userInfo.phone,
+              avatar: userInfo.avatar || '',
+              totalCount: userInfo.totalCount || 0,
+              totalDuration: userInfo.totalDuration || 0,
+              totalDistance: userInfo.totalDistance || 0
             }
+            
+            console.log('已保存到全局数据:', app.globalData.userInfo)
             
             wx.showToast({
               title: '登录成功',
