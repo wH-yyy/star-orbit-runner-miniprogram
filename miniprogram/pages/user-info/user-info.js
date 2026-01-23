@@ -5,15 +5,20 @@ Page({
    * 页面的初始数据
    */
   data: {
-    // 用户信息
+    // 用户信息 - 对应数据库Users表
     userInfo: {
-      name: '',
-      studentId: '',
-      gender: '',
-      campus: '',
-      className: '',
-      college: '',
-      phone: ''
+      _id: '',              // 数据库文档ID
+      stu_id: '',           // 学号
+      name: '',             // 姓名
+      gender: '',           // 性别
+      campus: '',           // 校区
+      class_name: '',       // 班级
+      college: '',          // 书院
+      phone: '',            // 手机号
+      avatar: '',           // 头像URL
+      totalCount: 0,        // 总跑步次数
+      totalDuration: 0,     // 总跑步时长
+      totalDistance: 0      // 总跑步距离
     },
     // 性别选项
     genderOptions: ['男', '女'],
@@ -36,6 +41,9 @@ Page({
     showOldPassword: false,
     showNewPassword: false,
     showConfirmPassword: false,
+    // 计算后的统计数据
+    totalDistanceKm: '0.00',
+    totalDurationMinutes: '0',
     // 换绑手机号相关
     isChangingPhone: false,
     newPhone: '',
@@ -64,9 +72,14 @@ Page({
 
       // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      const studentId = app.globalData.userInfo?.studentId || wx.getStorageSync('studentId')
+      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
 
-      if (!studentId) {
+      console.log('=== 加载用户信息 ===')
+      console.log('全局userInfo:', app.globalData.userInfo)
+      console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
+      console.log('获取到的stu_id:', stuId)
+
+      if (!stuId) {
         wx.showToast({
           title: '请先登录',
           icon: 'none'
@@ -81,12 +94,16 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('Users')
         .where({
-          stu_id: studentId
+          stu_id: stuId
         })
         .get()
 
+      console.log('数据库查询结果:', res)
+
       if (res.data.length > 0) {
         const userData = res.data[0]
+        console.log('用户数据:', userData)
+        
         // 设置picker的index
         const genderIndex = this.data.genderOptions.indexOf(userData.gender)
         const campusIndex = this.data.campusOptions.indexOf(userData.campus)
@@ -94,17 +111,32 @@ Page({
 
         this.setData({
           userInfo: {
+            _id: userData._id,
+            stu_id: userData.stu_id,
             name: userData.name,
-            studentId: userData.stu_id,
             gender: userData.gender,
             campus: userData.campus,
-            className: userData.class_name,
+            class_name: userData.class_name,
             college: userData.college,
-            phone: userData.phone
+            phone: userData.phone,
+            avatar: userData.avatar || '',
+            totalCount: userData.totalCount || 0,
+            totalDuration: userData.totalDuration || 0,
+            totalDistance: userData.totalDistance || 0
           },
           genderIndex: genderIndex >= 0 ? genderIndex : 0,
           campusIndex: campusIndex >= 0 ? campusIndex : 0,
-          collegeIndex: collegeIndex >= 0 ? collegeIndex : 0
+          collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
+          totalDistanceKm: ((userData.totalDistance || 0) / 1000).toFixed(2),
+          totalDurationMinutes: Math.round((userData.totalDuration || 0) / 60).toString()
+        })
+        
+        console.log('设置后的userInfo:', this.data.userInfo)
+      } else {
+        console.error('未找到用户数据')
+        wx.showToast({
+          title: '未找到用户信息',
+          icon: 'none'
         })
       }
 
@@ -120,6 +152,14 @@ Page({
   },
 
   /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow() {
+    // 每次显示页面时重新加载用户数据（防止从提交页面返回后数据不更新）
+    this.loadUserInfo()
+  },
+
+  /**
    * 输入框变化处理
    */
   onInputChange(e) {
@@ -127,6 +167,55 @@ Page({
     this.setData({
       [`userInfo.${field}`]: e.detail.value
     })
+  },
+
+  /**
+   * 选择并上传头像
+   */
+  async chooseAvatar() {
+    try {
+      // 选择图片
+      const res = await wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: ['album', 'camera'],
+        sizeType: ['compressed'] // 压缩图片
+      })
+
+      const tempFilePath = res.tempFiles[0].tempFilePath
+      
+      wx.showLoading({ title: '上传中...' })
+
+      // 上传到云存储
+      const fileName = `avatars/${this.data.userInfo.stu_id}_${Date.now()}.jpg`
+      const uploadRes = await wx.cloud.uploadFile({
+        cloudPath: fileName,
+        filePath: tempFilePath
+      })
+
+      // 直接使用fileID（推荐）
+      // 小程序会自动将 cloud:// 转换为可访问的URL
+      const fileID = uploadRes.fileID
+
+      // 更新界面显示
+      this.setData({
+        'userInfo.avatar': fileID  // 存储 cloud:// 格式的fileID
+      })
+
+      wx.hideLoading()
+      wx.showToast({
+        title: '头像已选择',
+        icon: 'success'
+      })
+
+    } catch (error) {
+      console.error('选择头像失败:', error)
+      wx.hideLoading()
+      wx.showToast({
+        title: '选择头像失败',
+        icon: 'none'
+      })
+    }
   },
 
   /**
@@ -199,14 +288,21 @@ Page({
   },
 
   /**
-   * 验证手机号格式
+   * 验证班级格式
+   */
+  validateClassName(className) {
+    return className && className.trim().length > 0
+  },
+
+  /**
+   * 验证手机号格式：1[3-9]开头，共11位数字
    */
   validatePhone(phone) {
     return /^1[3-9]\d{9}$/.test(phone)
   },
 
   /**
-   * 验证密码格式
+   * 验证密码格式：包含字母和数字，8-20位
    */
   validatePassword(password) {
     return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@#$%&-_]{8,20}$/.test(password)
@@ -668,9 +764,18 @@ Page({
     // 2. 普通保存逻辑：包含正常密码修改和信息更新
     // 基本信息验证
     if (!userInfo.name || !userInfo.gender || !userInfo.campus ||
-        !userInfo.className || !userInfo.college || !userInfo.phone) {
+        !userInfo.class_name || !userInfo.college || !userInfo.phone) {
       wx.showToast({
         title: '请填写完整信息',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 班级格式验证
+    if (!this.validateClassName(userInfo.class_name)) {
+      wx.showToast({
+        title: '班级信息不能为空',
         icon: 'none'
       })
       return
@@ -735,17 +840,21 @@ Page({
 
       // 调用云函数更新用户信息（包含正常密码修改）
       const updateParams = {
-        // 完整用户信息
-        stu_id: userInfo.studentId,
+        _id: userInfo._id,
+        stu_id: userInfo.stu_id,
         name: userInfo.name,
         gender: userInfo.gender,
         campus: userInfo.campus,
-        class_name: userInfo.className,
+        class_name: userInfo.class_name,
         college: userInfo.college,
-        phone: userInfo.phone
+        phone: userInfo.phone,
+        avatar: userInfo.avatar  // 添加头像URL
       }
 
-      // 如果是正常修改密码，添加密码参数
+      // 调试：输出更新参数
+      console.log('更新用户信息参数:', updateParams)
+
+      // 如果修改密码，添加密码参数
       if (isChangingPassword) {
         updateParams.oldPassword = passwordData.oldPassword
         updateParams.newPassword = passwordData.newPassword
@@ -758,6 +867,7 @@ Page({
         data: updateParams
       })
 
+      console.log('更新结果:', res)
       wx.hideLoading()
       console.log('云函数返回结果:', JSON.stringify(res, null, 2))
 
@@ -772,21 +882,20 @@ Page({
         if (app.globalData.userInfo) {
           app.globalData.userInfo = {
             ...app.globalData.userInfo,
+            _id: userInfo._id,
+            stu_id: userInfo.stu_id,
             name: userInfo.name,
             gender: userInfo.gender,
             campus: userInfo.campus,
-            className: userInfo.className,
+            class_name: userInfo.class_name,
             college: userInfo.college,
-            phone: userInfo.phone
+            phone: userInfo.phone,
+            avatar: userInfo.avatar
           }
         }
-        
-        // 记录操作日志
-        if (isChangingPassword) {
-          this.recordOperationLog('change_password', 'success', {
-            mode: 'normal'
-          })
-        }
+
+        // 同时更新本地存储
+        wx.setStorageSync('stu_id', userInfo.stu_id)
 
         // 延迟返回上一页
         setTimeout(() => {

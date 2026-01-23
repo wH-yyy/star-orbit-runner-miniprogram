@@ -9,10 +9,10 @@ Page({
     userInfo: {
       avatar: '/images/avatar.png',
       name: '加载中...',
-      studentId: '',
-      campus: '',
-      academy: '',
-      className: ''
+      stu_id: '',           // 规范为stu_id
+      campus: '',           // 校区
+      college: '',          // 书院
+      class_name: ''        // 规范为class_name
     },
     // 统计数据
     stats: [
@@ -119,9 +119,12 @@ Page({
     try {
       // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      const studentId = app.globalData.userInfo?.studentId || wx.getStorageSync('studentId')
+      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
       
-      if (!studentId) {
+      console.log('=== Home页面加载用户信息 ===')
+      console.log('获取到的stu_id:', stuId)
+      
+      if (!stuId) {
         wx.showToast({
           title: '请先登录',
           icon: 'none'
@@ -138,36 +141,72 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('Users')
         .where({
-          stu_id: studentId
+          stu_id: stuId
         })
         .get()
       
+      console.log('数据库查询结果:', res)
+      
       if (res.data.length > 0) {
         const userData = res.data[0]
+        console.log('用户数据:', userData)
+        
+        // 计算统计数据
+        const totalDist = userData.totalDistance || 0
+        const totalDur = userData.totalDuration || 0
+        const totalCount = userData.totalCount || 0
+        const totalDistanceKm = (totalDist / 1000).toFixed(2)
+        const totalDurationMinutes = Math.round(totalDur)
+        
+        console.log('统计数据:', { totalCount, totalDistanceKm, totalDurationMinutes })
+        
         this.setData({
           userInfo: {
-            avatar: '/images/avatar.png',
+            avatar: userData.avatar || '/images/avatar.png',
             name: userData.name,
-            studentId: userData.stu_id,
+            stu_id: userData.stu_id,
             campus: userData.campus,
-            academy: userData.college,
-            className: userData.class_name
-          }
+            college: userData.college,
+            class_name: userData.class_name
+          },
+          stats: [
+            {
+              value: totalCount + ' 次',
+              label: '打卡记录'
+            },
+            {
+              value: totalDistanceKm + ' km',
+              label: '累计里程'
+            },
+            {
+              value: totalDurationMinutes + ' 天',
+              label: '连续打卡'
+            }
+          ]
         })
+        
+        console.log('设置后的userInfo:', this.data.userInfo)
+        console.log('设置后的stats:', this.data.stats)
         
         // 更新全局用户信息
         if (app.globalData) {
           app.globalData.userInfo = {
-            studentId: userData.stu_id,
+            _id: userData._id,
+            stu_id: userData.stu_id,
             name: userData.name,
             gender: userData.gender,
             campus: userData.campus,
-            className: userData.class_name,
+            class_name: userData.class_name,
             college: userData.college,
-            phone: userData.phone
+            phone: userData.phone,
+            avatar: userData.avatar || '',
+            totalCount: userData.totalCount || 0,
+            totalDuration: userData.totalDuration || 0,
+            totalDistance: userData.totalDistance || 0
           }
         }
       } else {
+        console.error('未找到用户数据')
         wx.showToast({
           title: '用户信息不存在',
           icon: 'none'
@@ -247,9 +286,8 @@ Page({
         break;
       case 'awards':
         // 跳转到我的奖项页面
-        wx.showToast({
-          title: '功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/awards/awards'
         })
         break;
       case 'help':

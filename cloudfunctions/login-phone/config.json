@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "openapi": [
+      "wx.login"
+    ]
+  },
+  "timeout": 5
+}
