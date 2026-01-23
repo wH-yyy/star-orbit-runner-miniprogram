@@ -309,6 +309,22 @@ Page({
   },
 
   /**
+   * 显示换绑手机号确认弹窗
+   */
+  showChangePhoneConfirm() {
+    const that = this
+    wx.showModal({
+      title: '换绑手机号',
+      content: '确定要换绑手机号吗？',
+      success(res) {
+        if (res.confirm) {
+          that.startChangePhone()
+        }
+      }
+    })
+  },
+
+  /**
    * 开始换绑手机号
    */
   startChangePhone() {

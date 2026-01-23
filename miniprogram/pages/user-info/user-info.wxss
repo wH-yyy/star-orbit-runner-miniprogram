@@ -74,6 +74,8 @@ page {
   flex: 1;
   font-size: 32rpx;
   color: #333333;
+  display: flex;
+  align-items: center;
 }
 
 /* 头像包装器 */
@@ -211,26 +213,20 @@ input {
   width: 100%;
   justify-content: space-between;
   flex-direction: row;
+  cursor: pointer;
+  padding: 20rpx 0;
+  box-sizing: border-box;
 }
 
-/* 换绑手机号按钮 */
-.change-phone-btn {
+/* 点击换绑提示 */
+.change-phone-hint {
   font-size: 24rpx;
   color: #07c160;
+  margin-left: 10rpx;
+  padding: 8rpx 16rpx;
   border: 1px solid #07c160;
-  padding: 2rpx 8rpx;
   border-radius: 14rpx;
   background-color: transparent;
-  min-width: auto;
-  max-width: 100rpx;
-  width: auto;
-  text-align: center;
-  margin-left: auto;
-  display: inline-block;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* 手机号换绑表单 */
