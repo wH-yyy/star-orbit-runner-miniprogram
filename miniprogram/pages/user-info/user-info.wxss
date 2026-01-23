@@ -203,86 +203,120 @@ input {
 .phone-display {
   font-size: 32rpx;
   color: #333333;
-  margin-right: 20rpx;
+  flex: 1;
 }
 
 /* 手机号显示容器 */
 .phone-display-container {
   display: flex;
   align-items: center;
-  width: 100%;
   justify-content: space-between;
-  flex-direction: row;
-  cursor: pointer;
-  padding: 20rpx 0;
+  width: 100%;
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  border-radius: 8rpx;
   box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.phone-display-container:hover {
+  background-color: #f0f0f0;
 }
 
 /* 点击换绑提示 */
 .change-phone-hint {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #07c160;
-  margin-left: 10rpx;
-  padding: 8rpx 16rpx;
+  padding: 10rpx 20rpx;
   border: 1px solid #07c160;
-  border-radius: 14rpx;
+  border-radius: 20rpx;
   background-color: transparent;
+  font-weight: 500;
 }
 
 /* 手机号换绑表单 */
 .phone-change-form {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  background-color: #f8f8f8;
-  border-radius: 8rpx;
   width: 100%;
+  height: 100%;
+  padding: 10rpx;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
   box-sizing: border-box;
+  margin-top: 10rpx;
 }
 
 /* 新手机号输入框 */
 .new-phone-input {
-  margin-bottom: 20rpx;
-  padding: 15rpx;
+  width: 95%;
+  height: 100%;
+  margin: 10rpx;
+  padding: 10rpx;
   background-color: #ffffff;
   border-radius: 8rpx;
   border: 1px solid #e0e0e0;
+  font-size: 32rpx;
+  box-sizing: border-box;
 }
 
 /* 验证码容器 */
 .verification-code-container {
+  height: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: 20rpx;
-  gap: 10rpx;
+  margin-bottom: 25rpx;
+  gap: 15rpx;
 }
 
 /* 验证码输入框 */
 .verification-input {
+  height: 100%;
   flex: 1;
-  padding: 15rpx;
+  padding: 10rpx;
+  margin: 10rpx;
   background-color: #ffffff;
   border-radius: 8rpx;
   border: 1px solid #e0e0e0;
+  font-size: 32rpx;
+  box-sizing: border-box;
 }
 
 /* 获取验证码按钮 */
 .get-code-btn {
+  height: 100%;
   font-size: 28rpx;
-  padding: 8rpx 20rpx;
-  min-width: 120rpx;
+  padding: 12rpx 24rpx;
+  line-height: 46rpx;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 手机号换绑按钮组 */
 .phone-change-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10rpx;
+  gap: 20rpx;
+  margin-top: 10rpx;
 }
 
 /* 取消和确认按钮 */
 .cancel-btn, .confirm-btn {
   font-size: 28rpx;
-  padding: 8rpx 20rpx;
+  padding: 12rpx 28rpx;
+  height: 100%;
+}
+
+.cancel-btn {
+  background-color: #ffffff;
+  color: #666666;
+  border: 1px solid #e0e0e0;
+}
+
+.confirm-btn {
+  background-color: #07c160;
+  color: #ffffff;
 }
 
 /* 密码类型选择器 */
@@ -318,7 +352,6 @@ input {
   display: flex;
   justify-content: flex-end;
   padding: 20rpx 24rpx 30rpx;
-  border-top: 1px solid #f0f0f0;
   margin-top: 10rpx;
 }
 

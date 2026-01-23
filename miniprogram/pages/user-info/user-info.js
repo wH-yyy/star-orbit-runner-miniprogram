@@ -312,14 +312,20 @@ Page({
    * 显示换绑手机号确认弹窗
    */
   showChangePhoneConfirm() {
-    const that = this
+    console.log('=== 点击了手机号区域，显示换绑确认弹窗 ===')
     wx.showModal({
       title: '换绑手机号',
       content: '确定要换绑手机号吗？',
-      success(res) {
+      success: (res) => {
         if (res.confirm) {
-          that.startChangePhone()
+          console.log('用户确认换绑手机号')
+          this.startChangePhone()
+        } else {
+          console.log('用户取消换绑手机号')
         }
+      },
+      fail: (error) => {
+        console.error('显示弹窗失败:', error)
       }
     })
   },
@@ -328,12 +334,15 @@ Page({
    * 开始换绑手机号
    */
   startChangePhone() {
+    console.log('=== 开始换绑手机号流程 ===')
     this.setData({
       isChangingPhone: true,
       newPhone: '',
       verificationCode: '',
-      countdown: 0
+      countdown: 0,
+      isValidPhone: false
     })
+    console.log('设置isChangingPhone为true，现在应该显示换绑表单')
   },
 
   /**
