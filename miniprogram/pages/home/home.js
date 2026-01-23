@@ -286,9 +286,8 @@ Page({
         break;
       case 'awards':
         // 跳转到我的奖项页面
-        wx.showToast({
-          title: '功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/awards/awards'
         })
         break;
       case 'help':

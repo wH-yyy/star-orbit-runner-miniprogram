@@ -21,8 +21,7 @@
       <!-- 手机号一键登录按钮 -->
       <button 
         class="phone-login-btn" 
-        open-type="getPhoneNumber" 
-        bindgetphonenumber="getPhoneNumber"
+        bind:tap="login"
         disabled="{{loginDisabled}}"
       >
         {{loginText}}

@@ -191,4 +191,8 @@ input {
   height: 88rpx;
   line-height: 88rpx;
   width: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
