@@ -829,7 +829,7 @@ Page({
       wx.showLoading({ title: '保存中...' })
 
       // 确保学号存在
-      if (!userInfo.studentId) {
+      if (!userInfo.stu_id) {
         wx.hideLoading()
         wx.showToast({
           title: '用户信息不完整，请重新登录',
@@ -986,7 +986,7 @@ Page({
       wx.showLoading({ title: '保存中...' })
       
       // 确保学号存在
-      if (!userInfo.studentId) {
+      if (!userInfo.stu_id) {
         wx.hideLoading()
         wx.showToast({
           title: '用户信息不完整，请重新登录',
@@ -998,7 +998,7 @@ Page({
       // 忘记密码模式：仅传递必要参数，完全不涉及oldPassword
       const forgotPasswordParams = {
         // 身份认证信息
-        stu_id: userInfo.studentId,
+        stu_id: userInfo.stu_id,
         phone: userInfo.phone,
         // 忘记密码核心参数
         newPassword: passwordData.newPassword,
@@ -1093,7 +1093,7 @@ Page({
       await wx.cloud.callFunction({
         name: 'recordOperationLog',
         data: {
-          userId: userInfo.studentId,
+          userId: userInfo.stu_id,
           userName: userInfo.name,
           operationType,
           result,

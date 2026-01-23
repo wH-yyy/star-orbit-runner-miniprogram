@@ -1,36 +1,7 @@
 <!--pages/edit-profile/edit-profile.wxml-->
 <view class="edit-profile-container">
-  <!-- 统计数据卡片 -->
-  <view class="stats-card">
-    <view class="stat-item">
-      <view class="stat-value">{{userInfo.totalCount}}</view>
-      <view class="stat-label">总次数</view>
-    </view>
-    <view class="stat-item">
-      <view class="stat-value">{{totalDistanceKm}}</view>
-      <view class="stat-label">总距离(km)</view>
-    </view>
-    <view class="stat-item">
-      <view class="stat-value">{{totalDurationMinutes}}</view>
-      <view class="stat-label">总时长(分钟)</view>
-    </view>
-  </view>
-
   <!-- 个人信息编辑表单 -->
   <view class="profile-form">
-    <!-- 头像 -->
-    <view class="form-item avatar-item">
-      <text class="form-label">头像</text>
-      <view class="form-value avatar-wrapper" bindtap="chooseAvatar">
-        <image 
-          class="avatar-image" 
-          src="{{userInfo.avatar || '/images/default-avatar.png'}}" 
-          mode="aspectFill">
-        </image>
-        <text class="avatar-tip">点击更换</text>
-      </view>
-    </view>
-
     <!-- 姓名 -->
     <view class="form-item">
       <text class="form-label">姓名</text>
@@ -132,8 +103,8 @@
             class="new-phone-input"/>
           <view class="verification-code-container">
             <input 
-              type="digit 
-              value="{{verificationCode || ''}}" 
+              type="number" 
+              value="{{verificationCode}}" 
               placeholder="请输入验证码"
               maxlength="6"
               bindinput="onVerificationCodeInput" 
@@ -144,7 +115,7 @@
               disabled="{{countdown > 0 || !isValidPhone}}"
               type="primary"
               size="mini">
-              {{countdown &gt; 0 ? countdown + 's后重发' : '获取验证码'}}
+              {{countdown > 0 ? countdown + 's后重发' : '获取验证码'}}
             </button>
           </view>
           <view class="phone-change-buttons">
