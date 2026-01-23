@@ -89,13 +89,40 @@
     <view class="form-item">
       <text class="form-label">手机号</text>
       <view class="form-value">
-        <input 
-          type="number" 
-          value="{{userInfo.phone}}" 
-          placeholder="请输入手机号"
-          maxlength="11"
-          data-field="phone"
-          bindinput="onInputChange" />
+        <view wx:if="!isChangingPhone" class="phone-display-container">
+          <text class="phone-display">{{userInfo.phone}}</text>
+          <button class="change-phone-btn" bindtap="startChangePhone">换绑</button>
+        </view>
+        <view wx:else class="phone-change-form">
+          <input 
+            type="number" 
+            value="{{newPhone}}" 
+            placeholder="请输入新手机号"
+            maxlength="11"
+            bindinput="onNewPhoneInput" 
+            class="new-phone-input"/>
+          <view class="verification-code-container">
+            <input 
+              type="digit 
+              value="{{verificationCode || ''}}" 
+              placeholder="请输入验证码"
+              maxlength="6"
+              bindinput="onVerificationCodeInput" 
+              class="verification-input"/>
+            <button 
+              class="get-code-btn" 
+              bindtap="getVerificationCode"
+              disabled="{{countdown > 0 || !isValidPhone}}"
+              type="primary"
+              size="mini">
+              {{countdown &gt; 0 ? countdown + 's后重发' : '获取验证码'}}
+            </button>
+          </view>
+          <view class="phone-change-buttons">
+            <button class="cancel-btn" bindtap="cancelChangePhone" type="default" size="mini">取消</button>
+            <button class="confirm-btn" bindtap="confirmChangePhone" type="primary" size="mini">确认</button>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -108,8 +135,43 @@
     </view>
     
     <view class="password-form" wx:if="{{isChangingPassword}}">
-      <!-- 旧密码 -->
-      <view class="form-item">
+      <!-- 忘记密码模式 -->
+      <view wx:if="{{isForgotPassword}}">
+        <view class="form-item">
+          <text class="form-label">手机号</text>
+          <view class="form-value">
+            <input 
+              type="number" 
+              value="{{userInfo.phone}}" 
+              placeholder="请输入手机号"
+              maxlength="11"
+              disabled="true"
+              class="disabled-input"/>
+          </view>
+        </view>
+        <view class="form-item">
+          <text class="form-label">验证码</text>
+          <view class="form-value password-input verification-code">
+            <input 
+              type="number" 
+              value="{{forgotPasswordCode}}" 
+              placeholder="请输入验证码"
+              maxlength="6"
+              bindinput="onForgotPasswordCodeInput" />
+            <button 
+              class="get-code-btn" 
+              bindtap="getForgotPasswordCode"
+              disabled="{{forgotPasswordCountdown > 0}}"
+              type="primary"
+              size="mini">
+              {{forgotPasswordCountdown > 0 ? forgotPasswordCountdown + 's后重发' : '获取验证码'}}
+            </button>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 旧密码（仅在非忘记密码模式显示） -->
+      <view class="form-item" wx:if="{{!isForgotPassword}}">
         <text class="form-label">旧密码</text>
         <view class="form-value password-input">
           <input 
@@ -163,6 +225,15 @@
             {{showConfirmPassword ? '👁️' : '👁️‍🗨️'}}
           </text>
         </view>
+      </view>
+      
+      <view wx:if="{{isForgotPassword}}" class="password-form-footer">
+          <view class="forgot-password" bindtap="cancelForgotPassword">使用旧密码修改</view>
+      </view>
+
+      <!-- 忘记密码按钮（仅在非忘记密码模式显示） -->
+      <view wx:if="{{!isForgotPassword}}" class="password-form-footer">
+        <view class="forgot-password" bindtap="startForgotPassword">忘记密码？</view>
       </view>
     </view>
   </view>
