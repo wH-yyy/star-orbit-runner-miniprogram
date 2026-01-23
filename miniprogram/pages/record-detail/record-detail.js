@@ -107,108 +107,32 @@ Page({
   /**
    * 加载记录详情
    */
-  loadRecordDetail(id) {
+  async loadRecordDetail(id) {
     this.setData({
       loading: true
     });
 
-    // 模拟从服务器获取记录详情
-      setTimeout(() => {
-        // 模拟数据，实际开发中应该从服务器或本地存储获取
-        const mockRecords = [
-          {
-            id: '1',
-            date: '2026-01-22',
-            time: '07:30',
-            type: 'gps',
-            status: 'passed',
-            distance: 5.2,
-            duration: '28:35',
-            pace: 5,
-            paceSeconds: 30,
-            steps: 6850,
-            avgHeartRate: 145,
-            maxHeartRate: 168,
-            calories: 385
-          },
-          {
-            id: '2',
-            date: '2026-01-21',
-            time: '18:45',
-            type: 'manual',
-            status: 'failed',
-            failReason: '跑步距离未达到最低要求（需≥3km）',
-            distance: 2.8,
-            duration: '16:20',
-            pace: 5,
-            paceSeconds: 50,
-            steps: 3800,
-            avgHeartRate: 138,
-            maxHeartRate: 156,
-            calories: 210,
-            images: [
-              'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop'
-            ]
-          },
-          {
-            id: '3',
-            date: '2026-01-20',
-            time: '06:50',
-            type: 'gps',
-            status: 'passed',
-            distance: 7.5,
-            duration: '42:15',
-            pace: 5,
-            paceSeconds: 40,
-            steps: 9800,
-            avgHeartRate: 152,
-            maxHeartRate: 172,
-            calories: 565
-          },
-          {
-            id: '4',
-            date: '2026-01-19',
-            time: '19:20',
-            type: 'gps',
-            status: 'pending',
-            distance: 4.1,
-            duration: '23:45',
-            pace: 5,
-            paceSeconds: 55,
-            steps: 5400,
-            avgHeartRate: 142,
-            maxHeartRate: 164,
-            calories: 305
-          },
-          {
-            id: '5',
-            date: '2026-01-18',
-            time: '07:15',
-            type: 'manual',
-            status: 'passed',
-            distance: 3.5,
-            duration: '20:10',
-            pace: 5,
-            paceSeconds: 45,
-            steps: 4600,
-            avgHeartRate: 140,
-            maxHeartRate: 160,
-            calories: 260,
-            images: [
-              'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop'
-            ]
-          }
-        ];
-
-        // 查找对应ID的记录
-        const record = mockRecords.find(item => item.id === id) || {};
-        
-        this.setData({
-          record: record,
-          loading: false
-        });
-      }, 1000);
+    try {
+      // 从数据库获取记录详情
+      const db = wx.cloud.database();
+      const res = await db.collection('RunningRecords')
+        .doc(id)
+        .get();
+      
+      this.setData({
+        record: res.data,
+        loading: false
+      });
+    } catch (error) {
+      console.error('加载记录详情失败:', error);
+      this.setData({
+        loading: false
+      });
+      wx.showToast({
+        title: '加载详情失败',
+        icon: 'none'
+      });
+    }
   },
 
   /**
