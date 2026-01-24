@@ -7,9 +7,20 @@ Page({
   data: {
     // 用户信息
     userInfo: {
-      stu_id: '',
+      _id: '',
+      avatar: '',
+      campus: '',
+      class_name: '',
+      college: '',
+      createdTime: '',
+      gender: '',
       name: '',
-      avatar: ''
+      openid: '',
+      password: '',
+      phone: '',
+      status: '',
+      stu_id: '',
+      updateTime: '',
     },
     // 跑步记录列表
     recordList: [],
@@ -37,21 +48,25 @@ Page({
   async loadUserInfo() {
     try {
       const app = getApp()
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      const openid = app.globalData.userInfo.openid
       
       console.log('=== record.js loadUserInfo ===')
       console.log('全局userInfo:', app.globalData.userInfo)
-      console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
-      console.log('获取到的stuId:', stuId)
+      // console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
+      // console.log('获取到的stuId:', stuId)
+      console.log('本地存储openid:', wx.getStorageSync('openid'))
+      console.log('获取到的openid:', openid)
       
-      if (!stuId) {
+      // if (!stuId) {
+      if (!openid) {
         wx.showToast({
           title: '请先登录',
           icon: 'none'
         })
         setTimeout(() => {
           wx.redirectTo({
-            url: '/pages/login/login'
+            url: '/pages/phone-login/phone-login'
           })
         }, 1500)
         return
@@ -61,7 +76,8 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('Users')
         .where({
-          stu_id: stuId
+          // stu_id: stuId
+          openid: openid
         })
         .get()
       
@@ -74,16 +90,38 @@ Page({
         
         console.log('用户数据:', userData)
         console.log('设置userInfo为:', {
-          stu_id: userData.stu_id,
+          _id: userData._id,
+          avatar: userData.avatar || '/images/avatar.png',
+          campus: userData.campus,
+          class_name: userData.class_name,
+          college: userData.college,
+          createdTime: userData.createdTime,
+          gender: userData.gender,
           name: userData.name,
-          avatar: userData.avatar || '/images/default-avatar.png'
+          openid: userData.openid,
+          password: userData.password,
+          phone: userData.phone,
+          status: userData.status,
+          stu_id: userData.stu_id,
+          updateTime: userData.updateTime 
         })
         
         this.setData({
           userInfo: {
-            stu_id: userData.stu_id,
+            _id: userData._id,
+            avatar: userData.avatar || '/images/avatar.png',
+            campus: userData.campus,
+            class_name: userData.class_name,
+            college: userData.college,
+            createdTime: userData.createdTime,
+            gender: userData.gender,
             name: userData.name,
-            avatar: userData.avatar || '/images/default-avatar.png'
+            openid: userData.openid,
+            password: userData.password,
+            phone: userData.phone,
+            status: userData.status,
+            stu_id: userData.stu_id,
+            updateTime: userData.updateTime 
           },
           totalCount: userData.totalCount || 0,
           totalDistance: totalDist,
@@ -94,7 +132,8 @@ Page({
         
         console.log('设置后的data:', this.data)
       } else {
-        console.error('未找到用户数据，stuId:', stuId)
+        // console.error('未找到用户数据，stuId:', stuId)
+        console.error('未找到用户数据，openid:', openid)
       }
     } catch (error) {
       console.error('加载用户信息失败:', error)
@@ -109,9 +148,11 @@ Page({
       this.setData({ loading: true })
       
       const app = getApp()
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      const openid = app.globalData.userInfo.openid
       
-      if (!stuId) {
+      // if (!stuId) {
+      if (!openid) {
         return
       }
       
@@ -119,7 +160,8 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('RunningRecords')
         .where({
-          stu_id: stuId
+          // stu_id: stuId
+          openid: openid
         })
         .orderBy('createTime', 'desc')
         .get()

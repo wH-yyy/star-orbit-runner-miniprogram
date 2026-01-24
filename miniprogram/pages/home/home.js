@@ -8,11 +8,15 @@ Page({
     // 用户信息
     userInfo: {
       avatar: '/images/avatar.png',
+      campus: '',
+      class_name: '',
+      college: '',
+      gender: '',
       name: '加载中...',
-      stu_id: '',           // 规范为stu_id
-      campus: '',           // 校区
-      college: '',          // 书院
-      class_name: ''        // 规范为class_name
+      openid: '',
+      password: '',
+      phone: '',
+      stu_id: '',
     },
     // 统计数据
     stats: [
@@ -119,19 +123,23 @@ Page({
     try {
       // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
-      
+      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      const openid = app.globalData.userInfo.openid
+
       console.log('=== Home页面加载用户信息 ===')
-      console.log('获取到的stu_id:', stuId)
+      console.log('app = ', app)
+      // console.log('获取到的stu_id:', stuId)
+      console.log('获取到的openid:', openid)
       
-      if (!stuId) {
+      // if (!stuId) {
+      if (!openid) {
         wx.showToast({
           title: '请先登录',
           icon: 'none'
         })
         setTimeout(() => {
           wx.redirectTo({
-            url: '/pages/login/login'
+            url: '/pages/phone-login/phone-login'
           })
         }, 1500)
         return
@@ -141,7 +149,8 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('Users')
         .where({
-          stu_id: stuId
+          // stu_id: stuId
+          openid: openid
         })
         .get()
       
@@ -163,11 +172,15 @@ Page({
         this.setData({
           userInfo: {
             avatar: userData.avatar || '/images/avatar.png',
-            name: userData.name,
-            stu_id: userData.stu_id,
             campus: userData.campus,
+            class_name: userData.class_name,
             college: userData.college,
-            class_name: userData.class_name
+            gender: userData.gender,
+            name: userData.name,
+            openid: userData.openid,
+            password: userData.password,
+            phone: userData.phone,
+            stu_id: userData.stu_id
           },
           stats: [
             {
@@ -192,17 +205,22 @@ Page({
         if (app.globalData) {
           app.globalData.userInfo = {
             _id: userData._id,
-            stu_id: userData.stu_id,
-            name: userData.name,
-            gender: userData.gender,
+            avatar: userData.avatar || '/images/avatar.png',
             campus: userData.campus,
             class_name: userData.class_name,
             college: userData.college,
+            createdTime: userData.createdTime,
+            gender: userData.gender,
+            name: userData.name,
+            openid: userData.openid,
+            password: userData.password,
             phone: userData.phone,
-            avatar: userData.avatar || '',
+            status: userData.status,
+            stu_id: userData.stu_id,
             totalCount: userData.totalCount || 0,
             totalDuration: userData.totalDuration || 0,
-            totalDistance: userData.totalDistance || 0
+            totalDistance: userData.totalDistance || 0,
+            updateTime: userData.updateTime 
           }
         }
       } else {
@@ -241,6 +259,15 @@ Page({
   },
 
   /**
+   * 跳转到我的奖项页面
+   */
+  navigateToAwards() {
+    wx.navigateTo({
+      url: '/pages/awards/awards'
+    })
+  },
+
+  /**
    * 退出登录
    */
   handleLogout() {
@@ -266,7 +293,7 @@ Page({
           // 跳转到登录页
           setTimeout(() => {
             wx.redirectTo({
-              url: '/pages/login/login'
+              url: '/pages/phone-login/phone-login'
             })
           }, 1500)
         }
@@ -286,9 +313,7 @@ Page({
         break;
       case 'awards':
         // 跳转到我的奖项页面
-        wx.navigateTo({
-          url: '/pages/awards/awards'
-        })
+        this.navigateToAwards();
         break;
       case 'help':
         // 跳转到帮助与反馈页面

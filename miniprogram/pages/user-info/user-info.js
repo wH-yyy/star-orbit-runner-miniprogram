@@ -7,18 +7,23 @@ Page({
   data: {
     // 用户信息 - 对应数据库Users表
     userInfo: {
-      _id: '',              // 数据库文档ID
-      stu_id: '',           // 学号
-      name: '',             // 姓名
-      gender: '',           // 性别
-      campus: '',           // 校区
-      class_name: '',       // 班级
-      college: '',          // 书院
-      phone: '',            // 手机号
-      avatar: '',           // 头像URL
+      _id: '',
+      avatar: '',
+      campus: '',
+      class_name: '',
+      college: '',
+      createdTime: '',
+      gender: '',
+      name: '',
+      openid: '',
+      password: '',
+      phone: '',
+      status: '',
+      stu_id: '',
       totalCount: 0,        // 总跑步次数
       totalDuration: 0,     // 总跑步时长
-      totalDistance: 0      // 总跑步距离
+      totalDistance: 0,     // 总跑步距离
+      updateTime: '',
     },
     // 性别选项
     genderOptions: ['男', '女'],
@@ -72,14 +77,18 @@ Page({
 
       // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+      const openid = app.globalData.userInfo.openid
 
       console.log('=== 加载用户信息 ===')
       console.log('全局userInfo:', app.globalData.userInfo)
-      console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
-      console.log('获取到的stu_id:', stuId)
+      // console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
+      // console.log('获取到的stuId:', stuId)
+      console.log('本地存储openid:', wx.getStorageSync('openid'))
+      console.log('获取到的openid:', openid)
 
-      if (!stuId) {
+      // if (!stuId) {
+      if (!openid) {
         wx.showToast({
           title: '请先登录',
           icon: 'none'
@@ -94,7 +103,8 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('Users')
         .where({
-          stu_id: stuId
+          // stu_id: stuId
+          openid: openid
         })
         .get()
 
@@ -112,17 +122,22 @@ Page({
         this.setData({
           userInfo: {
             _id: userData._id,
-            stu_id: userData.stu_id,
-            name: userData.name,
-            gender: userData.gender,
+            avatar: userData.avatar || '/images/avatar.png',
             campus: userData.campus,
             class_name: userData.class_name,
             college: userData.college,
+            createdTime: userData.createdTime,
+            gender: userData.gender,
+            name: userData.name,
+            openid: userData.openid,
+            password: userData.password,
             phone: userData.phone,
-            avatar: userData.avatar || '',
+            status: userData.status,
+            stu_id: userData.stu_id,
             totalCount: userData.totalCount || 0,
             totalDuration: userData.totalDuration || 0,
-            totalDistance: userData.totalDistance || 0
+            totalDistance: userData.totalDistance || 0,
+            updateTime: userData.updateTime
           },
           genderIndex: genderIndex >= 0 ? genderIndex : 0,
           campusIndex: campusIndex >= 0 ? campusIndex : 0,
@@ -187,7 +202,8 @@ Page({
       wx.showLoading({ title: '上传中...' })
 
       // 上传到云存储
-      const fileName = `avatars/${this.data.userInfo.stu_id}_${Date.now()}.jpg`
+      // const fileName = `avatars/${this.data.userInfo.stu_id}_${Date.now()}.jpg`
+      const fileName = `avatars/${this.data.userInfo.openid}_${Date.now()}.jpg`
       const uploadRes = await wx.cloud.uploadFile({
         cloudPath: fileName,
         filePath: tempFilePath
@@ -1068,7 +1084,7 @@ Page({
           // 跳转到登录页面
           setTimeout(() => {
             wx.reLaunch({
-              url: '/pages/login/login'
+              url: '/pages/phone-login/phone-login'
             })
           }, 1500)
         }, 1500)

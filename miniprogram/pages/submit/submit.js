@@ -62,12 +62,12 @@ Page({
       
       if (!stuId) {
         wx.showToast({
-          title: '请先登录',
+          title: '请先录入学号',
           icon: 'none'
         })
         setTimeout(() => {
           wx.redirectTo({
-            url: '/pages/login/login'
+            url: '/pages/user-info/user-info'
           })
         }, 1500)
         return
