@@ -7,26 +7,63 @@ cloud.init({
 
 const db = cloud.database()
 
-// 验证OCR文本中是否包含用户信息
-function verifyUserInfoInOCR(ocrText, userData) {
-  console.log('验证用户信息:', userData)
+// 根据openid获取用户信息并验证OCR文本
+async function verifyUserInfoWithOpenID(openid, ocrText) {
+  console.log('根据openid验证用户信息:', openid)
   console.log('OCR文本:', ocrText)
   
-  const { name, stu_id } = userData
-  
-  // 检查姓名是否在OCR文本中
-  const nameInOCR = ocrText.includes(name)
-  console.log('姓名匹配结果:', nameInOCR)
-  
-  // 检查学号是否在OCR文本中
-  const stuIdInOCR = ocrText.includes(stu_id)
-  console.log('学号匹配结果:', stuIdInOCR)
-  
-  // 两者都必须存在
-  const verified = nameInOCR && stuIdInOCR
-  console.log('用户信息验证结果:', verified)
-  
-  return verified
+  try {
+    // 根据openid查找用户信息
+    const userResult = await db.collection('Users').where({
+      openid: openid
+    }).get()
+    
+    if (userResult.data.length === 0) {
+      return {
+        verified: false,
+        reason: '用户信息不存在',
+        userInfo: null
+      }
+    }
+    
+    const userDoc = userResult.data[0]
+    const { name, stu_id } = userDoc
+    
+    console.log('从数据库获取的用户信息:', { name, stu_id })
+    
+    // 检查姓名是否在OCR文本中
+    const nameInOCR = name && ocrText.includes(name)
+    console.log('姓名匹配结果:', nameInOCR)
+    
+    // 检查学号是否在OCR文本中
+    const stuIdInOCR = stu_id && ocrText.includes(stu_id)
+    console.log('学号匹配结果:', stuIdInOCR)
+    
+    // 两者都必须存在
+    const verified = nameInOCR && stuIdInOCR
+    
+    if (!verified) {
+      return {
+        verified: false,
+        reason: 'OCR文本中未找到匹配的用户姓名和学号',
+        userInfo: { name, stu_id }
+      }
+    }
+    
+    console.log('用户信息验证结果: 通过')
+    return {
+      verified: true,
+      reason: '',
+      userInfo: { name, stu_id }
+    }
+    
+  } catch (error) {
+    console.error('验证用户信息失败:', error)
+    return {
+      verified: false,
+      reason: '验证用户信息时发生错误'
+    }
+  }
 }
 
 // 解析跑步信息函数 - 基于格式规范优化版本
@@ -40,11 +77,48 @@ function parseRunningInfoFromOCR(ocrText) {
     pace: null         // 配速（格式：6'10\"）
   }
   
-  // 1. 匹配日期时间（格式：2026-01-23 20:45）
-  const dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
+  // 1. 匹配日期时间（支持多种格式）
+  let dateTimeMatch = null
+  
+  // 先尝试匹配标准格式：2026-01-23 20:45
+  dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
+  
+  // 如果没有匹配到标准格式，尝试匹配中文时间格式：下午8:18
+  if (!dateTimeMatch) {
+    dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(上午|下午|晚上)?\s*(\d{1,2}):(\d{2})/)
+  }
+  
   if (dateTimeMatch) {
-    runningInfo.dateTime = dateTimeMatch[0]
-    console.log('匹配到日期时间:', runningInfo.dateTime)
+    let dateTimeStr = dateTimeMatch[0]
+    
+    // 如果是中文时间格式，转换为24小时制
+    if (dateTimeMatch[2]) { // 匹配到上午/下午/晚上
+      const timePeriod = dateTimeMatch[2]
+      let hour = parseInt(dateTimeMatch[3])
+      const minute = dateTimeMatch[4]
+      
+      console.log('检测到中文时间格式:', { timePeriod, hour, minute })
+      
+      // 转换为24小时制
+      if ((timePeriod === '下午' || timePeriod === '晚上') && hour < 12) {
+        hour += 12
+        console.log('转换为24小时制:', hour)
+      } else if (timePeriod === '上午' && hour === 12) {
+        hour = 0
+        console.log('上午12点转为0点')
+      }
+      
+      // 重新构建时间字符串
+      dateTimeStr = dateTimeStr.replace(/上午|下午|晚上/g, '').trim()
+      dateTimeStr = dateTimeStr.replace(/\d{1,2}:\d{2}/, `${hour.toString().padStart(2, '0')}:${minute}`)
+      console.log('转换后的时间字符串:', dateTimeStr)
+    }
+    
+    // 统一格式为：2024-1-1 20:30
+    runningInfo.dateTime = normalizeDateTimeFormat(dateTimeStr)
+    console.log('统一格式后的日期时间:', runningInfo.dateTime)
+  } else {
+    console.log('未匹配到日期时间')
   }
   
   // 2. 匹配里程（格式：2.02km）
@@ -161,6 +235,105 @@ function auditRunningRecord(runningInfo) {
   return auditResult
 }
 
+// 更新用户统计信息
+async function updateUserStatistics(openid, auditStatus, runningInfo) {
+  try {
+    console.log('更新用户统计信息:', { openid, auditStatus, runningInfo })
+    
+    // 查找用户记录
+    const userResult = await db.collection('Users').where({
+      openid: openid
+    }).get()
+    
+    if (userResult.data.length === 0) {
+      console.log('用户记录不存在，跳过统计更新')
+      return
+    }
+    
+    const userDoc = userResult.data[0]
+    const updateData = {}
+    
+    if (auditStatus === '1') {
+      // 审核通过：更新打卡次数、总里程、总时长
+      updateData.totalCount = (userDoc.totalCount || 0) + 1
+      
+      if (runningInfo.distance) {
+        updateData.totalDistance = (userDoc.totalDistance || 0) + runningInfo.distance
+      }
+      
+      if (runningInfo.duration) {
+        // 将时长转换为分钟进行累加
+        const durationInMinutes = convertDurationToMinutes(runningInfo.duration)
+        if (durationInMinutes > 0) {
+          updateData.totalDuration = (userDoc.totalDuration || 0) + durationInMinutes
+        }
+      }
+      
+      console.log('审核通过，更新统计:', updateData)
+    } else {
+      // 审核不通过：更新违规次数
+      updateData.violationCount = (userDoc.violationCount || 0) + 1
+      console.log('审核不通过，更新违规次数:', updateData)
+    }
+    
+    // 更新用户记录
+    await db.collection('Users').doc(userDoc._id).update({
+      data: updateData
+    })
+    
+    console.log('用户统计信息更新成功')
+  } catch (error) {
+    console.error('更新用户统计信息失败:', error)
+  }
+}
+
+// 统一日期时间格式为：2024-1-1 20:30
+function normalizeDateTimeFormat(dateTimeStr) {
+  if (!dateTimeStr) return null
+  
+  console.log('原始日期时间字符串:', dateTimeStr)
+  
+  // 提取日期和时间部分
+  const dateMatch = dateTimeStr.match(/(\d{4})[年\-/.]?(\d{1,2})[月\-/.]?(\d{1,2})[日]?/)
+  const timeMatch = dateTimeStr.match(/(\d{1,2}):(\d{2})/)
+  
+  if (!dateMatch || !timeMatch) {
+    console.log('日期时间格式无法解析')
+    return null
+  }
+  
+  // 提取日期部分
+  const year = parseInt(dateMatch[1])
+  const month = parseInt(dateMatch[2])
+  const day = parseInt(dateMatch[3])
+  
+  // 提取时间部分
+  const hour = parseInt(timeMatch[1])
+  const minute = parseInt(timeMatch[2])
+  
+  // 构建统一格式：2024-1-1 20:30
+  const normalized = `${year}-${month}-${day} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+  
+  console.log('统一格式结果:', normalized)
+  return normalized
+}
+
+// 将时长字符串转换为分钟
+function convertDurationToMinutes(durationStr) {
+  if (!durationStr) return 0
+  
+  // 处理00:12:28格式
+  const timeParts = durationStr.split(':')
+  if (timeParts.length === 3) {
+    const hours = parseInt(timeParts[0])
+    const minutes = parseInt(timeParts[1])
+    const seconds = parseInt(timeParts[2])
+    return hours * 60 + minutes + seconds / 60
+  }
+  
+  return 0
+}
+
 // 将配速字符串转换为秒数（只处理6'10"格式）
 function convertPaceToSeconds(paceStr) {
   if (!paceStr) return 0
@@ -185,13 +358,15 @@ function convertPaceToSeconds(paceStr) {
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
+  // 测试环境下使用默认openid，生产环境下使用真实openid
+  const openid = wxContext.OPENID
   
   // 获取参数
-  const { fileID, userData, ocrText } = event
+  const { fileID, ocrText } = event
   
   try {
     // 验证参数
-    if (!fileID || !userData || !userData.name || !userData.stu_id || !ocrText) {
+    if (!fileID || !ocrText) {
       return {
         code: 400,
         message: '参数错误，缺少必要字段',
@@ -199,8 +374,8 @@ exports.main = async (event, context) => {
       }
     }
     
-    // 1. 验证OCR文本中是否包含用户信息
-    const userInfoVerified = verifyUserInfoInOCR(ocrText, userData)
+    // 1. 根据openid获取用户信息并验证OCR文本
+    const userInfoVerification = await verifyUserInfoWithOpenID(openid, ocrText)
     
     // 2. 解析前端OCR识别结果
     const runningInfo = parseRunningInfoFromOCR(ocrText)
@@ -209,9 +384,9 @@ exports.main = async (event, context) => {
     let auditResult = { status: '1', reason: '', calculatedPace: null }
     
     // 如果用户信息验证失败，直接标记为不通过
-    if (!userInfoVerified) {
+    if (!userInfoVerification.verified) {
       auditResult.status = '0'
-      auditResult.reason = 'OCR文本中未找到匹配的用户姓名和学号'
+      auditResult.reason = userInfoVerification.reason
     } else {
       // 用户信息验证通过，再检查跑步规则
       auditResult = auditRunningRecord(runningInfo)
@@ -219,8 +394,9 @@ exports.main = async (event, context) => {
     
     // 3. 写入数据库
     const recordData = {
-      name: userData.name,
-      stu_id: userData.stu_id,
+      // 用户信息从数据库获取
+      name: userInfoVerification.userInfo?.name || '',
+      stu_id: userInfoVerification.userInfo?.stu_id || '',
       imageFileID: fileID,
       // 跑步信息直接作为字段存储
       running_date: runningInfo.dateTime,
@@ -232,12 +408,15 @@ exports.main = async (event, context) => {
       status: auditResult.status,
       audit_reason: auditResult.reason,
       create_time: db.serverDate(),
-      openid: wxContext.OPENID
+      openid: openid
     }
     
     const dbResult = await db.collection('RunningRecords').add({
       data: recordData
     })
+    
+    // 4. 更新用户统计信息
+    await updateUserStatistics(openid, auditResult.status, runningInfo)
     
     // 返回结果
     const message = auditResult.status === '1' ? '审核通过' : 
