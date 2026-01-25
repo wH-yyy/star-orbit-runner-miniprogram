@@ -80,10 +80,14 @@ Page({
     try {
       // 获取当前用户信息
       const app = getApp();
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id');
+      const openid = app.globalData.userInfo?.openid || wx.getStorageSync('openid');
       
-      if (!stuId) {
-        console.error('未获取到用户学号');
+      if (!openid) {
+        console.error('未获取到用户openid');
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none'
+        });
         return;
       }
       
@@ -91,7 +95,7 @@ Page({
       const db = wx.cloud.database();
       const res = await db.collection('Users')
         .where({
-          stu_id: stuId
+          openid: openid
         })
         .get();
       
@@ -131,11 +135,11 @@ Page({
     
     // 根据参与比例计算奖项
     let userAward = "参与奖";
-    if (participationRate >= 90) {
+    if (participationRate >= 85) {
       userAward = "一等奖";
-    } else if (participationRate >= 70) {
+    } else if (participationRate >= 75) {
       userAward = "二等奖";
-    } else if (participationRate >= 50) {
+    } else if (participationRate >= 60) {
       userAward = "三等奖";
     }
     
