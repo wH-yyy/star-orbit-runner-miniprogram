@@ -76,7 +76,6 @@ Page({
               wx.switchTab({
                 url: '/pages/home/home'
               })
-              console.log("userInfo:", app.globalData.userInfo)
             } else {
               wx.navigateTo({
                 url: '/pages/user-info/user-info'
