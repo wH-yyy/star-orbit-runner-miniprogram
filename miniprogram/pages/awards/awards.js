@@ -80,10 +80,10 @@ Page({
     try {
       // 获取当前用户信息
       const app = getApp();
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id');
+      const openid = app.globalData.userInfo.openid;
       
-      if (!stuId) {
-        console.error('未获取到用户学号');
+      if (!openid) {
+        console.error('未获取到用户openid');
         return;
       }
       
@@ -91,7 +91,7 @@ Page({
       const db = wx.cloud.database();
       const res = await db.collection('Users')
         .where({
-          stu_id: stuId
+          openid: openid
         })
         .get();
       

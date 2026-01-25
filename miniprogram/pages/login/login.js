@@ -179,49 +179,9 @@ Page({
           case 200:
             // 登录成功 - 保存用户信息（规范字段名）
             const userInfo = result.data.userInfo
-            
-            console.log('=== 登录成功，返回的用户信息 ===')
-            console.log('userInfo:', userInfo)
-            console.log('学号:', userInfo.stu_id)
-            console.log('姓名:', userInfo.name)
-            
-            // 保存到本地存储 - 使用规范的数据库字段名
-            wx.setStorageSync('stu_id', userInfo.stu_id)
-            wx.setStorageSync('userInfo', {
-              _id: userInfo._id,
-              stu_id: userInfo.stu_id,
-              name: userInfo.name,
-              gender: userInfo.gender,
-              campus: userInfo.campus,
-              class_name: userInfo.class_name,
-              college: userInfo.college,
-              phone: userInfo.phone,
-              avatar: userInfo.avatar || '',
-              totalCount: userInfo.totalCount || 0,
-              totalDuration: userInfo.totalDuration || 0,
-              totalDistance: userInfo.totalDistance || 0
-            })
-            
-            console.log('已保存到本地存储:', wx.getStorageSync('userInfo'))
-            
-            // 保存到全局数据 - 使用规范的数据库字段名
+            wx.setStorageSync('userInfo', userInfo)
             const app = getApp()
-            app.globalData.userInfo = {
-              _id: userInfo._id,
-              stu_id: userInfo.stu_id,
-              name: userInfo.name,
-              gender: userInfo.gender,
-              campus: userInfo.campus,
-              class_name: userInfo.class_name,
-              college: userInfo.college,
-              phone: userInfo.phone,
-              avatar: userInfo.avatar || '',
-              totalCount: userInfo.totalCount || 0,
-              totalDuration: userInfo.totalDuration || 0,
-              totalDistance: userInfo.totalDistance || 0
-            }
-            
-            console.log('已保存到全局数据:', app.globalData.userInfo)
+            app.globalData.userInfo = userInfo
             
             wx.showToast({
               title: '登录成功',

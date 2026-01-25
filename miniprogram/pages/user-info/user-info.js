@@ -917,22 +917,11 @@ Page({
         // 更新全局用户信息
         const app = getApp()
         if (app.globalData.userInfo) {
-          app.globalData.userInfo = {
-            ...app.globalData.userInfo,
-            _id: userInfo._id,
-            stu_id: userInfo.stu_id,
-            name: userInfo.name,
-            gender: userInfo.gender,
-            campus: userInfo.campus,
-            class_name: userInfo.class_name,
-            college: userInfo.college,
-            phone: userInfo.phone,
-            avatar: userInfo.avatar
-          }
+          app.globalData.userInfo = userInfo
         }
 
         // 同时更新本地存储
-        wx.setStorageSync('stu_id', userInfo.stu_id)
+        wx.setStorageSync('userInfo', userInfo)
 
         // 延迟返回上一页
         setTimeout(() => {
