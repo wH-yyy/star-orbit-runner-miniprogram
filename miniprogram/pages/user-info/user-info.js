@@ -77,17 +77,13 @@ Page({
 
       // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
       const openid = app.globalData.userInfo.openid
 
       console.log('=== 加载用户信息 ===')
       console.log('全局userInfo:', app.globalData.userInfo)
-      // console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
-      // console.log('获取到的stuId:', stuId)
-      console.log('本地存储openid:', wx.getStorageSync('openid'))
       console.log('获取到的openid:', openid)
 
-      // if (!stuId) {
+
       if (!openid) {
         wx.showToast({
           title: '请先登录',
