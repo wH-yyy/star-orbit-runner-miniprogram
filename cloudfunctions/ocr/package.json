@@ -1,0 +1,12 @@
+{
+  "name": "ocr",
+  "version": "1.0.0",
+  "description": "OCR text recognition cloud function",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest",
+    "tencentcloud-sdk-nodejs": "latest"
+  },
+  "author": "",
+  "license": "ISC"
+}

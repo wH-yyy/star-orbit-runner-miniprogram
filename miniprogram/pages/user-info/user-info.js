@@ -1,30 +1,7 @@
 // pages/user-info/user-info.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    // 用户信息 - 对应数据库Users表
-    userInfo: {
-      _id: '',
-      avatar: '',
-      campus: '',
-      class_name: '',
-      college: '',
-      createdTime: '',
-      gender: '',
-      name: '',
-      openid: '',
-      password: '',
-      phone: '',
-      status: '',
-      stu_id: '',
-      totalCount: 0,        // 总跑步次数
-      totalDuration: 0,     // 总跑步时长
-      totalDistance: 0,     // 总跑步距离
-      updateTime: '',
-    },
+    userInfo: {},
     // 性别选项
     genderOptions: ['男', '女'],
     genderIndex: 0,
@@ -46,9 +23,6 @@ Page({
     showOldPassword: false,
     showNewPassword: false,
     showConfirmPassword: false,
-    // 计算后的统计数据
-    totalDistanceKm: '0.00',
-    totalDurationMinutes: '0',
     // 换绑手机号相关
     isChangingPhone: false,
     newPhone: '',
@@ -65,101 +39,78 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.loadUserInfo()
+    const app = getApp()
+    this.setData({
+      userInfo: app.globalData.userInfo
+    })
   },
 
   /**
    * 加载用户信息
    */
-  async loadUserInfo() {
-    try {
-      wx.showLoading({ title: '加载中...' })
+  loadUserInfo() {
+    wx.showLoading({ title: '加载中...' })
 
-      // 从全局数据或本地存储获取用户学号
-      const app = getApp()
-      const openid = app.globalData.userInfo.openid
+    // 从全局数据或本地存储获取用户学号
+    const app = getApp()
+    const openid = app.globalData.userInfo?.openid
 
-      console.log('=== 加载用户信息 ===')
-      console.log('全局userInfo:', app.globalData.userInfo)
-      console.log('获取到的openid:', openid)
+    console.log('=== 加载用户信息 ===')
+    console.log('全局userInfo:', app.globalData.userInfo)
+    console.log('获取到的openid:', openid)
 
 
-      if (!openid) {
-        wx.showToast({
-          title: '请先登录',
-          icon: 'none'
-        })
-        setTimeout(() => {
-          wx.navigateBack()
-        }, 1500)
-        return
-      }
-
-      // 从数据库获取用户信息
-      const db = wx.cloud.database()
-      const res = await db.collection('Users')
-        .where({
-          // stu_id: stuId
-          openid: openid
-        })
-        .get()
-
-      console.log('数据库查询结果:', res)
-
-      if (res.data.length > 0) {
-        const userData = res.data[0]
-        console.log('用户数据:', userData)
-        
-        // 设置picker的index
-        const genderIndex = this.data.genderOptions.indexOf(userData.gender)
-        const campusIndex = this.data.campusOptions.indexOf(userData.campus)
-        const collegeIndex = this.data.collegeOptions.indexOf(userData.college)
-
-        this.setData({
-          userInfo: {
-            _id: userData._id,
-            avatar: userData.avatar || '/images/avatar.png',
-            campus: userData.campus,
-            class_name: userData.class_name,
-            college: userData.college,
-            createdTime: userData.createdTime,
-            gender: userData.gender,
-            name: userData.name,
-            openid: userData.openid,
-            password: userData.password,
-            phone: userData.phone,
-            status: userData.status,
-            stu_id: userData.stu_id,
-            totalCount: userData.totalCount || 0,
-            totalDuration: userData.totalDuration || 0,
-            totalDistance: userData.totalDistance || 0,
-            updateTime: userData.updateTime
-          },
-          genderIndex: genderIndex >= 0 ? genderIndex : 0,
-          campusIndex: campusIndex >= 0 ? campusIndex : 0,
-          collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
-          totalDistanceKm: ((userData.totalDistance || 0) / 1000).toFixed(2),
-          totalDurationMinutes: Math.round((userData.totalDuration || 0) / 60).toString()
-        })
-        
-        console.log('设置后的userInfo:', this.data.userInfo)
-      } else {
-        console.error('未找到用户数据')
-        wx.showToast({
-          title: '未找到用户信息',
-          icon: 'none'
-        })
-      }
-
-      wx.hideLoading()
-    } catch (error) {
-      console.error('加载用户信息失败:', error)
-      wx.hideLoading()
+    if (!openid) {
       wx.showToast({
-        title: '加载失败',
+        title: '请先登录',
         icon: 'none'
       })
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
+      wx.hideLoading()
+      return
     }
+
+    // 从数据库获取用户信息
+    const db = wx.cloud.database()
+    db.collection('Users')
+      .where({
+        // stu_id: stuId
+        openid: openid
+      })
+      .get()
+      .then(res => {
+        console.log('数据库查询结果:', res)
+
+        if (res.data.length > 0) {
+          const userData = res.data[0]
+          console.log('用户数据:', userData)
+          
+          // 设置picker的index
+          const genderIndex = this.data.genderOptions.indexOf(userData.gender)
+          const campusIndex = this.data.campusOptions.indexOf(userData.campus)
+          const collegeIndex = this.data.collegeOptions.indexOf(userData.college)
+
+          // 从RunningRecords表中获取通过状态的记录统计
+          this.calculateRunningStats(openid, userData, genderIndex, campusIndex, collegeIndex)
+        } else {
+          console.error('未找到用户数据')
+          wx.showToast({
+            title: '未找到用户信息',
+            icon: 'none'
+          })
+          wx.hideLoading()
+        }
+      })
+      .catch(error => {
+        console.error('加载用户信息失败:', error)
+        wx.hideLoading()
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
+        })
+      })
   },
 
   /**
@@ -183,51 +134,58 @@ Page({
   /**
    * 选择并上传头像
    */
-  async chooseAvatar() {
-    try {
-      // 选择图片
-      const res = await wx.chooseMedia({
-        count: 1,
-        mediaType: ['image'],
-        sourceType: ['album', 'camera'],
-        sizeType: ['compressed'] // 压缩图片
-      })
+  chooseAvatar() {
+    // 选择图片
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'], // 压缩图片
+      success: (res) => {
+        const tempFilePath = res.tempFiles[0].tempFilePath
+        
+        wx.showLoading({ title: '上传中...' })
 
-      const tempFilePath = res.tempFiles[0].tempFilePath
-      
-      wx.showLoading({ title: '上传中...' })
+        // 上传到云存储
+        // const fileName = `avatars/${this.data.userInfo.stu_id}_${Date.now()}.jpg`
+        const fileName = `avatars/${this.data.userInfo.openid}_${Date.now()}.jpg`
+        wx.cloud.uploadFile({
+          cloudPath: fileName,
+          filePath: tempFilePath,
+          success: (uploadRes) => {
+            // 直接使用fileID（推荐）
+            // 小程序会自动将 cloud:// 转换为可访问的URL
+            const fileID = uploadRes.fileID
 
-      // 上传到云存储
-      // const fileName = `avatars/${this.data.userInfo.stu_id}_${Date.now()}.jpg`
-      const fileName = `avatars/${this.data.userInfo.openid}_${Date.now()}.jpg`
-      const uploadRes = await wx.cloud.uploadFile({
-        cloudPath: fileName,
-        filePath: tempFilePath
-      })
+            // 更新界面显示
+            this.setData({
+              'userInfo.avatar': fileID  // 存储 cloud:// 格式的fileID
+            })
 
-      // 直接使用fileID（推荐）
-      // 小程序会自动将 cloud:// 转换为可访问的URL
-      const fileID = uploadRes.fileID
-
-      // 更新界面显示
-      this.setData({
-        'userInfo.avatar': fileID  // 存储 cloud:// 格式的fileID
-      })
-
-      wx.hideLoading()
-      wx.showToast({
-        title: '头像已选择',
-        icon: 'success'
-      })
-
-    } catch (error) {
-      console.error('选择头像失败:', error)
-      wx.hideLoading()
-      wx.showToast({
-        title: '选择头像失败',
-        icon: 'none'
-      })
-    }
+            wx.hideLoading()
+            wx.showToast({
+              title: '头像已选择',
+              icon: 'success'
+            })
+          },
+          fail: (error) => {
+            console.error('上传头像失败:', error)
+            wx.hideLoading()
+            wx.showToast({
+              title: '选择头像失败',
+              icon: 'none'
+            })
+          }
+        })
+      },
+      fail: (error) => {
+        console.error('选择头像失败:', error)
+        wx.showToast({
+          title: '选择头像失败',
+          icon: 'none'
+        })
+      }
+    })
   },
 
   /**
@@ -382,7 +340,7 @@ Page({
   /**
    * 获取验证码
    */
-  async getVerificationCode() {
+  getVerificationCode() {
     console.log('=== 点击了获取验证码按钮 ===')
     const { newPhone } = this.data
     console.log('当前手机号:', newPhone)
@@ -411,29 +369,28 @@ Page({
       return
     }
     
-    try {
-      wx.showLoading({ title: '发送中...' })
-      
-      // 检查云开发是否初始化
-      if (!wx.cloud) {
-        console.error('云开发未初始化！')
-        wx.hideLoading()
-        wx.showModal({
-          title: '错误',
-          content: '云开发未初始化，请检查app.js中的云开发配置',
-          showCancel: false
-        })
-        return
-      }
-      
-      // 调用云函数发送验证码
-      const res = await wx.cloud.callFunction({
-        name: 'sendVerificationCode',
-        data: {
-          phone: newPhone
-        }
+    wx.showLoading({ title: '发送中...' })
+    
+    // 检查云开发是否初始化
+    if (!wx.cloud) {
+      console.error('云开发未初始化！')
+      wx.hideLoading()
+      wx.showModal({
+        title: '错误',
+        content: '云开发未初始化，请检查app.js中的云开发配置',
+        showCancel: false
       })
-      
+      return
+    }
+    
+    // 调用云函数发送验证码
+    wx.cloud.callFunction({
+      name: 'sendVerificationCode',
+      data: {
+        phone: newPhone
+      }
+    })
+    .then(res => {
       wx.hideLoading()
       console.log('✅ 云函数调用成功！')
       console.log('完整返回结果:', JSON.stringify(res, null, 2))
@@ -446,9 +403,6 @@ Page({
         
         // 开始倒计时
         this.startCountdown()
-        
-        // 记录操作日志
-        this.recordOperationLog('get_verification_code', 'success', { phone: newPhone })
         
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
@@ -464,10 +418,9 @@ Page({
           duration: 2000
         })
         
-        // 记录操作日志
-        this.recordOperationLog('get_verification_code', 'fail', { phone: newPhone, reason: res.result.message })
       }
-    } catch (error) {
+    })
+    .catch(error => {
       wx.hideLoading()
       console.error('❌ 云函数调用失败:', error)
       console.error('错误详情:', JSON.stringify(error, null, 2))
@@ -491,7 +444,7 @@ Page({
       
       // 记录操作日志
       this.recordOperationLog('get_verification_code', 'error', { phone: newPhone, error: error.message })
-    }
+    })
   },
 
   /**
@@ -532,7 +485,7 @@ Page({
   /**
    * 确认换绑手机号
    */
-  async confirmChangePhone() {
+  confirmChangePhone() {
     const { newPhone, verificationCode } = this.data
     
     // 验证手机号和验证码
@@ -552,18 +505,17 @@ Page({
       return
     }
     
-    try {
-      wx.showLoading({ title: '验证中...' })
-      
-      // 调用云函数验证验证码
-      const res = await wx.cloud.callFunction({
-        name: 'verifyCode',
-        data: {
-          phone: newPhone,
-          code: verificationCode
-        }
-      })
-      
+    wx.showLoading({ title: '验证中...' })
+    
+    // 调用云函数验证验证码
+    wx.cloud.callFunction({
+      name: 'verifyCode',
+      data: {
+        phone: newPhone,
+        code: verificationCode
+      }
+    })
+    .then(res => {
       if (res.result.success) {
         // 更新用户手机号
         this.setData({
@@ -574,9 +526,6 @@ Page({
           countdown: 0,
           isValidPhone: false
         })
-        
-        // 记录操作日志
-        this.recordOperationLog('change_phone', 'success', { newPhone })
         
         wx.hideLoading()
         wx.showToast({
@@ -596,10 +545,9 @@ Page({
           icon: 'none'
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_phone', 'fail', { newPhone, reason: res.result.message })
       }
-    } catch (error) {
+    })
+    .catch(error => {
       wx.hideLoading()
       wx.showToast({
         title: '验证失败，请稍后重试',
@@ -608,7 +556,7 @@ Page({
       
       // 记录操作日志
       this.recordOperationLog('change_phone', 'error', { newPhone, error: error.message })
-    }
+    })
   },
 
   /**
@@ -646,7 +594,7 @@ Page({
   /**
    * 获取忘记密码验证码
    */
-  async getForgotPasswordCode() {
+  getForgotPasswordCode() {
     console.log('=== 点击了获取忘记密码验证码按钮 ===')
     const { userInfo } = this.data
     const phone = userInfo.phone
@@ -676,29 +624,28 @@ Page({
       return
     }
     
-    try {
-      wx.showLoading({ title: '发送中...' })
-      
-      // 检查云开发是否初始化
-      if (!wx.cloud) {
-        console.error('云开发未初始化！')
-        wx.hideLoading()
-        wx.showModal({
-          title: '错误',
-          content: '云开发未初始化，请检查app.js中的云开发配置',
-          showCancel: false
-        })
-        return
-      }
-      
-      // 调用云函数发送验证码
-      const res = await wx.cloud.callFunction({
-        name: 'sendVerificationCode',
-        data: {
-          phone: phone
-        }
+    wx.showLoading({ title: '发送中...' })
+    
+    // 检查云开发是否初始化
+    if (!wx.cloud) {
+      console.error('云开发未初始化！')
+      wx.hideLoading()
+      wx.showModal({
+        title: '错误',
+        content: '云开发未初始化，请检查app.js中的云开发配置',
+        showCancel: false
       })
-      
+      return
+    }
+    
+    // 调用云函数发送验证码
+    wx.cloud.callFunction({
+      name: 'sendVerificationCode',
+      data: {
+        phone: phone
+      }
+    })
+    .then(res => {
       wx.hideLoading()
       console.log('✅ 云函数调用成功！')
       console.log('完整返回结果:', JSON.stringify(res, null, 2))
@@ -711,10 +658,7 @@ Page({
         
         // 开始倒计时
         this.startForgotPasswordCountdown()
-        
-        // 记录操作日志
-        this.recordOperationLog('forgot_password_get_code', 'success', { phone })
-        
+                
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
           console.log('==========================================')
@@ -729,10 +673,9 @@ Page({
           duration: 2000
         })
         
-        // 记录操作日志
-        this.recordOperationLog('forgot_password_get_code', 'fail', { phone, reason: res.result.message })
       }
-    } catch (error) {
+    })
+    .catch(error => {
       wx.hideLoading()
       console.error('❌ 云函数调用失败:', error)
       console.error('错误详情:', JSON.stringify(error, null, 2))
@@ -756,7 +699,7 @@ Page({
       
       // 记录操作日志
       this.recordOperationLog('forgot_password_get_code', 'error', { phone, error: error.message })
-    }
+    })
   },
 
   /**
@@ -784,7 +727,7 @@ Page({
   /**
    * 保存用户信息
    */
-  async saveUserInfo() {
+  saveUserInfo() {
     const { userInfo, isChangingPassword, passwordData, isForgotPassword, forgotPasswordCode } = this.data
     
     console.log('保存用户信息，当前状态:', {
@@ -862,48 +805,47 @@ Page({
       }
     }
 
-    try {
-      wx.showLoading({ title: '保存中...' })
+    wx.showLoading({ title: '保存中...' })
 
-      // 确保学号存在
-      if (!userInfo.stu_id) {
-        wx.hideLoading()
-        wx.showToast({
-          title: '用户信息不完整，请重新登录',
-          icon: 'none'
-        })
-        return
-      }
-
-      // 调用云函数更新用户信息（包含正常密码修改）
-      const updateParams = {
-        _id: userInfo._id,
-        stu_id: userInfo.stu_id,
-        name: userInfo.name,
-        gender: userInfo.gender,
-        campus: userInfo.campus,
-        class_name: userInfo.class_name,
-        college: userInfo.college,
-        phone: userInfo.phone,
-        avatar: userInfo.avatar  // 添加头像URL
-      }
-
-      // 调试：输出更新参数
-      console.log('更新用户信息参数:', updateParams)
-
-      // 如果修改密码，添加密码参数
-      if (isChangingPassword) {
-        updateParams.oldPassword = passwordData.oldPassword
-        updateParams.newPassword = passwordData.newPassword
-        updateParams.mode = 'normal_change_password'
-      }
-
-      console.log('调用云函数updateUserInfo，参数:', updateParams)
-      const res = await wx.cloud.callFunction({
-        name: 'updateUserInfo',
-        data: updateParams
+    // 确保学号存在
+    if (!userInfo.stu_id) {
+      wx.hideLoading()
+      wx.showToast({
+        title: '用户信息不完整，请重新登录',
+        icon: 'none'
       })
+      return
+    }
 
+    // 调用云函数更新用户信息（包含正常密码修改）
+    const updateParams = {
+      _id: userInfo._id,
+      stu_id: userInfo.stu_id,
+      name: userInfo.name,
+      gender: userInfo.gender,
+      campus: userInfo.campus,
+      class_name: userInfo.class_name,
+      college: userInfo.college,
+      phone: userInfo.phone,
+      avatar: userInfo.avatar  // 添加头像URL
+    }
+
+    // 调试：输出更新参数
+    console.log('更新用户信息参数:', updateParams)
+
+    // 如果修改密码，添加密码参数
+    if (isChangingPassword) {
+      updateParams.oldPassword = passwordData.oldPassword
+      updateParams.newPassword = passwordData.newPassword
+      updateParams.mode = 'normal_change_password'
+    }
+
+    console.log('调用云函数updateUserInfo，参数:', updateParams)
+    wx.cloud.callFunction({
+      name: 'updateUserInfo',
+      data: updateParams
+    })
+    .then(res => {
       console.log('更新结果:', res)
       wx.hideLoading()
       console.log('云函数返回结果:', JSON.stringify(res, null, 2))
@@ -933,17 +875,9 @@ Page({
           icon: 'none',
           duration: 2000
         })
-        
-        // 记录操作日志
-        if (isChangingPassword) {
-          this.recordOperationLog('change_password', 'fail', {
-            mode: 'normal',
-            reason: res.result.message
-          })
-        }
       }
-
-    } catch (error) {
+    })
+    .catch(error => {
       console.error('保存用户信息失败:', error)
       wx.hideLoading()
       wx.showToast({
@@ -958,13 +892,13 @@ Page({
           error: error.message
         })
       }
-    }
+    })
   },
   
   /**
    * 单独处理忘记密码模式的密码修改
    */
-  async saveForgotPassword() {
+  saveForgotPassword() {
     const { userInfo, passwordData, forgotPasswordCode } = this.data
     
     // 忘记密码模式验证
@@ -1008,38 +942,37 @@ Page({
       return
     }
     
-    try {
-      wx.showLoading({ title: '保存中...' })
-      
-      // 确保学号存在
-      if (!userInfo.stu_id) {
-        wx.hideLoading()
-        wx.showToast({
-          title: '用户信息不完整，请重新登录',
-          icon: 'none'
-        })
-        return
-      }
-      
-      // 忘记密码模式：仅传递必要参数，完全不涉及oldPassword
-      const forgotPasswordParams = {
-        // 身份认证信息
-        stu_id: userInfo.stu_id,
-        phone: userInfo.phone,
-        // 忘记密码核心参数
-        newPassword: passwordData.newPassword,
-        verificationCode: forgotPasswordCode,
-        // 明确标识这是忘记密码模式
-        mode: 'forgot_password',
-        isForgotPassword: true
-      }
-      
-      console.log('调用云函数updateUserInfo（忘记密码模式），参数:', forgotPasswordParams)
-      const res = await wx.cloud.callFunction({
-        name: 'updateUserInfo',
-        data: forgotPasswordParams
+    wx.showLoading({ title: '保存中...' })
+    
+    // 确保学号存在
+    if (!userInfo.stu_id) {
+      wx.hideLoading()
+      wx.showToast({
+        title: '用户信息不完整，请重新登录',
+        icon: 'none'
       })
-      
+      return
+    }
+    
+    // 忘记密码模式：仅传递必要参数，完全不涉及oldPassword
+    const forgotPasswordParams = {
+      // 身份认证信息
+      stu_id: userInfo.stu_id,
+      phone: userInfo.phone,
+      // 忘记密码核心参数
+      newPassword: passwordData.newPassword,
+      verificationCode: forgotPasswordCode,
+      // 明确标识这是忘记密码模式
+      mode: 'forgot_password',
+      isForgotPassword: true
+    }
+    
+    console.log('调用云函数updateUserInfo（忘记密码模式），参数:', forgotPasswordParams)
+    wx.cloud.callFunction({
+      name: 'updateUserInfo',
+      data: forgotPasswordParams
+    })
+    .then(res => {
       wx.hideLoading()
       console.log('云函数返回结果:', JSON.stringify(res, null, 2))
       
@@ -1047,11 +980,6 @@ Page({
         wx.showToast({
           title: '密码修改成功',
           icon: 'success'
-        })
-        
-        // 记录操作日志
-        this.recordOperationLog('change_password', 'success', {
-          mode: 'forgot'
         })
         
         // 忘记密码修改成功，强制重新登录
@@ -1079,14 +1007,9 @@ Page({
           icon: 'none',
           duration: 2000
         })
-        
-        // 记录操作日志
-        this.recordOperationLog('change_password', 'fail', {
-          mode: 'forgot',
-          reason: res.result.message
-        })
       }
-    } catch (error) {
+    })
+    .catch(error => {
       console.error('修改密码失败:', error)
       wx.hideLoading()
       wx.showToast({
@@ -1099,13 +1022,13 @@ Page({
         mode: 'forgot',
         error: error.message
       })
-    }
+    })
   },
   
   /**
    * 记录操作日志
    */
-  async recordOperationLog(operationType, result, details = {}) {
+  recordOperationLog(operationType, result, details = {}) {
     try {
       const { userInfo } = this.data
       
@@ -1116,7 +1039,7 @@ Page({
       }
       
       // 调用云函数记录操作日志
-      await wx.cloud.callFunction({
+      wx.cloud.callFunction({
         name: 'recordOperationLog',
         data: {
           userId: userInfo.stu_id,
@@ -1127,11 +1050,163 @@ Page({
           details
         }
       })
-      
-      console.log('操作日志记录成功:', operationType, result)
+      .then(res => {
+        console.log('操作日志记录成功:', operationType, result)
+      })
+      .catch(error => {
+        console.log('操作日志记录失败，可能是云函数不存在:', error.errMsg || error.message)
+        // 跳过日志记录失败的情况，不影响主流程
+      })
     } catch (error) {
       console.log('操作日志记录失败，可能是云函数不存在:', error.errMsg || error.message)
       // 跳过日志记录失败的情况，不影响主流程
     }
+  },
+
+  /**
+   * 计算跑步统计数据
+   */
+  calculateRunningStats(openid, userData, genderIndex, campusIndex, collegeIndex) {
+    console.log('=== 开始计算跑步统计数据 ===')
+    console.log('传入的openid:', openid)
+    console.log('用户数据:', userData)
+    
+    const db = wx.cloud.database()
+    console.log('准备查询RunningRecords表，条件:', { openid: openid })
+    db.collection('RunningRecords')
+      .where({
+        openid: openid
+      })
+      .get()
+      .then(res => {
+        console.log('=== 计算跑步统计数据 ===')
+        console.log('查询结果:', res)
+        console.log('查询到的记录数量:', res.data.length)
+        console.log('查询到的记录详情:', res.data)
+        
+        let totalCount = 0
+        let totalDistance = 0
+        let totalDuration = 0
+
+        // 遍历所有记录，只计算通过状态的记录
+        res.data.forEach(item => {
+          console.log('处理记录:', item)
+          
+          // 判断状态是否为通过（支持数字1和字符串'1'）
+          const isPassed = item.status === 1 || item.status === '1'
+          console.log('记录状态:', item.status, '是否通过:', isPassed)
+          
+          if (isPassed) {
+            totalCount++
+            
+            // 计算总距离（确保是数字类型）
+            if (item.running_distance) {
+              const distance = parseFloat(item.running_distance) || 0
+              console.log('距离:', distance)
+              totalDistance += distance
+            }
+            
+            // 计算总时长（将时间格式转换为秒）
+            if (item.running_duration) {
+              const durationInSeconds = this.convertDurationToSeconds(item.running_duration)
+              console.log('时长（秒）:', durationInSeconds)
+              totalDuration += durationInSeconds
+            }
+          }
+        })
+
+        console.log('=== 统计结果 ===')
+        console.log('总次数:', totalCount)
+        console.log('总距离:', totalDistance)
+        console.log('总时长:', totalDuration)
+
+        this.setData({
+          userInfo: {
+            _id: userData._id,
+            avatar: userData.avatar || '/images/avatar.png',
+            campus: userData.campus,
+            class_name: userData.class_name,
+            college: userData.college,
+            createdTime: userData.createdTime,
+            gender: userData.gender,
+            name: userData.name,
+            openid: userData.openid,
+            password: userData.password,
+            phone: userData.phone,
+            status: userData.status,
+            stu_id: userData.stu_id,
+            totalCount: totalCount,        // 总跑步次数
+            totalDuration: totalDuration,     // 总跑步时长
+            totalDistance: totalDistance,     // 总跑步距离
+            updateTime: userData.updateTime
+          },
+          genderIndex: genderIndex >= 0 ? genderIndex : 0,
+          campusIndex: campusIndex >= 0 ? campusIndex : 0,
+          collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
+          totalDistanceKm: totalDistance.toFixed(2),
+          totalDurationMinutes: Math.round(totalDuration / 60).toString()
+        })
+        
+        console.log('设置后的userInfo:', this.data.userInfo)
+        wx.hideLoading()
+      })
+      .catch(error => {
+        console.error('计算跑步统计数据失败:', error)
+        // 如果获取统计数据失败，使用默认值
+        this.setData({
+          userInfo: {
+            _id: userData._id,
+            avatar: userData.avatar || '/images/avatar.png',
+            campus: userData.campus,
+            class_name: userData.class_name,
+            college: userData.college,
+            createdTime: userData.createdTime,
+            gender: userData.gender,
+            name: userData.name,
+            openid: userData.openid,
+            password: userData.password,
+            phone: userData.phone,
+            status: userData.status,
+            stu_id: userData.stu_id,
+            totalCount: 0,
+            totalDuration: 0,
+            totalDistance: 0,
+            updateTime: userData.updateTime
+          },
+          genderIndex: genderIndex >= 0 ? genderIndex : 0,
+          campusIndex: campusIndex >= 0 ? campusIndex : 0,
+          collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
+          totalDistanceKm: '0.00',
+          totalDurationMinutes: '0'
+        })
+        wx.hideLoading()
+        wx.showToast({
+          title: '加载统计数据失败',
+          icon: 'none'
+        })
+      })
+  },
+
+  /**
+   * 将时间格式转换为秒
+   */
+  convertDurationToSeconds(duration) {
+    if (!duration) return 0
+    
+    // 处理 HH:MM:SS 格式
+    const parts = duration.split(':')
+    if (parts.length === 3) {
+      const hours = parseInt(parts[0]) || 0
+      const minutes = parseInt(parts[1]) || 0
+      const seconds = parseInt(parts[2]) || 0
+      return hours * 3600 + minutes * 60 + seconds
+    }
+    // 处理 MM:SS 格式
+    else if (parts.length === 2) {
+      const minutes = parseInt(parts[0]) || 0
+      const seconds = parseInt(parts[1]) || 0
+      return minutes * 60 + seconds
+    }
+    return 0
   }
 })

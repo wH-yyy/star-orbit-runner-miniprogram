@@ -1,74 +1,68 @@
 <!--pages/record-detail/record-detail.wxml-->
 <view class="container">
-  <!-- 页面标题 -->
-  <view class="header">
-    <text class="title">跑步打卡记录</text>
-    <text class="subtitle">记录详情</text>
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="nav-left"></view>
+    <view class="nav-title">
+      <text class="title">跑步打卡记录</text>
+      <text class="subtitle">记录详情</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载记录详情中...</text>
   </view>
   
   <!-- 记录卡片 -->
-  <view class="detail-card">
+  <view wx:else class="detail-card">
     <!-- 状态标识 -->
-    <view class="status-badge large {{record.status === 'passed' ? 'status-passed' : record.status === 'failed' ? 'status-failed' : 'status-pending'}}">
-      {{record.status === 'passed' ? '已通过' : record.status === 'failed' ? '未通过' : '审核中'}}
+    <view class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 2 ? 'status-pending' : 'status-failed'}}">
+      {{record.status === 1 ? '已通过' : record.status === 2 ? '审核中' : '未通过'}}
     </view>
     
     <!-- 基本信息 -->
     <view class="info-item">
       <text class="info-label">记录时间</text>
-      <text class="info-value">{{record.date}} {{record.time}}</text>
-    </view>
-    <view class="info-item">
-      <text class="info-label">打卡方式</text>
-      <view class="info-value type-value">
-        {{record.type === 'gps' ? 'GPS打卡' : record.type === 'manual' ? '手动打卡' : '其他'}}
-      </view>
+      <text class="info-value">{{record.running_date}}</text>
     </view>
     
     <!-- 不通过原因 -->
-    <view wx:if="{{record.status === 'failed'}}" class="fail-reason">
+    <view wx:if="{{record.status === 0 && record.displayAuditReason}}" class="fail-reason">
       <text class="reason-label">未通过原因</text>
-      <text class="reason-content">{{record.failReason || '未提供具体原因'}}</text>
+      <text class="reason-content">{{record.displayAuditReason}}</text>
     </view>
     
     <!-- 跑步数据 -->
     <view class="data-grid">
       <view class="data-item">
-        <text class="data-value">{{record.distance}} km</text>
+        <text class="data-value">{{record.running_distance || '0'}} km</text>
         <text class="data-label">跑步距离</text>
       </view>
       <view class="data-item">
-        <text class="data-value">{{record.duration}}</text>
+        <text class="data-value">{{record.running_duration || '0'}}</text>
         <text class="data-label">跑步时长</text>
       </view>
       <view class="data-item">
-        <text class="data-value">{{record.pace}}'{{record.paceSeconds}}''</text>
+        <text class="data-value">{{record.running_pace || '0'}}</text>
         <text class="data-label">配速</text>
       </view>
-      <view class="data-item">
-        <text class="data-value">{{record.steps}} 步</text>
-        <text class="data-label">步数</text>
-      </view>
     </view>
     
-    <!-- 跑步轨迹（模拟） -->
-    <view wx:if="{{record.type === 'gps'}}" class="map-placeholder">
-      <image src="/images/map-placeholder.png" class="map-image" mode="aspectFill"></image>
-      <text class="map-text">GPS轨迹地图</text>
-    </view>
-    
-    <!-- 手动打卡图片 -->
-    <view wx:if="{{record.type === 'manual' && record.images && record.images.length > 0}}" class="manual-images">
+    <!-- 打卡图片 -->
+    <view wx:if="{{record.imageFileID}}" class="manual-images">
       <text class="images-title">打卡图片</text>
       <view class="images-grid">
-        <view wx:for="{{record.images}}" wx:key="index" class="image-item">
-          <image src="{{item}}" class="manual-image" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"></image>
+        <view class="image-item">
+          <image src="{{record.imageFileID}}" class="manual-image" mode="aspectFill" bindtap="previewImage" data-index="0"></image>
         </view>
       </view>
     </view>
     
     <!-- 申诉按钮，仅未通过记录显示 -->
-    <button wx:if="{{record.status === 'failed'}}" class="appeal-btn" type="warn" bindtap="showAppealModal">提交申诉</button>
+    <button wx:if="{{record.status === 0}}" class="appeal-btn" type="warn" bindtap="showAppealModal">提交申诉</button>
   </view>
   
   <!-- 申诉模态框 -->
