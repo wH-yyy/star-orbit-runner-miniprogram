@@ -1,30 +1,7 @@
 // pages/user-info/user-info.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    // 用户信息 - 对应数据库Users表
-    userInfo: {
-      _id: '',
-      avatar: '',
-      campus: '',
-      class_name: '',
-      college: '',
-      createdTime: '',
-      gender: '',
-      name: '',
-      openid: '',
-      password: '',
-      phone: '',
-      status: '',
-      stu_id: '',
-      totalCount: 0,        // 总跑步次数
-      totalDuration: 0,     // 总跑步时长
-      totalDistance: 0,     // 总跑步距离
-      updateTime: '',
-    },
+    userInfo: {},
     // 性别选项
     genderOptions: ['男', '女'],
     genderIndex: 0,
@@ -46,9 +23,6 @@ Page({
     showOldPassword: false,
     showNewPassword: false,
     showConfirmPassword: false,
-    // 计算后的统计数据
-    totalDistanceKm: '0.00',
-    totalDurationMinutes: '0',
     // 换绑手机号相关
     isChangingPhone: false,
     newPhone: '',
@@ -65,114 +39,13 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.loadUserInfo()
+    const app = getApp()
+    this.setData({
+      userInfo: app.globalData.userInfo
+    })
   },
 
-  /**
-   * 加载用户信息
-   */
-  async loadUserInfo() {
-    try {
-      wx.showLoading({ title: '加载中...' })
-
-      // 从全局数据或本地存储获取用户学号
-      const app = getApp()
-      const openid = app.globalData.userInfo.openid
-
-      console.log('=== 加载用户信息 ===')
-      console.log('全局userInfo:', app.globalData.userInfo)
-      console.log('获取到的openid:', openid)
-
-
-      if (!openid) {
-        wx.showToast({
-          title: '请先登录',
-          icon: 'none'
-        })
-        setTimeout(() => {
-          wx.navigateBack()
-        }, 1500)
-        return
-      }
-
-      // 从数据库获取用户信息
-      const db = wx.cloud.database()
-      const res = await db.collection('Users')
-        .where({
-          // stu_id: stuId
-          openid: openid
-        })
-        .get()
-
-      console.log('数据库查询结果:', res)
-
-      if (res.data.length > 0) {
-        const userData = res.data[0]
-        console.log('用户数据:', userData)
-        
-        // 设置picker的index
-        const genderIndex = this.data.genderOptions.indexOf(userData.gender)
-        const campusIndex = this.data.campusOptions.indexOf(userData.campus)
-        const collegeIndex = this.data.collegeOptions.indexOf(userData.college)
-
-        this.setData({
-          userInfo: {
-            _id: userData._id,
-            avatar: userData.avatar || '/images/avatar.png',
-            campus: userData.campus,
-            class_name: userData.class_name,
-            college: userData.college,
-            createdTime: userData.createdTime,
-            gender: userData.gender,
-            name: userData.name,
-            openid: userData.openid,
-            password: userData.password,
-            phone: userData.phone,
-            status: userData.status,
-            stu_id: userData.stu_id,
-            totalCount: userData.totalCount || 0,
-            totalDuration: userData.totalDuration || 0,
-            totalDistance: userData.totalDistance || 0,
-            updateTime: userData.updateTime
-          },
-          genderIndex: genderIndex >= 0 ? genderIndex : 0,
-          campusIndex: campusIndex >= 0 ? campusIndex : 0,
-          collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
-          totalDistanceKm: ((userData.totalDistance || 0) / 1000).toFixed(2),
-          totalDurationMinutes: Math.round((userData.totalDuration || 0) / 60).toString()
-        })
-        
-        console.log('设置后的userInfo:', this.data.userInfo)
-      } else {
-        console.error('未找到用户数据')
-        wx.showToast({
-          title: '未找到用户信息',
-          icon: 'none'
-        })
-      }
-
-      wx.hideLoading()
-    } catch (error) {
-      console.error('加载用户信息失败:', error)
-      wx.hideLoading()
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      })
-    }
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-    // 每次显示页面时重新加载用户数据（防止从提交页面返回后数据不更新）
-    this.loadUserInfo()
-  },
-
-  /**
-   * 输入框变化处理
-   */
+  // name，class_name输入框变化处理
   onInputChange(e) {
     const field = e.currentTarget.dataset.field
     this.setData({
@@ -198,7 +71,6 @@ Page({
       wx.showLoading({ title: '上传中...' })
 
       // 上传到云存储
-      // const fileName = `avatars/${this.data.userInfo.stu_id}_${Date.now()}.jpg`
       const fileName = `avatars/${this.data.userInfo.openid}_${Date.now()}.jpg`
       const uploadRes = await wx.cloud.uploadFile({
         cloudPath: fileName,
@@ -447,9 +319,6 @@ Page({
         // 开始倒计时
         this.startCountdown()
         
-        // 记录操作日志
-        this.recordOperationLog('get_verification_code', 'success', { phone: newPhone })
-        
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
           console.log('==========================================')
@@ -464,8 +333,6 @@ Page({
           duration: 2000
         })
         
-        // 记录操作日志
-        this.recordOperationLog('get_verification_code', 'fail', { phone: newPhone, reason: res.result.message })
       }
     } catch (error) {
       wx.hideLoading()
@@ -489,8 +356,6 @@ Page({
         showCancel: false
       })
       
-      // 记录操作日志
-      this.recordOperationLog('get_verification_code', 'error', { phone: newPhone, error: error.message })
     }
   },
 
@@ -575,9 +440,6 @@ Page({
           isValidPhone: false
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_phone', 'success', { newPhone })
-        
         wx.hideLoading()
         wx.showToast({
           title: '手机号更换成功',
@@ -596,8 +458,6 @@ Page({
           icon: 'none'
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_phone', 'fail', { newPhone, reason: res.result.message })
       }
     } catch (error) {
       wx.hideLoading()
@@ -606,8 +466,6 @@ Page({
         icon: 'none'
       })
       
-      // 记录操作日志
-      this.recordOperationLog('change_phone', 'error', { newPhone, error: error.message })
     }
   },
 
@@ -711,10 +569,7 @@ Page({
         
         // 开始倒计时
         this.startForgotPasswordCountdown()
-        
-        // 记录操作日志
-        this.recordOperationLog('forgot_password_get_code', 'success', { phone })
-        
+                
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
           console.log('==========================================')
@@ -729,8 +584,6 @@ Page({
           duration: 2000
         })
         
-        // 记录操作日志
-        this.recordOperationLog('forgot_password_get_code', 'fail', { phone, reason: res.result.message })
       }
     } catch (error) {
       wx.hideLoading()
@@ -754,8 +607,6 @@ Page({
         showCancel: false
       })
       
-      // 记录操作日志
-      this.recordOperationLog('forgot_password_get_code', 'error', { phone, error: error.message })
     }
   },
 
@@ -933,14 +784,6 @@ Page({
           icon: 'none',
           duration: 2000
         })
-        
-        // 记录操作日志
-        if (isChangingPassword) {
-          this.recordOperationLog('change_password', 'fail', {
-            mode: 'normal',
-            reason: res.result.message
-          })
-        }
       }
 
     } catch (error) {
@@ -950,14 +793,6 @@ Page({
         title: '保存失败，请稍后重试',
         icon: 'none'
       })
-      
-      // 记录操作日志
-      if (isChangingPassword) {
-        this.recordOperationLog('change_password', 'error', {
-          mode: 'normal',
-          error: error.message
-        })
-      }
     }
   },
   
@@ -1049,11 +884,6 @@ Page({
           icon: 'success'
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_password', 'success', {
-          mode: 'forgot'
-        })
-        
         // 忘记密码修改成功，强制重新登录
         setTimeout(() => {
           wx.showToast({
@@ -1079,12 +909,6 @@ Page({
           icon: 'none',
           duration: 2000
         })
-        
-        // 记录操作日志
-        this.recordOperationLog('change_password', 'fail', {
-          mode: 'forgot',
-          reason: res.result.message
-        })
       }
     } catch (error) {
       console.error('修改密码失败:', error)
@@ -1093,45 +917,6 @@ Page({
         title: '修改失败，请稍后重试',
         icon: 'none'
       })
-      
-      // 记录操作日志
-      this.recordOperationLog('change_password', 'error', {
-        mode: 'forgot',
-        error: error.message
-      })
     }
   },
-  
-  /**
-   * 记录操作日志
-   */
-  async recordOperationLog(operationType, result, details = {}) {
-    try {
-      const { userInfo } = this.data
-      
-      // 检查云开发是否初始化
-      if (!wx.cloud) {
-        console.log('云开发未初始化，跳过日志记录')
-        return
-      }
-      
-      // 调用云函数记录操作日志
-      await wx.cloud.callFunction({
-        name: 'recordOperationLog',
-        data: {
-          userId: userInfo.stu_id,
-          userName: userInfo.name,
-          operationType,
-          result,
-          timestamp: new Date().toISOString(),
-          details
-        }
-      })
-      
-      console.log('操作日志记录成功:', operationType, result)
-    } catch (error) {
-      console.log('操作日志记录失败，可能是云函数不存在:', error.errMsg || error.message)
-      // 跳过日志记录失败的情况，不影响主流程
-    }
-  }
 })

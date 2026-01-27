@@ -156,81 +156,23 @@ Page({
       
       console.log('数据库查询结果:', res)
       
-      if (res.data.length > 0) {
-        const userData = res.data[0]
-        console.log('用户数据:', userData)
-        
-        // 计算统计数据
-        const totalDist = userData.totalDistance || 0
-        const totalDur = userData.totalDuration || 0
-        const totalCount = userData.totalCount || 0
-        const totalDistanceKm = totalDist.toFixed(1)
-        const totalDurationMinutes = totalDur.toFixed(1)
-        
-        console.log('统计数据:', { totalCount, totalDistanceKm, totalDurationMinutes })
-        
-        this.setData({
-          userInfo: {
-            avatar: userData.avatar || '/images/avatar.png',
-            campus: userData.campus,
-            class_name: userData.class_name,
-            college: userData.college,
-            gender: userData.gender,
-            name: userData.name,
-            openid: userData.openid,
-            password: userData.password,
-            phone: userData.phone,
-            stu_id: userData.stu_id
+      this.setData({
+        userInfo: userInfo,
+        stats: [
+          {
+            value: userInfo.totalCount + ' 次',
+            label: '打卡记录'
           },
-          stats: [
-            {
-              value: totalCount + ' 次',
-              label: '打卡记录'
-            },
-            {
-              value: totalDistanceKm + ' km',
-              label: '累计里程'
-            },
-            {
-              value: totalDurationMinutes + ' 分钟',
-              label: '累积时长'
-            }
-          ]
-        })
-        
-        console.log('设置后的userInfo:', this.data.userInfo)
-        console.log('设置后的stats:', this.data.stats)
-        
-        // 更新全局用户信息
-        if (app.globalData) {
-          app.globalData.userInfo = {
-            _id: userData._id,
-            avatar: userData.avatar || '/images/avatar.png',
-            campus: userData.campus,
-            class_name: userData.class_name,
-            college: userData.college,
-            createdTime: userData.createdTime,
-            gender: userData.gender,
-            name: userData.name,
-            openid: userData.openid,
-            password: userData.password,
-            phone: userData.phone,
-            status: userData.status,
-            stu_id: userData.stu_id,
-            totalCount: userData.totalCount || 0,
-            totalDuration: userData.totalDuration || 0,
-            totalDistance: userData.totalDistance || 0,
-            updateTime: userData.updateTime 
+          {
+            value: userInfo.totalDistance + ' km',
+            label: '累计里程'
+          },
+          {
+            value:  ' null 天',
+            label: '连续打卡'
           }
-        }
-      } else {
-        console.error('未找到用户数据')
-        wx.showToast({
-          title: '用户信息不存在',
-          icon: 'none'
-        })
-      }
-      
+        ]
+      })
     } catch (error) {
       console.error('加载用户信息失败:', error)
       wx.showToast({
