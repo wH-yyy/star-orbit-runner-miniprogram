@@ -66,12 +66,14 @@ Page({
           
           // 延迟跳转，让用户看到提示
           setTimeout(() => {
-            const userInfo = result.data.userInfo              
+            const userInfo = {
+              ...result.data.userInfo,
+              avatar: result.data.userInfo.avatar || '/images/avatar.png'
+            }
             wx.setStorageSync('userInfo', userInfo)
             const app = getApp()
             app.globalData.userInfo = userInfo
             if (result.data.existingStatus) {
-              // 检查是否是tabBar页面
               wx.switchTab({
                 url: '/pages/home/home'
               })

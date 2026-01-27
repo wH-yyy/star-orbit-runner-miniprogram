@@ -80,19 +80,26 @@ function parseRunningInfoFromOCR(ocrText) {
   // 1. 匹配日期时间（支持多种格式）
   let dateTimeMatch = null
   
+  console.log('开始匹配日期时间，OCR文本:', ocrText)
+  
   // 先尝试匹配标准格式：2026-01-23 20:45
   dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
+  console.log('标准格式匹配结果:', dateTimeMatch)
   
   // 如果没有匹配到标准格式，尝试匹配中文时间格式：下午8:18
   if (!dateTimeMatch) {
     dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(上午|下午|晚上)?\s*(\d{1,2}):(\d{2})/)
+    console.log('中文格式匹配结果:', dateTimeMatch)
   }
   
   if (dateTimeMatch) {
     let dateTimeStr = dateTimeMatch[0]
     
     // 如果是中文时间格式，转换为24小时制
-    if (dateTimeMatch[2]) { // 匹配到上午/下午/晚上
+    console.log('dateTimeMatch完整结果:', dateTimeMatch)
+    
+    if (dateTimeMatch[2] && ['上午', '下午', '晚上'].includes(dateTimeMatch[2])) { 
+      // 匹配到上午/下午/晚上
       const timePeriod = dateTimeMatch[2]
       let hour = parseInt(dateTimeMatch[3])
       const minute = dateTimeMatch[4]
@@ -112,6 +119,8 @@ function parseRunningInfoFromOCR(ocrText) {
       dateTimeStr = dateTimeStr.replace(/上午|下午|晚上/g, '').trim()
       dateTimeStr = dateTimeStr.replace(/\d{1,2}:\d{2}/, `${hour.toString().padStart(2, '0')}:${minute}`)
       console.log('转换后的时间字符串:', dateTimeStr)
+    } else {
+      console.log('标准时间格式，无需转换')
     }
     
     // 统一格式为：2024-1-1 20:30
@@ -196,19 +205,29 @@ function auditRunningRecord(runningInfo) {
   }
   
   // 2. 检查时间 (必须在20:00-22:00之间)
+  let timeCheckFailed = false
   if (dateTime) {
+    console.log('检查时间，dateTime:', dateTime)
     const timeMatch = dateTime.match(/(\d{1,2}):(\d{2})/)
     if (timeMatch) {
       const hour = parseInt(timeMatch[1])
-      // 处理下午8点、晚上8点等表述
-      const adjustedHour = hour < 12 ? hour + 12 : hour
+      const minute = parseInt(timeMatch[2])
+      console.log('提取到时间:', { hour, minute })
       
-      if (adjustedHour < 20 || adjustedHour > 22) {
+      // 直接使用24小时制时间进行比较
+      if (hour < 20 || hour > 22 || (hour === 22 && minute > 0)) {
         auditResult.status = '0'
         auditResult.reason = '打卡时间不在20:00-22:00之间'
-        return auditResult
+        timeCheckFailed = true
+        console.log('时间审核不通过，原因:', auditResult.reason)
+      } else {
+        console.log('时间审核通过')
       }
+    } else {
+      console.log('无法从dateTime中提取时间')
     }
+  } else {
+    console.log('dateTime为空，跳过时间检查')
   }
   
   // 3. 检查配速
@@ -227,8 +246,12 @@ function auditRunningRecord(runningInfo) {
     // 配速必须在3'00"到7'30"之间 (180秒到450秒)
     if (paceInSeconds < 180 || paceInSeconds > 450) {
       auditResult.status = '0'
-      auditResult.reason = '配速异常，不在3\'00\"-7\'30\"范围内'
-      return auditResult
+      // 如果之前已经有失败原因，追加配速原因
+      if (auditResult.reason) {
+        auditResult.reason += '；配速异常，不在3\'00\"-7\'30\"范围内'
+      } else {
+        auditResult.reason = '配速异常，不在3\'00\"-7\'30\"范围内'
+      }
     }
   }
   
@@ -359,7 +382,8 @@ function convertPaceToSeconds(paceStr) {
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   // 测试环境下使用默认openid，生产环境下使用真实openid
-  const openid = wxContext.OPENID
+  // const openid = wxContext.OPENID
+  const openid = "oeRJz1y_B_jB_NTlZNGTlQp6XmRM"
   
   // 获取参数
   const { fileID, ocrText } = event

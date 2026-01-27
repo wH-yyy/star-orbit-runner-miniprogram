@@ -1,28 +1,9 @@
 // pages/record/record.js
-Page({
+const userHelper = require('../utils/userInfoHelper');
 
-  /**
-   * 页面的初始数据
-   */
+Page({
   data: {
-    // 用户信息
-    userInfo: {
-      _id: '',
-      avatar: '',
-      campus: '',
-      class_name: '',
-      college: '',
-      createdTime: '',
-      gender: '',
-      name: '',
-      openid: '',
-      password: '',
-      phone: '',
-      status: '',
-      stu_id: '',
-      updateTime: '',
-    },
-    // 跑步记录列表
+    userInfo: {},
     recordList: [],
     // 统计数据
     totalCount: 0,
@@ -39,10 +20,7 @@ Page({
     pageSize: 10
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
+  onLoad() {
     this.loadUserInfo()
     this.loadRecords()
   },
@@ -202,46 +180,6 @@ Page({
           icon: 'none'
         })
       })
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-    // 每次显示页面时重新加载数据（防止从提交页面返回后数据不更新）
-    this.loadUserInfo()
-    this.loadRecords()
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-    // 下拉刷新数据
-    this.loadUserInfo()
-    this.loadRecords()
-    wx.stopPullDownRefresh()
   },
 
   /**

@@ -12,15 +12,15 @@
   <!-- 统计数据 -->
   <view class="stats-card">
     <view class="stat-item">
-      <view class="stat-value">{{totalCount}}</view>
+      <view class="stat-value">{{userInfo.totalCount}}</view>
       <view class="stat-label">总次数</view>
     </view>
     <view class="stat-item">
-      <view class="stat-value">{{totalDistanceKm}}</view>
+      <view class="stat-value">{{userInfo.totalDistance}}</view>
       <view class="stat-label">总距离(km)</view>
     </view>
     <view class="stat-item">
-      <view class="stat-value">{{totalDurationMinutes}}</view>
+      <view class="stat-value">{{userInfo.totalDuration}}</view>
       <view class="stat-label">总时长(分钟)</view>
     </view>
   </view>

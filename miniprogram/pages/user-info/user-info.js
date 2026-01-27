@@ -1,30 +1,7 @@
 // pages/user-info/user-info.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    // 用户信息 - 对应数据库Users表
-    userInfo: {
-      _id: '',
-      avatar: '',
-      campus: '',
-      class_name: '',
-      college: '',
-      createdTime: '',
-      gender: '',
-      name: '',
-      openid: '',
-      password: '',
-      phone: '',
-      status: '',
-      stu_id: '',
-      totalCount: 0,        // 总跑步次数
-      totalDuration: 0,     // 总跑步时长
-      totalDistance: 0,     // 总跑步距离
-      updateTime: '',
-    },
+    userInfo: {},
     // 性别选项
     genderOptions: ['男', '女'],
     genderIndex: 0,
@@ -46,9 +23,6 @@ Page({
     showOldPassword: false,
     showNewPassword: false,
     showConfirmPassword: false,
-    // 计算后的统计数据
-    totalDistanceKm: '0.00',
-    totalDurationMinutes: '0',
     // 换绑手机号相关
     isChangingPhone: false,
     newPhone: '',
@@ -65,7 +39,10 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.loadUserInfo()
+    const app = getApp()
+    this.setData({
+      userInfo: app.globalData.userInfo
+    })
   },
 
   /**
@@ -427,9 +404,6 @@ Page({
         // 开始倒计时
         this.startCountdown()
         
-        // 记录操作日志
-        this.recordOperationLog('get_verification_code', 'success', { phone: newPhone })
-        
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
           console.log('==========================================')
@@ -444,8 +418,6 @@ Page({
           duration: 2000
         })
         
-        // 记录操作日志
-        this.recordOperationLog('get_verification_code', 'fail', { phone: newPhone, reason: res.result.message })
       }
     })
     .catch(error => {
@@ -555,9 +527,6 @@ Page({
           isValidPhone: false
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_phone', 'success', { newPhone })
-        
         wx.hideLoading()
         wx.showToast({
           title: '手机号更换成功',
@@ -576,8 +545,6 @@ Page({
           icon: 'none'
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_phone', 'fail', { newPhone, reason: res.result.message })
       }
     })
     .catch(error => {
@@ -691,10 +658,7 @@ Page({
         
         // 开始倒计时
         this.startForgotPasswordCountdown()
-        
-        // 记录操作日志
-        this.recordOperationLog('forgot_password_get_code', 'success', { phone })
-        
+                
         // 开发环境下显示验证码（生产环境删除）
         if (res.result.devCode) {
           console.log('==========================================')
@@ -709,8 +673,6 @@ Page({
           duration: 2000
         })
         
-        // 记录操作日志
-        this.recordOperationLog('forgot_password_get_code', 'fail', { phone, reason: res.result.message })
       }
     })
     .catch(error => {
@@ -913,14 +875,6 @@ Page({
           icon: 'none',
           duration: 2000
         })
-        
-        // 记录操作日志
-        if (isChangingPassword) {
-          this.recordOperationLog('change_password', 'fail', {
-            mode: 'normal',
-            reason: res.result.message
-          })
-        }
       }
     })
     .catch(error => {
@@ -1028,11 +982,6 @@ Page({
           icon: 'success'
         })
         
-        // 记录操作日志
-        this.recordOperationLog('change_password', 'success', {
-          mode: 'forgot'
-        })
-        
         // 忘记密码修改成功，强制重新登录
         setTimeout(() => {
           wx.showToast({
@@ -1057,12 +1006,6 @@ Page({
           title: res.result.message || '修改失败',
           icon: 'none',
           duration: 2000
-        })
-        
-        // 记录操作日志
-        this.recordOperationLog('change_password', 'fail', {
-          mode: 'forgot',
-          reason: res.result.message
         })
       }
     })
