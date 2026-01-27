@@ -1,24 +1,9 @@
 // pages/home/home.js
-Page({
+const userHelper = require('../utils/userInfoHelper');
 
-  /**
-   * 页面的初始数据
-   */
+Page({
   data: {
-    // 用户信息
-    userInfo: {
-      avatar: '/images/avatar.png',
-      campus: '',
-      class_name: '',
-      college: '',
-      gender: '',
-      name: '加载中...',
-      openid: '',
-      password: '',
-      phone: '',
-      stu_id: '',
-    },
-    // 统计数据
+    userInfo : {},
     stats: [
       {
         value: '0 次',
@@ -33,7 +18,6 @@ Page({
         label: '连续打卡'
       }
     ],
-    // 菜单选项
     menuItems: [
       {
         id: 'edit',
@@ -58,103 +42,20 @@ Page({
     ]
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
+  onLoad() {
     this.loadUserInfo()
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-    // 每次显示页面时重新加载用户信息（以防从编辑页面返回）
-    this.loadUserInfo()
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
   onPullDownRefresh() {
+    userInfoHelper.refreshUserInfo()
     this.loadUserInfo()
     wx.stopPullDownRefresh()
   },
 
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
-  },
-
-  /**
-   * 加载用户信息
-   */
-  async loadUserInfo() {
+  loadUserInfo() {
     try {
-      // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
-      const openid = app.globalData.userInfo.openid
-
-      console.log('=== Home页面加载用户信息 ===')
-      console.log('app = ', app)
-      // console.log('获取到的stu_id:', stuId)
-      console.log('获取到的openid:', openid)
-      
-      // if (!stuId) {
-      if (!openid) {
-        wx.showToast({
-          title: '请先登录',
-          icon: 'none'
-        })
-        setTimeout(() => {
-          wx.redirectTo({
-            url: '/pages/phone-login/phone-login'
-          })
-        }, 1500)
-        return
-      }
-      
-      // 从数据库获取用户信息
-      const db = wx.cloud.database()
-      const res = await db.collection('Users')
-        .where({
-          // stu_id: stuId
-          openid: openid
-        })
-        .get()
-      
-      console.log('数据库查询结果:', res)
+      const userInfo = app.globalData.userInfo
       
       this.setData({
         userInfo: userInfo,
@@ -182,49 +83,35 @@ Page({
     }
   },
 
-  /**
-   * 跳转到编辑个人信息页面
-   */
   navigateToUserInfo() {
     wx.navigateTo({
       url: '/pages/user-info/user-info'
     })
   },
 
-  /**
-   * 跳转到记录页面
-   */
   navigateToRecord() {
     wx.switchTab({
       url: '/pages/record/record'
     })
   },
 
-  /**
-   * 跳转到我的奖项页面
-   */
   navigateToAwards() {
     wx.navigateTo({
       url: '/pages/awards/awards'
     })
   },
 
-  /**
-   * 退出登录
-   */
   handleLogout() {
     wx.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
       success: (res) => {
         if (res.confirm) {
-          // 清除本地存储
           wx.clearStorageSync()
-          
-          // 清除全局数据
           const app = getApp()
           if (app.globalData) {
             app.globalData.userInfo = null
+            app.globalData.hasLogin = false
           }
           
           wx.showToast({
@@ -232,9 +119,9 @@ Page({
             icon: 'success'
           })
           
-          // 跳转到登录页
+          // 重启到登录页
           setTimeout(() => {
-            wx.redirectTo({
+            wx.relaunch({
               url: '/pages/phone-login/phone-login'
             })
           }, 1500)
