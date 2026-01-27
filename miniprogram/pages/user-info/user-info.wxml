@@ -1,7 +1,7 @@
 <!--pages/edit-profile/edit-profile.wxml-->
 <view class="edit-profile-container">
   <!-- 统计数据卡片 -->
-  <!-- <view class="stats-card">
+  <view class="stats-card">
     <view class="stat-item">
       <view class="stat-value">{{userInfo.totalCount}}</view>
       <view class="stat-label">总次数</view>
@@ -14,7 +14,7 @@
       <view class="stat-value">{{totalDurationMinutes}}</view>
       <view class="stat-label">总时长(分钟)</view>
     </view>
-  </view> -->
+  </view>
 
   <!-- 个人信息编辑表单 -->
   <view class="profile-form">
