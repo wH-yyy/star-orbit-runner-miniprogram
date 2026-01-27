@@ -14,8 +14,8 @@ Page({
         label: '累计里程'
       },
       {
-        value: '0 天',
-        label: '连续打卡'
+        value: '0 min',
+        label: '运动时长'
       }
     ],
     menuItems: [
@@ -69,8 +69,8 @@ Page({
             label: '累计里程'
           },
           {
-            value:  ' null 天',
-            label: '连续打卡'
+            value:  userInfo.totalDuration,
+            label: '运动时长'
           }
         ]
       })
