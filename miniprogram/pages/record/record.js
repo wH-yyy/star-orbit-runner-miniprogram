@@ -42,7 +42,7 @@ Page({
         .where({
           openid: openid
         })
-        .orderBy('createTime', 'desc')
+        .orderBy('create_time', 'desc')
         .get()
       
       this.setData({
