@@ -164,8 +164,8 @@ Page({
         const totalDist = userData.totalDistance || 0
         const totalDur = userData.totalDuration || 0
         const totalCount = userData.totalCount || 0
-        const totalDistanceKm = (totalDist / 1000).toFixed(2)
-        const totalDurationMinutes = Math.round(totalDur)
+        const totalDistanceKm = totalDist.toFixed(1)
+        const totalDurationMinutes = totalDur.toFixed(1)
         
         console.log('统计数据:', { totalCount, totalDistanceKm, totalDurationMinutes })
         
@@ -192,8 +192,8 @@ Page({
               label: '累计里程'
             },
             {
-              value: totalDurationMinutes + ' 天',
-              label: '连续打卡'
+              value: totalDurationMinutes + ' 分钟',
+              label: '累积时长'
             }
           ]
         })

@@ -126,8 +126,8 @@ Page({
           totalCount: userData.totalCount || 0,
           totalDistance: totalDist,
           totalDuration: totalDur,
-          totalDistanceKm: (totalDist / 1000).toFixed(2),
-          totalDurationMinutes: Math.round(totalDur / 60).toString()
+          totalDistanceKm: totalDist.toFixed(1),
+          totalDurationMinutes: totalDur.toFixed(1)
         })
         
         console.log('设置后的data:', this.data)
