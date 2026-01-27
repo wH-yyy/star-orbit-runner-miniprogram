@@ -10,32 +10,6 @@ page {
   padding: 30rpx 30rpx 60rpx;
 }
 
-/* 统计数据卡片 */
-.stats-card {
-  display: flex;
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-}
-
-.stat-item {
-  flex: 1;
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #1890ff;
-  margin-bottom: 10rpx;
-}
-
-.stat-label {
-  font-size: 24rpx;
-  color: #999;
-}
-
 /* 表单容器 */
 .profile-form {
   background-color: #ffffff;

@@ -1,12 +1,7 @@
 // pages/submit/submit.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    // 用户信息
-    stu_id: '',  // 从数据库获取的用户学号
+    stu_id: '',
     
     // 跑步数据
     date: '',
@@ -29,11 +24,7 @@ Page({
     showSuccess: false
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
-    // 初始化默认日期时间为当前时间，精确到分钟
     const now = new Date()
     const year = now.getFullYear()
     const month = (now.getMonth() + 1).toString().padStart(2, '0')
@@ -41,24 +32,16 @@ Page({
     const hours = now.getHours().toString().padStart(2, '0')
     const minutes = now.getMinutes().toString().padStart(2, '0')
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`
-    
     this.setData({
       date: formattedDateTime
-    })
-    
-    // 加载用户信息
-    this.loadUserInfo()
+    })    
+    this.loadStuId()
   },
 
-  /**
-   * 加载用户信息
-   */
-  async loadUserInfo() {
+  loadStuId() {
     try {
       const app = getApp()
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
-      
-      console.log('Submit页面 - 获取到的stu_id:', stuId)
+      const stuId = app.globalData.userInfo.stu_id
       
       if (!stuId) {
         wx.showToast({
@@ -73,63 +56,12 @@ Page({
         return
       }
       
-      // 保存学号用于后续提交
       this.setData({
         stu_id: stuId
       })
-      
     } catch (error) {
-      console.error('加载用户信息失败:', error)
+      console.error('学号加载失败:', error)
     }
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
   },
   
   /**
@@ -139,32 +71,6 @@ Page({
     this.setData({
       locationIndex: e.detail.value
     })
-  },
-  
-  /**
-   * 日期选择器 - 用户不可更改，所以禁用
-   */
-  onDatePicker() {
-    // 用户不可更改时间，所以不需要实现任何功能
-  },
-  
-  /**
-   * 表单验证 - 跑步日期
-   */
-  validateDate(value) {
-    if (!value) {
-      this.setData({
-        dateError: true,
-        dateErrorMsg: '请选择跑步日期'
-      })
-      return false
-    }
-    
-    this.setData({
-      dateError: false,
-      dateErrorMsg: ''
-    })
-    return true
   },
   
   /**
@@ -278,11 +184,9 @@ Page({
    * 表单提交
    */
   submitForm() {
-    // 表单验证
-    const isDateValid = this.validateDate(this.data.date)
     const isImagesValid = this.validateImages(this.data.images)
     
-    if (!isDateValid || !isImagesValid) {
+    if (!isImagesValid) {
       wx.showToast({
         title: '请完善表单信息',
         icon: 'none'
