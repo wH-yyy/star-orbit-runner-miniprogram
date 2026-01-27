@@ -4,7 +4,8 @@
   "description": "OCR text recognition cloud function",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "latest"
+    "wx-server-sdk": "latest",
+    "tencentcloud-sdk-nodejs": "latest"
   },
   "author": "",
   "license": "ISC"
