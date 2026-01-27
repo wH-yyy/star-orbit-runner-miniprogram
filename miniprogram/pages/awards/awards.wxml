@@ -20,7 +20,7 @@
         <text class="progress-percent">{{participationRate}}%</text>
       </view>
       <view class="progress-bar">
-        <view class="progress-fill" style="width: {{participationRate}}%"></view>
+        <view class="progress-fill" style="width: {{participationRate}}"></view>
       </view>
     </view>
     
