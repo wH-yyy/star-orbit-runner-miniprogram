@@ -69,7 +69,7 @@ Page({
             label: '累计里程'
           },
           {
-            value:  userInfo.totalDuration,
+            value:  userInfo.totalDuration + 'min',
             label: '运动时长'
           }
         ]
