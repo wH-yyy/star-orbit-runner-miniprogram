@@ -1,67 +1,68 @@
 <!--pages/awards/awards.wxml-->
 <view class="container">
-  <text class="title">我的奖项</text>
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">我的奖项</text>
+    <text class="subtitle">根据您的跑步参与情况</text>
+  </view>
   
-  <!-- 奖项卡片 -->
-  <view class="award-card">
-    <view class="award-header">
-      <text class="award-title">当前奖项</text>
-      <view class="award-badge">{{userAward}}</view>
-    </view>
-    
-    <!-- 奖项说明 -->
-    <view class="award-description">
-      <text class="description-text">根据您的参与次数和活动总次数，您当前获得的奖项是</text>
+  <!-- 主奖项卡片 -->
+  <view class="main-card">
+    <view class="award-badge">
       <text class="award-level">{{userAward}}</text>
+      <text class="award-label">当前奖项</text>
     </view>
     
-    <!-- 统计信息 -->
-    <view class="stats-container">
-      <!-- 总活动次数 -->
-      <view class="stat-item">
-        <view class="stat-number">{{totalActivities}}</view>
-        <view class="stat-label">总活动次数</view>
+    <!-- 进度展示 -->
+    <view class="progress-section">
+      <view class="progress-info">
+        <text class="progress-text">参与进度</text>
+        <text class="progress-percent">{{participationRate}}%</text>
       </view>
-      
-      <!-- 参与次数 -->
-      <view class="stat-item">
-        <view class="stat-number">{{userParticipations}}</view>
-        <view class="stat-label">参与次数</view>
-      </view>
-      
-      <!-- 参与比例 -->
-      <view class="stat-item">
-        <view class="stat-number">{{participationRate}}%</view>
-        <view class="stat-label">参与比例</view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{participationRate}}"></view>
       </view>
     </view>
     
-    <!-- 奖项说明文字 -->
-    <view class="award-info">
-      <text class="info-title">奖项说明</text>
-      <view class="info-list">
-        <view class="info-item">
-          <text class="info-level">一等奖：</text>
-          <text class="info-desc">参与率 {{symbols.greaterEqual}} 90%</text>
-        </view>
-        <view class="info-item">
-          <text class="info-level">二等奖：</text>
-          <text class="info-desc">参与率 {{symbols.greaterEqual}} 70%</text>
-        </view>
-        <view class="info-item">
-          <text class="info-level">三等奖：</text>
-          <text class="info-desc">参与率 {{symbols.greaterEqual}} 50%</text>
-        </view>
-        <view class="info-item">
-          <text class="info-level">参与奖：</text>
-          <text class="info-desc">参与率 {{symbols.lessThan}} 50%</text>
-        </view>
+    <!-- 统计数据 -->
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{userParticipations}}</text>
+        <text class="stat-label">参与次数</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-number">{{totalActivities}}</text>
+        <text class="stat-label">总活动次数</text>
       </view>
     </view>
   </view>
   
-  <!-- 提示信息 -->
-  <view class="tips">
-    <text class="tips-text">* 奖项会根据活动次数和您的参与情况实时更新</text>
+  <!-- 奖项规则说明 -->
+  <view class="rules-card">
+    <text class="rules-title">奖项规则</text>
+    <view class="rules-list">
+      <view class="rule-item">
+        <view class="rule-badge rule-gold">一等奖</view>
+        <text class="rule-desc">参与率 {{symbols.greaterEqual}} 85%</text>
+      </view>
+      <view class="rule-item">
+        <view class="rule-badge rule-silver">二等奖</view>
+        <text class="rule-desc">参与率 {{symbols.greaterEqual}} 75%</text>
+      </view>
+      <view class="rule-item">
+        <view class="rule-badge rule-bronze">三等奖</view>
+        <text class="rule-desc">参与率 {{symbols.greaterEqual}} 60%</text>
+      </view>
+      <view class="rule-item">
+        <view class="rule-badge rule-participation">参与奖</view>
+        <text class="rule-desc">参与率 {{symbols.lessThan}} 60%</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部提示 -->
+  <view class="footer-tip">
+    <text class="tip-text">数据实时更新，继续加油！</text>
   </view>
 </view>

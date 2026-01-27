@@ -66,17 +66,15 @@ Page({
           
           // 延迟跳转，让用户看到提示
           setTimeout(() => {
+            const userInfo = result.data.userInfo              
+            wx.setStorageSync('userInfo', userInfo)
+            const app = getApp()
+            app.globalData.userInfo = userInfo
             if (result.data.existingStatus) {
-              const userInfo = result.data.userInfo              
-              wx.setStorageSync('userInfo', userInfo)
-              const app = getApp()
-              app.globalData.userInfo = userInfo
-              
               // 检查是否是tabBar页面
               wx.switchTab({
                 url: '/pages/home/home'
               })
-              console.log("userInfo:", app.globalData.userInfo)
             } else {
               wx.navigateTo({
                 url: '/pages/user-info/user-info'

@@ -77,17 +77,13 @@ Page({
 
       // 从全局数据或本地存储获取用户学号
       const app = getApp()
-      // const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
       const openid = app.globalData.userInfo.openid
 
       console.log('=== 加载用户信息 ===')
       console.log('全局userInfo:', app.globalData.userInfo)
-      // console.log('本地存储stu_id:', wx.getStorageSync('stu_id'))
-      // console.log('获取到的stuId:', stuId)
-      console.log('本地存储openid:', wx.getStorageSync('openid'))
       console.log('获取到的openid:', openid)
 
-      // if (!stuId) {
+
       if (!openid) {
         wx.showToast({
           title: '请先登录',
@@ -921,22 +917,11 @@ Page({
         // 更新全局用户信息
         const app = getApp()
         if (app.globalData.userInfo) {
-          app.globalData.userInfo = {
-            ...app.globalData.userInfo,
-            _id: userInfo._id,
-            stu_id: userInfo.stu_id,
-            name: userInfo.name,
-            gender: userInfo.gender,
-            campus: userInfo.campus,
-            class_name: userInfo.class_name,
-            college: userInfo.college,
-            phone: userInfo.phone,
-            avatar: userInfo.avatar
-          }
+          app.globalData.userInfo = userInfo
         }
 
         // 同时更新本地存储
-        wx.setStorageSync('stu_id', userInfo.stu_id)
+        wx.setStorageSync('userInfo', userInfo)
 
         // 延迟返回上一页
         setTimeout(() => {

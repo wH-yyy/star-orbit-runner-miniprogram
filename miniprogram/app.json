@@ -1,10 +1,9 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/example/index",
+    "pages/launch/launch",
+    "pages/phone-login/phone-login",
     "pages/register/register",
     "pages/login/login",
-    "pages/phone-login/phone-login",
     "pages/home/home",
     "pages/submit/submit",
     "pages/record/record",

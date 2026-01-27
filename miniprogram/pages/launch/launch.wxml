@@ -1,0 +1,9 @@
+<!-- pages/launch/launch.wxml -->
+<view class="launch-container">
+  <text class="app-name">星轨Runner</text>
+  <view class="loading">
+    <view class="loading-dot"></view>
+    <view class="loading-dot"></view>
+    <view class="loading-dot"></view>
+  </view>
+</view>

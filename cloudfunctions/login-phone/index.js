@@ -46,6 +46,7 @@ exports.main = async (event, context) => {
         totalDistance: 0,
         totalDuration: 0,
         updateTime: db.serverDate(),
+        violationCount: 0
       }
       const result = await usersCollection.add({
         data: userData

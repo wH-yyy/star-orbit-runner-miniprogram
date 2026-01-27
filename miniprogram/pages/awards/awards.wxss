@@ -1,7 +1,9 @@
 /* pages/awards/awards.wxss */
+
+/* 基础容器 - 响应式设计 */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40rpx 30rpx;
   box-sizing: border-box;
   display: flex;
@@ -9,118 +11,128 @@
   align-items: center;
 }
 
-.title {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #333333;
-  letter-spacing: 2rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 40rpx;
+/* 页面头部 */
+.header {
   text-align: center;
+  margin-bottom: 40rpx;
   width: 100%;
-  animation: fadeIn 0.6s ease forwards;
 }
 
-/* 奖项卡片 */
-.award-card {
+.title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2rpx;
+  margin-bottom: 12rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 1rpx;
+}
+
+/* 主奖项卡片 */
+.main-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 32rpx;
   padding: 40rpx;
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.1), 0 10rpx 30rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.5);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
   width: 100%;
   max-width: 600rpx;
+  margin-bottom: 30rpx;
   animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* 奖项卡片头部 */
-.award-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30rpx;
-  animation: fadeIn 0.6s ease 0.2s forwards;
-  opacity: 0;
-}
-
-.award-title {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #333333;
-}
-
+/* 奖项徽章 */
 .award-badge {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  padding: 12rpx 24rpx;
-  border-radius: 24rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* 奖项说明 */
-.award-description {
-  background: rgba(102, 126, 234, 0.08);
-  border-radius: 20rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
   text-align: center;
-  animation: fadeIn 0.6s ease 0.3s forwards;
-  opacity: 0;
-}
-
-.description-text {
-  font-size: 28rpx;
-  color: #666666;
-  line-height: 40rpx;
+  margin-bottom: 40rpx;
+  padding: 30rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24rpx;
+  box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.3);
 }
 
 .award-level {
   display: block;
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #667eea;
-  margin-top: 16rpx;
-  text-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+  font-size: 64rpx;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 8rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
   animation: glow 2s ease-in-out infinite alternate;
 }
 
-/* 统计信息 */
-.stats-container {
+.award-label {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 2rpx;
+}
+
+/* 进度展示 */
+.progress-section {
+  margin-bottom: 40rpx;
+}
+
+.progress-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 30rpx;
-  animation: fadeIn 0.6s ease 0.4s forwards;
-  opacity: 0;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.progress-text {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 600;
+}
+
+.progress-percent {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.progress-bar {
+  height: 12rpx;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 6rpx;
+  transition: width 1s ease-in-out;
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
+}
+
+/* 统计数据网格 */
+.stats-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 20rpx;
+  padding: 24rpx;
 }
 
 .stat-item {
-  flex: 1;
   text-align: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 20rpx;
-  padding: 24rpx;
-  margin: 0 10rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.stat-item:hover {
-  transform: translateY(-4rpx);
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.2);
+  flex: 1;
 }
 
 .stat-number {
+  display: block;
   font-size: 48rpx;
   font-weight: 700;
   color: #667eea;
-  margin-bottom: 8rpx;
+  margin-bottom: 4rpx;
   line-height: 1;
 }
 
@@ -129,76 +141,98 @@
   color: #666666;
 }
 
-/* 奖项说明文字 */
-.award-info {
-  animation: fadeIn 0.6s ease 0.5s forwards;
-  opacity: 0;
+.stat-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: rgba(102, 126, 234, 0.2);
+  margin: 0 20rpx;
 }
 
-.info-title {
+/* 规则卡片 */
+.rules-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 12rpx 36rpx rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 600rpx;
+  margin-bottom: 30rpx;
+}
+
+.rules-title {
   display: block;
   font-size: 32rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: #333333;
-  margin-bottom: 20rpx;
-}
-
-.info-list {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 20rpx;
-  padding: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
-}
-
-.info-item:last-child {
-  border-bottom: none;
-}
-
-.info-level {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-}
-
-.info-desc {
-  font-size: 28rpx;
-  color: #666666;
-}
-
-/* 提示信息 */
-.tips {
-  margin-top: 30rpx;
+  margin-bottom: 24rpx;
   text-align: center;
-  animation: fadeIn 0.6s ease 0.6s forwards;
-  opacity: 0;
 }
 
-.tips-text {
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(102, 126, 234, 0.1);
+}
+
+.rule-badge {
+  padding: 12rpx 20rpx;
+  border-radius: 20rpx;
   font-size: 24rpx;
-  color: #999999;
-  line-height: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  min-width: 120rpx;
+  text-align: center;
+}
+
+.rule-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.3);
+}
+
+.rule-silver {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+  box-shadow: 0 4rpx 12rpx rgba(192, 192, 192, 0.3);
+}
+
+.rule-bronze {
+  background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+  box-shadow: 0 4rpx 12rpx rgba(205, 127, 50, 0.3);
+}
+
+.rule-participation {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+}
+
+.rule-desc {
+  font-size: 26rpx;
+  color: #666666;
+  font-weight: 500;
+}
+
+/* 底部提示 */
+.footer-tip {
+  text-align: center;
+  width: 100%;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 1rpx;
 }
 
 /* 动画效果 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20rpx);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -210,22 +244,82 @@
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+@keyframes glow {
+  from {
+    text-shadow: 0 0 20rpx rgba(255, 255, 255, 0.5);
   }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.4);
+  to {
+    text-shadow: 0 0 30rpx rgba(255, 255, 255, 0.8);
   }
 }
 
-@keyframes glow {
-  from {
-    text-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+/* 响应式适配 */
+@media screen and (max-width: 375px) {
+  .container {
+    padding: 30rpx 20rpx;
   }
-  to {
-    text-shadow: 0 6rpx 20rpx rgba(102, 126, 234, 0.5);
+  
+  .main-card,
+  .rules-card {
+    padding: 30rpx;
+    border-radius: 24rpx;
+  }
+  
+  .award-level {
+    font-size: 56rpx;
+  }
+  
+  .stat-number {
+    font-size: 40rpx;
+  }
+  
+  .rule-item {
+    flex-direction: column;
+    gap: 16rpx;
+    text-align: center;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .container {
+    padding: 60rpx 40rpx;
+  }
+  
+  .main-card,
+  .rules-card {
+    max-width: 700rpx;
+  }
+  
+  .award-level {
+    font-size: 72rpx;
+  }
+  
+  .stats-grid {
+    padding: 32rpx;
+  }
+}
+
+/* 安全区域适配 */
+.safe-area {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .main-card,
+  .rules-card {
+    background: rgba(30, 30, 30, 0.9);
+    color: #ffffff;
+  }
+  
+  .progress-text,
+  .stat-label,
+  .rules-title,
+  .rule-desc {
+    color: #ffffff;
+  }
+  
+  .stat-number {
+    color: #667eea;
   }
 }
