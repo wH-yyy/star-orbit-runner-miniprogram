@@ -53,34 +53,29 @@ Page({
   /**
    * 加载用户信息
    */
-  async loadUserInfo() {
-    try {
-      const app = getApp()
-      const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
-      
-      console.log('Submit页面 - 获取到的stu_id:', stuId)
-      
-      if (!stuId) {
-        wx.showToast({
-          title: '请先录入学号',
-          icon: 'none'
-        })
-        setTimeout(() => {
-          wx.redirectTo({
-            url: '/pages/user-info/user-info'
-          })
-        }, 1500)
-        return
-      }
-      
-      // 保存学号用于后续提交
-      this.setData({
-        stu_id: stuId
+  loadUserInfo() {
+    const app = getApp()
+    const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
+    
+    console.log('Submit页面 - 获取到的stu_id:', stuId)
+    
+    if (!stuId) {
+      wx.showToast({
+        title: '请先录入学号',
+        icon: 'none'
       })
-      
-    } catch (error) {
-      console.error('加载用户信息失败:', error)
+      setTimeout(() => {
+        wx.redirectTo({
+          url: '/pages/user-info/user-info'
+        })
+      }, 1500)
+      return
     }
+    
+    // 保存学号用于后续提交
+    this.setData({
+      stu_id: stuId
+    })
   },
 
   /**

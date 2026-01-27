@@ -94,12 +94,11 @@ Page({
    * 预览图片
    */
   previewImage(e) {
-    const index = e.currentTarget.dataset.index;
-    const images = this.data.record.images;
-    if (images && images.length > 0) {
+    const imageFileID = this.data.record.imageFileID;
+    if (imageFileID) {
       wx.previewImage({
-        current: images[index],
-        urls: images
+        current: imageFileID,
+        urls: [imageFileID]
       });
     }
   },
@@ -107,32 +106,50 @@ Page({
   /**
    * 加载记录详情
    */
-  async loadRecordDetail(id) {
+  loadRecordDetail(id) {
     this.setData({
       loading: true
     });
 
-    try {
-      // 从数据库获取记录详情
-      const db = wx.cloud.database();
-      const res = await db.collection('RunningRecords')
-        .doc(id)
-        .get();
-      
-      this.setData({
-        record: res.data,
-        loading: false
+    // 从数据库获取记录详情
+    const db = wx.cloud.database();
+    db.collection('RunningRecords')
+      .doc(id)
+      .get()
+      .then(res => {
+        const recordData = res.data;
+        // 确保status字段为数字类型
+        if (recordData.status !== undefined) {
+          recordData.status = parseInt(recordData.status);
+        }
+        
+        // 处理未通过原因显示
+        if (recordData.audit_reason) {
+          let reason = recordData.audit_reason.toLowerCase();
+          if (reason.includes('ocr') || reason.includes('识别')) {
+            recordData.displayAuditReason = '学号和姓名不匹配';
+          } else {
+            recordData.displayAuditReason = recordData.audit_reason;
+          }
+        } else {
+          recordData.displayAuditReason = '未提供具体原因';
+        }
+        
+        this.setData({
+          record: recordData,
+          loading: false
+        });
+      })
+      .catch(error => {
+        console.error('加载记录详情失败:', error);
+        this.setData({
+          loading: false
+        });
+        wx.showToast({
+          title: '加载详情失败',
+          icon: 'none'
+        });
       });
-    } catch (error) {
-      console.error('加载记录详情失败:', error);
-      this.setData({
-        loading: false
-      });
-      wx.showToast({
-        title: '加载详情失败',
-        icon: 'none'
-      });
-    }
   },
 
   /**
@@ -278,7 +295,7 @@ Page({
             this.setData({
               record: {
                 ...record,
-                status: 'pending'
+                status: 2
               },
               showAppealModal: false,
               appealReason: '',

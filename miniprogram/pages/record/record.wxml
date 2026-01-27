@@ -27,7 +27,10 @@
 
   <!-- 跑步记录列表 -->
   <view class="record-list">
-    <view class="list-title">跑步记录</view>
+    <view class="list-header">
+      <view class="list-title">跑步记录</view>
+      <view class="list-count">{{recordList.length}}条记录</view>
+    </view>
     
     <view wx:if="{{loading}}" class="loading">
       <text>加载中...</text>
@@ -35,24 +38,67 @@
     
     <view wx:elif="{{recordList.length === 0}}" class="empty">
       <text>暂无跑步记录</text>
+      <button class="submit-btn" bindtap="goToSubmit">去提交记录</button>
     </view>
     
     <view wx:else class="record-items">
       <view class="record-item" wx:for="{{recordList}}" wx:key="_id">
-          <view class="record-date">{{item.date}}</view>
-          <view class="record-location">地点：{{item.location}}</view>
-          <view class="record-images">
-            <image 
-              wx:for="{{item.images}}" 
-              wx:key="index" 
-              wx:for-item="img"
-              src="{{img}}" 
-              mode="aspectFill"
-              class="record-image">
-            </image>
+        <!-- 记录头部 -->
+        <view class="record-header">
+          <view class="record-date">{{item.running_date}}</view>
+          <view class="record-status" wx:if="{{item.status !== undefined}}">
+            <text class="status-text {{item.status === 1 ? 'status-passed' : item.status === 2 ? 'status-pending' : 'status-failed'}}">
+              {{item.status === 1 ? '已通过' : item.status === 2 ? '审核中' : '未通过'}}
+            </text>
           </view>
-          <button class="view-detail-btn" bindtap="viewRecord" data-id="{{item._id}}">查看详情</button>
         </view>
+        
+        <!-- 记录信息 -->
+        <view class="record-info">
+          <view class="record-stats">
+            <view class="stat-item">
+              <text class="stat-value">{{item.running_distance || '0'}}km</text>
+              <text class="stat-label">里程</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-value">{{item.running_duration || '0'}}</text>
+              <text class="stat-label">时长</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-value">{{item.running_pace || '0'}}</text>
+              <text class="stat-label">配速</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 记录图片 -->
+        <view class="record-images" wx:if="{{item.imageFileID}}">
+          <image 
+            src="{{item.imageFileID}}" 
+            mode="aspectFill"
+            class="record-image"
+            bindtap="previewImage" 
+            data-images="[item.imageFileID]" 
+            data-index="0">
+          </image>
+        </view>
+        
+        <!-- 记录底部 -->
+        <view class="record-footer">
+          <button class="view-detail-btn" bindtap="viewRecord" data-id="{{item._id}}">查看详情</button>
+          <view wx:if="{{item.status === 0 && item.displayAuditReason}}" class="fail-reason">
+            <text class="fail-reason-text">未通过原因：{{item.displayAuditReason}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载更多 -->
+      <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMoreData">
+        <text>加载更多...</text>
+      </view>
+      <view wx:elif="{{!hasMore && recordList.length > 0}}" class="no-more">
+        <text>没有更多记录了</text>
+      </view>
     </view>
   </view>
 </view>

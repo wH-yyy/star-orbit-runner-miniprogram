@@ -31,7 +31,7 @@ Page({
     })
   },
 
-  async login() {
+  login() {
     if (!this.data.agreementChecked) {
       wx.showToast({
         title: '请勾选服务协议',
@@ -39,26 +39,26 @@ Page({
       })
       return
     }
-    try {
-      // 显示加载状态
-      wx.showLoading({
-        title: '登录中...',
-        mask: true
-      })
-      
-      // 调用云函数
-      const res = await wx.cloud.callFunction({
-        name: 'login-phone',
-        data: null
-      })
-      
+    
+    // 显示加载状态
+    wx.showLoading({
+      title: '登录中...',
+      mask: true
+    })
+    
+    // 调用云函数
+    wx.cloud.callFunction({
+      name: 'login-phone',
+      data: null
+    })
+    .then(res => {
       const result = res.result
       wx.hideLoading()
       
       switch(result.code) {
         case 200:
           // 先显示成功提示
-          await wx.showToast({
+          wx.showToast({
             title: '登录成功',
             icon: 'success',
             duration: 1500
@@ -91,7 +91,8 @@ Page({
           })
           break;
       }
-    } catch (error) {
+    })
+    .catch(error => {
       wx.hideLoading()
       wx.showToast({
         title: '网络异常，请检查网络',
@@ -99,6 +100,6 @@ Page({
         duration: 2000
       })
       console.error('登录失败:', error)
-    }
+    })
   }
 })
