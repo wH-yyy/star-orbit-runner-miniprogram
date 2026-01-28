@@ -15,7 +15,7 @@ Page({
 
     // 跑步方式选择
     // 这里文本可按你实际需要调整
-    modeOptions: ['在操场', '在校园环路'],
+    modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
     modeIndex: 0,
 
     // 提交状态
@@ -29,6 +29,13 @@ Page({
 
   onLoad() {
     // 默认展示当前时间（仅展示用；实际审核以OCR识别到的时间为准）
+    this.setData({
+      date: this.formatNow()
+    })
+  },
+
+  onShow() {
+    // 每次进入提交页时刷新一次当前时间，避免长时间打开小程序后时间不更新
     this.setData({
       date: this.formatNow()
     })
