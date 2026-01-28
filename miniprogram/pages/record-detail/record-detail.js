@@ -18,12 +18,20 @@ Page({
   onLoad(options) {
     // 从页面参数中获取记录ID
     const id = options.id;
+    console.log('=== 详情页面加载，获取到的记录ID:', id);
     if (id) {
       // 加载记录详情
       this.loadRecordDetail(id);
     } else {
       // 没有ID参数，返回上一页
-      this.goBack();
+      console.error('=== 详情页面加载失败：没有获取到记录ID');
+      wx.showToast({
+        title: '加载失败：没有记录ID',
+        icon: 'none'
+      });
+      setTimeout(() => {
+        this.goBack();
+      }, 1500);
     }
   },
 
@@ -60,11 +68,21 @@ Page({
    */
   onPullDownRefresh() {
     // 下拉刷新时重新加载数据
+    console.log('=== 详情页面下拉刷新');
     const id = this.data.record.id;
+    console.log('=== 下拉刷新时获取到的记录ID:', id);
     if (id) {
       this.loadRecordDetail(id);
+    } else {
+      console.error('=== 下拉刷新失败：未找到记录ID');
+      wx.showToast({
+        title: '刷新失败：未找到记录',
+        icon: 'none'
+      });
     }
-    wx.stopPullDownRefresh();
+    setTimeout(() => {
+      wx.stopPullDownRefresh();
+    }, 500);
   },
 
   /**
@@ -107,6 +125,7 @@ Page({
    * 加载记录详情
    */
   loadRecordDetail(id) {
+    console.log('=== 开始加载记录详情，ID:', id);
     this.setData({
       loading: true
     });
@@ -117,7 +136,25 @@ Page({
       .doc(id)
       .get()
       .then(res => {
+        console.log('=== 加载记录详情成功，结果:', res);
         const recordData = res.data;
+        
+        // 检查是否获取到数据
+        if (!recordData) {
+          console.error('=== 加载记录详情失败：未获取到数据');
+          this.setData({
+            loading: false
+          });
+          wx.showToast({
+            title: '加载详情失败：未找到记录',
+            icon: 'none'
+          });
+          setTimeout(() => {
+            this.goBack();
+          }, 1500);
+          return;
+        }
+        
         // 确保status字段为数字类型
         if (recordData.status !== undefined) {
           recordData.status = parseInt(recordData.status);
@@ -135,13 +172,17 @@ Page({
           recordData.displayAuditReason = '未提供具体原因';
         }
         
+        // 添加记录ID到数据中，用于下拉刷新
+        recordData.id = id;
+        
         this.setData({
           record: recordData,
           loading: false
         });
+        console.log('=== 记录详情数据已设置:', this.data.record);
       })
       .catch(error => {
-        console.error('加载记录详情失败:', error);
+        console.error('=== 加载记录详情失败:', error);
         this.setData({
           loading: false
         });

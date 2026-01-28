@@ -26,6 +26,15 @@ Page({
   },
 
   /**
+   * 页面显示时重新加载数据
+   */
+  onShow() {
+    console.log('=== Record页面显示，重新加载用户信息和记录 ===')
+    this.loadUserInfo()
+    this.loadRecords()
+  },
+
+  /**
    * 加载用户信息
    */
   loadUserInfo() {
