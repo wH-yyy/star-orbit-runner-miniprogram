@@ -18,12 +18,20 @@ Page({
   onLoad(options) {
     // 从页面参数中获取记录ID
     const id = options.id;
+    console.log('=== 详情页面加载，获取到的记录ID:', id);
     if (id) {
       // 加载记录详情
       this.loadRecordDetail(id);
     } else {
       // 没有ID参数，返回上一页
-      this.goBack();
+      console.error('=== 详情页面加载失败：没有获取到记录ID');
+      wx.showToast({
+        title: '加载失败：没有记录ID',
+        icon: 'none'
+      });
+      setTimeout(() => {
+        this.goBack();
+      }, 1500);
     }
   },
 
@@ -60,11 +68,21 @@ Page({
    */
   onPullDownRefresh() {
     // 下拉刷新时重新加载数据
+    console.log('=== 详情页面下拉刷新');
     const id = this.data.record.id;
+    console.log('=== 下拉刷新时获取到的记录ID:', id);
     if (id) {
       this.loadRecordDetail(id);
+    } else {
+      console.error('=== 下拉刷新失败：未找到记录ID');
+      wx.showToast({
+        title: '刷新失败：未找到记录',
+        icon: 'none'
+      });
     }
-    wx.stopPullDownRefresh();
+    setTimeout(() => {
+      wx.stopPullDownRefresh();
+    }, 500);
   },
 
   /**
@@ -94,12 +112,11 @@ Page({
    * 预览图片
    */
   previewImage(e) {
-    const index = e.currentTarget.dataset.index;
-    const images = this.data.record.images;
-    if (images && images.length > 0) {
+    const imageFileID = this.data.record.imageFileID;
+    if (imageFileID) {
       wx.previewImage({
-        current: images[index],
-        urls: images
+        current: imageFileID,
+        urls: [imageFileID]
       });
     }
   },
@@ -107,32 +124,73 @@ Page({
   /**
    * 加载记录详情
    */
-  async loadRecordDetail(id) {
+  loadRecordDetail(id) {
+    console.log('=== 开始加载记录详情，ID:', id);
     this.setData({
       loading: true
     });
 
-    try {
-      // 从数据库获取记录详情
-      const db = wx.cloud.database();
-      const res = await db.collection('RunningRecords')
-        .doc(id)
-        .get();
-      
-      this.setData({
-        record: res.data,
-        loading: false
+    // 从数据库获取记录详情
+    const db = wx.cloud.database();
+    db.collection('RunningRecords')
+      .doc(id)
+      .get()
+      .then(res => {
+        console.log('=== 加载记录详情成功，结果:', res);
+        const recordData = res.data;
+        
+        // 检查是否获取到数据
+        if (!recordData) {
+          console.error('=== 加载记录详情失败：未获取到数据');
+          this.setData({
+            loading: false
+          });
+          wx.showToast({
+            title: '加载详情失败：未找到记录',
+            icon: 'none'
+          });
+          setTimeout(() => {
+            this.goBack();
+          }, 1500);
+          return;
+        }
+        
+        // 确保status字段为数字类型
+        if (recordData.status !== undefined) {
+          recordData.status = parseInt(recordData.status);
+        }
+        
+        // 处理未通过原因显示
+        if (recordData.audit_reason) {
+          let reason = recordData.audit_reason.toLowerCase();
+          if (reason.includes('ocr') || reason.includes('识别')) {
+            recordData.displayAuditReason = '学号和姓名不匹配';
+          } else {
+            recordData.displayAuditReason = recordData.audit_reason;
+          }
+        } else {
+          recordData.displayAuditReason = '未提供具体原因';
+        }
+        
+        // 添加记录ID到数据中，用于下拉刷新
+        recordData.id = id;
+        
+        this.setData({
+          record: recordData,
+          loading: false
+        });
+        console.log('=== 记录详情数据已设置:', this.data.record);
+      })
+      .catch(error => {
+        console.error('=== 加载记录详情失败:', error);
+        this.setData({
+          loading: false
+        });
+        wx.showToast({
+          title: '加载详情失败',
+          icon: 'none'
+        });
       });
-    } catch (error) {
-      console.error('加载记录详情失败:', error);
-      this.setData({
-        loading: false
-      });
-      wx.showToast({
-        title: '加载详情失败',
-        icon: 'none'
-      });
-    }
   },
 
   /**
@@ -278,7 +336,7 @@ Page({
             this.setData({
               record: {
                 ...record,
-                status: 'pending'
+                status: 2
               },
               showAppealModal: false,
               appealReason: '',

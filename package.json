@@ -1,0 +1,16 @@
+{
+  "name": "starrail-runner",
+  "version": "1.0.0",
+  "description": "星轨Runner微信小程序",
+  "main": "app.js",
+  "scripts": {
+    "dev": "wxdev",
+    "build": "wxbuild"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.26.0"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "MIT"
+}

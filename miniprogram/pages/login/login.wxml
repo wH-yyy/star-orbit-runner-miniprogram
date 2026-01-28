@@ -52,10 +52,6 @@
       >
         {{loginText}}
       </button>
-      
-      <view class="register-link">
-        <text>还没有账号？</text><navigator url="/pages/register/register" class="link">立即注册</navigator>
-      </view>
     </view>
   </view>
 </view>
