@@ -41,7 +41,7 @@ Page({
   /**
    * 加载用户信息
    */
-  loadUserInfo() {
+  loadStuId() {
     const app = getApp()
     const stuId = app.globalData.userInfo?.stu_id || wx.getStorageSync('stu_id')
     

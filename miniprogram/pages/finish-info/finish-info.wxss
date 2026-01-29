@@ -1,0 +1,272 @@
+.container {
+  padding: 20rpx;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.header {
+  margin-bottom: 40rpx;
+  text-align: center;
+  padding-top: 20rpx;
+}
+
+.title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12rpx;
+  letter-spacing: 2rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.form {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10rpx;
+}
+
+.form-item {
+  background: white;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.form-item:hover {
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+  transform: translateY(-2rpx);
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  font-weight: 600;
+}
+
+.input {
+  font-size: 28rpx;
+  color: #333;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #eee;
+  transition: border-color 0.3s ease;
+  width: 100%;
+}
+
+.input:focus {
+  border-bottom-color: #07c160;
+  outline: none;
+}
+
+.placeholder {
+  color: #999;
+}
+
+.radio-group {
+  display: flex;
+  gap: 40rpx;
+  margin-top: 16rpx;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8rpx 16rpx;
+  border-radius: 10rpx;
+  transition: all 0.2s ease;
+}
+
+.radio-item:hover {
+  background-color: #f5f5f5;
+}
+
+.radio-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-left: 10rpx;
+}
+
+/* 自定义单选按钮样式 */
+radio .wx-radio-input {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  border: 2rpx solid #ddd;
+  transition: all 0.3s ease;
+}
+
+radio .wx-radio-input.wx-radio-input-checked {
+  border-color: #07c160;
+  background-color: #07c160;
+}
+
+radio .wx-radio-input.wx-radio-input-checked::before {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background-color: white;
+  transform: translate(-50%, -50%) scale(1);
+  -webkit-transform: translate(-50%, -50%) scale(1);
+}
+
+.picker {
+  font-size: 28rpx;
+  color: #333;
+  padding: 20rpx 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.picker::after {
+  content: "";
+  width: 18rpx;
+  height: 18rpx;
+  border: solid #999;
+  border-width: 0 2rpx 2rpx 0;
+  transform: rotate(45deg);
+  transition: border-color 0.3s ease;
+}
+
+.picker:hover::after {
+  border-color: #07c160;
+}
+
+.picker-placeholder {
+  color: #999;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #07c160 0%, #06b358 100%);
+  color: white;
+  border-radius: 20rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  height: 88rpx;
+  line-height: 88rpx;
+  margin-top: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 8rpx 30rpx rgba(7, 193, 96, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  width: 100%;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 12rpx 40rpx rgba(7, 193, 96, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.3);
+}
+
+.button-hover {
+  opacity: 0.9;
+}
+
+/* 适配不同屏幕尺寸 */
+@media screen and (max-width: 375px) {
+  .container {
+    padding: 15rpx;
+  }
+  
+  .title {
+    font-size: 32rpx;
+  }
+  
+  .subtitle {
+    font-size: 22rpx;
+  }
+  
+  .form-item {
+    padding: 24rpx;
+    margin-bottom: 16rpx;
+  }
+  
+  .input, .radio-label, .picker {
+    font-size: 26rpx;
+  }
+  
+  .label {
+    font-size: 26rpx;
+  }
+  
+  .radio-group {
+    gap: 30rpx;
+  }
+  
+  .submit-btn {
+    height: 80rpx;
+    line-height: 80rpx;
+    font-size: 30rpx;
+    margin-top: 20rpx;
+  }
+}
+
+/* 适配暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #191919;
+  }
+  
+  .title, .label, .input, .radio-label, .picker {
+    color: #e6e6e6;
+  }
+  
+  .subtitle {
+    color: #999;
+  }
+  
+  .form-item {
+    background: #2a2a2a;
+    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.2);
+  }
+  
+  .form-item:hover {
+    box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.3);
+  }
+  
+  .input {
+    border-bottom-color: #404040;
+  }
+  
+  .input:focus {
+    border-bottom-color: #07c160;
+  }
+  
+  .radio-item:hover {
+    background-color: #333;
+  }
+  
+  radio .wx-radio-input {
+    border-color: #555;
+  }
+  
+  .picker::after {
+    border-color: #666;
+  }
+  
+  .picker:hover::after {
+    border-color: #07c160;
+  }
+}

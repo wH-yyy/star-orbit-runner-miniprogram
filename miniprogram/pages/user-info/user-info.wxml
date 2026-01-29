@@ -8,7 +8,7 @@
       <view class="form-value avatar-wrapper" bindtap="chooseAvatar">
         <image 
           class="avatar-image" 
-          src="{{userInfo.avatar || '/images/default-avatar.png'}}" 
+          src="{{userInfo.avatar || '/images/avatar.png'}}" 
           mode="aspectFill">
         </image>
         <text class="avatar-tip">点击更换</text>

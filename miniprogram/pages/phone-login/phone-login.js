@@ -79,7 +79,7 @@ Page({
               })
             } else {
               wx.navigateTo({
-                url: '/pages/user-info/user-info'
+                url: '/pages/finish-info/finish-info'
               })
             }
           }, 1500)
