@@ -8,7 +8,7 @@
       <view class="form-value avatar-wrapper" bindtap="chooseAvatar">
         <image 
           class="avatar-image" 
-          src="{{userInfo.avatar || '/images/default-avatar.png'}}" 
+          src="{{userInfo.avatar || '/images/avatar.png'}}" 
           mode="aspectFill">
         </image>
         <text class="avatar-tip">点击更换</text>
@@ -250,6 +250,22 @@
       <view wx:if="{{!isForgotPassword}}" class="password-form-footer">
         <view class="forgot-password" bindtap="startForgotPassword">忘记密码？</view>
       </view>
+    </view>
+  </view>
+
+  <!-- 跑步统计数据 -->
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-value">{{totalCount}}</text>
+      <text class="stat-label">总次数</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{totalDistanceKm}}</text>
+      <text class="stat-label">总距离(km)</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{totalDurationMinutes}}</text>
+      <text class="stat-label">总时长(分钟)</text>
     </view>
   </view>
 

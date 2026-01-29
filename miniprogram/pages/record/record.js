@@ -281,9 +281,10 @@ Page({
         res.data.forEach(item => {
           console.log('Record页面处理记录:', item)
           
-          // 判断状态是否为通过（支持数字1和字符串'1'）
-          const isPassed = item.status === 1 || item.status === '1'
-          console.log('Record页面记录状态:', item.status, '是否通过:', isPassed)
+          // 判断状态是否为通过（支持数字1和字符串'1'，统一转换为数字进行比较）
+          const statusNum = parseInt(item.status)
+          const isPassed = statusNum === 1
+          console.log('Record页面记录状态:', item.status, '转换后:', statusNum, '是否通过:', isPassed)
           
           if (isPassed) {
             totalCount++

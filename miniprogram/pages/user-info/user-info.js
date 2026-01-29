@@ -39,10 +39,9 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    const app = getApp()
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
+    console.log('=== UserInfo页面加载 ===')
+    // 页面加载时直接调用 loadUserInfo 方法，确保获取最新的用户信息
+    this.loadUserInfo()
   },
 
   /**
@@ -1074,6 +1073,44 @@ Page({
     console.log('传入的openid:', openid)
     console.log('用户数据:', userData)
     
+    // 确保openid存在
+    if (!openid) {
+      console.error('计算跑步统计数据失败：openid不存在')
+      this.setData({
+        userInfo: {
+          _id: userData._id,
+          avatar: userData.avatar || '/images/avatar.png',
+          campus: userData.campus,
+          class_name: userData.class || userData.class_name,
+          college: userData.college,
+          createdTime: userData.createdTime,
+          gender: userData.gender,
+          name: userData.name,
+          openid: userData.openid,
+          password: userData.password,
+          phone: userData.phone,
+          status: userData.status,
+          stu_id: userData.stu_id,
+          totalCount: 0,
+          totalDuration: 0,
+          totalDistance: 0,
+          updateTime: userData.updateTime
+        },
+        genderIndex: genderIndex >= 0 ? genderIndex : 0,
+        campusIndex: campusIndex >= 0 ? campusIndex : 0,
+        collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
+        totalCount: 0,
+        totalDistanceKm: '0.00',
+        totalDurationMinutes: '0'
+      })
+      wx.hideLoading()
+      wx.showToast({
+        title: '加载统计数据失败：用户信息不完整',
+        icon: 'none'
+      })
+      return
+    }
+    
     const db = wx.cloud.database()
     console.log('准备查询RunningRecords表，条件:', { openid: openid })
     db.collection('RunningRecords')
@@ -1087,48 +1124,62 @@ Page({
         console.log('查询到的记录数量:', res.data.length)
         console.log('查询到的记录详情:', res.data)
         
+        // 重置统计数据，只计算通过状态的记录
         let totalCount = 0
         let totalDistance = 0
         let totalDuration = 0
 
         // 遍历所有记录，只计算通过状态的记录
-        res.data.forEach(item => {
-          console.log('处理记录:', item)
-          
-          // 判断状态是否为通过（支持数字1和字符串'1'）
-          const isPassed = item.status === 1 || item.status === '1'
-          console.log('记录状态:', item.status, '是否通过:', isPassed)
-          
-          if (isPassed) {
-            totalCount++
+        if (res.data && res.data.length > 0) {
+          res.data.forEach(item => {
+            console.log('处理记录:', item)
             
-            // 计算总距离（确保是数字类型）
-            if (item.running_distance) {
-              const distance = parseFloat(item.running_distance) || 0
-              console.log('距离:', distance)
-              totalDistance += distance
-            }
+            // 判断状态是否为通过（支持数字1和字符串'1'，统一转换为数字进行比较）
+            const statusNum = parseInt(item.status)
+            const isPassed = statusNum === 1
+            console.log('记录状态:', item.status, '转换后:', statusNum, '是否通过:', isPassed)
             
-            // 计算总时长（将时间格式转换为秒）
-            if (item.running_duration) {
-              const durationInSeconds = this.convertDurationToSeconds(item.running_duration)
-              console.log('时长（秒）:', durationInSeconds)
-              totalDuration += durationInSeconds
+            if (isPassed) {
+              totalCount++
+              
+              // 计算总距离（确保是数字类型）
+              if (item.running_distance) {
+                const distance = parseFloat(item.running_distance) || 0
+                console.log('距离:', distance)
+                totalDistance += distance
+              }
+              
+              // 计算总时长（将时间格式转换为秒）
+              if (item.running_duration) {
+                const durationInSeconds = this.convertDurationToSeconds(item.running_duration)
+                console.log('时长（秒）:', durationInSeconds)
+                totalDuration += durationInSeconds
+              }
             }
-          }
-        })
+          })
+        } else {
+          console.log('没有查询到RunningRecords记录')
+        }
 
         console.log('=== 统计结果 ===')
         console.log('总次数:', totalCount)
         console.log('总距离:', totalDistance)
         console.log('总时长:', totalDuration)
 
+        // 计算总时长（分钟）
+        const totalDurationMinutes = Math.round(totalDuration / 60)
+        
+        // 计算总距离（保留两位小数）
+        const totalDistanceKm = totalDistance.toFixed(2)
+
+        // 强制更新页面数据
+        console.log('强制更新页面数据')
         this.setData({
           userInfo: {
             _id: userData._id,
             avatar: userData.avatar || '/images/avatar.png',
             campus: userData.campus,
-            class_name: userData.class_name,
+            class_name: userData.class || userData.class_name,
             college: userData.college,
             createdTime: userData.createdTime,
             gender: userData.gender,
@@ -1138,19 +1189,32 @@ Page({
             phone: userData.phone,
             status: userData.status,
             stu_id: userData.stu_id,
-            totalCount: totalCount,        // 总跑步次数
-            totalDuration: totalDuration,     // 总跑步时长
-            totalDistance: totalDistance,     // 总跑步距离
+            totalCount: totalCount,
+            totalDuration: totalDuration,
+            totalDistance: totalDistance,
             updateTime: userData.updateTime
           },
           genderIndex: genderIndex >= 0 ? genderIndex : 0,
           campusIndex: campusIndex >= 0 ? campusIndex : 0,
           collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
-          totalDistanceKm: totalDistance.toFixed(2),
-          totalDurationMinutes: Math.round(totalDuration / 60).toString()
+          totalCount: totalCount,
+          totalDistanceKm: totalDistanceKm,
+          totalDurationMinutes: totalDurationMinutes.toString()
+        }, () => {
+          // 数据更新完成后的回调
+          console.log('数据更新完成，当前页面数据:', {
+            totalCount: this.data.totalCount,
+            totalDistanceKm: this.data.totalDistanceKm,
+            totalDurationMinutes: this.data.totalDurationMinutes
+          })
         })
         
         console.log('设置后的userInfo:', this.data.userInfo)
+        console.log('设置后的统计数据:', {
+          totalCount: this.data.totalCount,
+          totalDistanceKm: this.data.totalDistanceKm,
+          totalDurationMinutes: this.data.totalDurationMinutes
+        })
         wx.hideLoading()
       })
       .catch(error => {
@@ -1161,7 +1225,7 @@ Page({
             _id: userData._id,
             avatar: userData.avatar || '/images/avatar.png',
             campus: userData.campus,
-            class_name: userData.class_name,
+            class_name: userData.class || userData.class_name,
             college: userData.college,
             createdTime: userData.createdTime,
             gender: userData.gender,
@@ -1179,6 +1243,7 @@ Page({
           genderIndex: genderIndex >= 0 ? genderIndex : 0,
           campusIndex: campusIndex >= 0 ? campusIndex : 0,
           collegeIndex: collegeIndex >= 0 ? collegeIndex : 0,
+          totalCount: 0,
           totalDistanceKm: '0.00',
           totalDurationMinutes: '0'
         })
