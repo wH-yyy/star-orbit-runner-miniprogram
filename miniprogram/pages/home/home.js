@@ -64,24 +64,24 @@ Page({
     try {
       const app = getApp()
       const userInfo = app.globalData.userInfo
+      const openid = userInfo?.openid
       
-      this.setData({
-        userInfo: userInfo,
-        stats: [
-          {
-            value: userInfo.totalCount + ' 次',
-            label: '打卡记录'
-          },
-          {
-            value: userInfo.totalDistance + ' km',
-            label: '累计里程'
-          },
-          {
-            value:  userInfo.totalDuration + 'min',
-            label: '运动时长'
-          }
-        ]
-      })
+      if (!openid) {
+        console.error('加载用户信息失败：openid不存在')
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none'
+        })
+        setTimeout(() => {
+          wx.redirectTo({
+            url: '/pages/phone-login/phone-login'
+          })
+        }, 1500)
+        return
+      }
+      
+      // 从RunningRecords表中获取统计数据
+      this.calculateRunningStats(openid, userInfo)
     } catch (error) {
       console.error('加载用户信息失败:', error)
       wx.showToast({
@@ -89,6 +89,147 @@ Page({
         icon: 'none'
       })
     }
+  },
+
+  /**
+   * 计算跑步统计数据
+   */
+  calculateRunningStats(openid, userData) {
+    console.log('=== Home页面开始计算跑步统计数据 ===')
+    console.log('传入的openid:', openid)
+    console.log('用户数据:', userData)
+    
+    const db = wx.cloud.database()
+    console.log('Home页面准备查询RunningRecords表，条件:', { openid: openid })
+    db.collection('RunningRecords')
+      .where({
+        openid: openid
+      })
+      .get()
+      .then(res => {
+        console.log('=== Home页面计算跑步统计数据 ===')
+        console.log('查询结果:', res)
+        console.log('查询到的记录数量:', res.data.length)
+        console.log('查询到的记录详情:', res.data)
+        
+        let totalCount = 0
+        let totalDistance = 0
+        let totalDuration = 0
+
+        // 遍历所有记录，只计算通过状态的记录
+        res.data.forEach(item => {
+          console.log('Home页面处理记录:', item)
+          
+          // 判断状态是否为通过（支持数字1和字符串'1'，统一转换为数字进行比较）
+          const statusNum = parseInt(item.status)
+          const isPassed = statusNum === 1
+          console.log('Home页面记录状态:', item.status, '转换后:', statusNum, '是否通过:', isPassed)
+          
+          if (isPassed) {
+            totalCount++
+            
+            // 计算总距离（确保是数字类型）
+            if (item.running_distance) {
+              const distance = parseFloat(item.running_distance) || 0
+              console.log('Home页面距离:', distance)
+              totalDistance += distance
+            }
+            
+            // 计算总时长（将时间格式转换为秒）
+            if (item.running_duration) {
+              const durationInSeconds = this.convertDurationToSeconds(item.running_duration)
+              console.log('Home页面时长（秒）:', durationInSeconds)
+              totalDuration += durationInSeconds
+            }
+          }
+        })
+
+        console.log('=== Home页面统计结果 ===')
+        console.log('总次数:', totalCount)
+        console.log('总距离:', totalDistance)
+        console.log('总时长:', totalDuration)
+
+        // 计算总时长（分钟）
+        const totalDurationMinutes = Math.round(totalDuration / 60)
+        
+        // 计算总距离（保留两位小数）
+        const totalDistanceKm = totalDistance.toFixed(2)
+
+        // 更新页面数据
+        this.setData({
+          userInfo: {
+            ...userData,
+            totalCount: totalCount,
+            totalDistance: totalDistance,
+            totalDuration: totalDuration
+          },
+          stats: [
+            {
+              value: totalCount + ' 次',
+              label: '打卡记录'
+            },
+            {
+              value: totalDistanceKm + ' km',
+              label: '累计里程'
+            },
+            {
+              value: totalDurationMinutes + ' min',
+              label: '运动时长'
+            }
+          ]
+        })
+        
+        console.log('Home页面设置后的数据:', this.data)
+      })
+      .catch(error => {
+        console.error('计算跑步统计数据失败:', error)
+        // 如果获取统计数据失败，使用默认值
+        this.setData({
+          userInfo: {
+            ...userData,
+            totalCount: 0,
+            totalDistance: 0,
+            totalDuration: 0
+          },
+          stats: [
+            {
+              value: '0 次',
+              label: '打卡记录'
+            },
+            {
+              value: '0.00 km',
+              label: '累计里程'
+            },
+            {
+              value: '0 min',
+              label: '运动时长'
+            }
+          ]
+        })
+      })
+  },
+
+  /**
+   * 将时间格式转换为秒
+   */
+  convertDurationToSeconds(duration) {
+    if (!duration) return 0
+    
+    // 处理 HH:MM:SS 格式
+    const parts = duration.split(':')
+    if (parts.length === 3) {
+      const hours = parseInt(parts[0]) || 0
+      const minutes = parseInt(parts[1]) || 0
+      const seconds = parseInt(parts[2]) || 0
+      return hours * 3600 + minutes * 60 + seconds
+    }
+    // 处理 MM:SS 格式
+    else if (parts.length === 2) {
+      const minutes = parseInt(parts[0]) || 0
+      const seconds = parseInt(parts[1]) || 0
+      return minutes * 60 + seconds
+    }
+    return 0
   },
 
   navigateToUserInfo() {
