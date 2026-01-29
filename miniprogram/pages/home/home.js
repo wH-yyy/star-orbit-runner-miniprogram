@@ -50,8 +50,10 @@ Page({
    * 页面显示时重新加载数据
    */
   onShow() {
-    console.log('=== Home页面显示，重新加载用户信息 ===')
     this.loadUserInfo()
+    console.log('1. 当前 userInfo.gender:', this.data.userInfo.gender);
+    console.log('2. 严格等于"男":', this.data.userInfo.gender === '男');
+    console.log('3. 严格等于"女":', this.data.userInfo.gender === '女');
   },
 
   onPullDownRefresh() {
@@ -73,11 +75,11 @@ Page({
             label: '打卡记录'
           },
           {
-            value: userInfo.totalDistance + ' km',
+            value: userInfo.totalDistance.toFixed(1) + ' km',
             label: '累计里程'
           },
           {
-            value:  userInfo.totalDuration + 'min',
+            value:  userInfo.totalDuration.toFixed(1) + 'min',
             label: '运动时长'
           }
         ]

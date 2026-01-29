@@ -4,15 +4,18 @@
   <view class="user-info-section" bindtap="navigateToUserInfo">
     <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
     <view class="user-details">
-      <view class="user-name">{{userInfo.name}}</view>
+      <view class="user-header">
+        <view wx:if="{{userInfo.gender === '男'}}" class="gender-icon male-icon">♂</view>
+        <view wx:elif="{{userInfo.gender === '女'}}" class="gender-icon female-icon">♀</view>
+        <view class="user-name">{{userInfo.name}}</view>
+        <view class="user-stu-id">{{userInfo.stu_id}}</view>
+      </view>
       <view class="user-meta">
-        <text class="meta-item">{{userInfo.stu_id}}</text>
-        <text class="meta-divider">|</text>
-        <text class="meta-item">{{userInfo.campus}}</text>
+        <text class="meta-item">{{userInfo.class_name}}</text>
         <text class="meta-divider">|</text>
         <text class="meta-item">{{userInfo.college}}</text>
         <text class="meta-divider">|</text>
-        <text class="meta-item">{{userInfo.class_name}}</text>
+        <text class="meta-item">{{userInfo.campus}}</text>
       </view>
     </view>
   </view>
