@@ -7,44 +7,76 @@ cloud.init({
 
 const db = cloud.database()
 
-// 根据fileID调用微信云开发 OCR printedText接口，返回拼接后的纯文本
-async function getOCRTextFromFileID(fileID) {
+// 根据fileID调用微信云开发 OCR，返回拼接后的纯文本
+// provider: 'general' | 'printed' | 'auto'（默认auto：先general后printed）
+async function getOCRTextFromFileID(fileID, provider = 'auto') {
   console.log('开始OCR识别，fileID:', fileID)
 
   try {
-    // 1. 先把 fileID 转成临时访问链接
-    const tempRes = await cloud.getTempFileURL({
-      fileList: [fileID]
-    })
-    const fileList = tempRes && tempRes.fileList ? tempRes.fileList : []
-    const tempFileURL =
-      fileList.length > 0 && fileList[0].tempFileURL
-        ? fileList[0].tempFileURL
-        : ''
-
-    if (!tempFileURL) {
-      throw new Error('获取图片临时链接失败')
+    // A. generalText（通常对截图更友好；如果环境不支持可能报 604100）
+    const tryGeneral = async () => {
+      const ocrResult = await cloud.openapi.ocr.recognizeGeneralText({
+        type: 'file',
+        media: { fileID }
+      })
+      let ocrText = ''
+      if (ocrResult && Array.isArray(ocrResult.words_result) && ocrResult.words_result.length > 0) {
+        ocrText = ocrResult.words_result.map(item => item.words).join('\n')
+      }
+      return { ocrText, ocrResult, provider: 'general' }
     }
 
-    // 2. 用临时链接调用 printedText
-    const ocrResult = await cloud.openapi.ocr.printedText({
-      type: 'photo',
-      // 注意这里参数名是 imgUrl（驼峰），不是 img_url，也不是 img:{url:...}
-      imgUrl: tempFileURL
-    })
+    // B. printedText（通过临时链接；对“印刷体”可能更稳，但对截图布局有时不如 general）
+    const tryPrinted = async () => {
+      // 1) fileID -> 临时URL
+      const tempRes = await cloud.getTempFileURL({ fileList: [fileID] })
+      const fileList = tempRes && tempRes.fileList ? tempRes.fileList : []
+      const tempFileURL = (fileList[0] && fileList[0].tempFileURL) ? fileList[0].tempFileURL : ''
+      if (!tempFileURL) {
+        const err = new Error('获取图片临时链接失败')
+        err.errCode = 500
+        throw err
+      }
 
-    let ocrText = ''
-    if (ocrResult && Array.isArray(ocrResult.items) && ocrResult.items.length > 0) {
-      // printedText 返回 items 数组，每个 item 有 text/words 等字段
-      ocrText = ocrResult.items
-        .map(item => item.text || item.words || item.word || '')
-        .filter(Boolean)
-        .join('\n')
+      // 2) OCR
+      const ocrResult = await cloud.openapi.ocr.printedText({
+        type: 'photo',
+        imgUrl: tempFileURL
+      })
+
+      let ocrText = ''
+      if (ocrResult && Array.isArray(ocrResult.items) && ocrResult.items.length > 0) {
+        ocrText = ocrResult.items
+          .map(item => item.text || item.words || item.word || '')
+          .filter(Boolean)
+          .join('\n')
+      } else if (ocrResult && Array.isArray(ocrResult.words_result) && ocrResult.words_result.length > 0) {
+        ocrText = ocrResult.words_result.map(item => item.words).join('\n')
+      } else if (ocrResult && typeof ocrResult.text === 'string') {
+        ocrText = ocrResult.text
+      }
+      return { ocrText, ocrResult, provider: 'printed' }
     }
 
-    console.log('OCR识别完成，文本长度:', ocrText ? ocrText.length : 0)
-    console.log('OCR识别结果:', ocrText)
-    return { ocrText, ocrResult }
+    let result = null
+    if (provider === 'general') {
+      result = await tryGeneral()
+    } else if (provider === 'printed') {
+      result = await tryPrinted()
+    } else {
+      // auto：先 general，若 API 不存在/失败再降级 printed
+      try {
+        result = await tryGeneral()
+      } catch (e) {
+        // 604100: API not found（环境不支持）；其它错误也允许降级尝试
+        console.warn('generalText OCR 失败，尝试 printedText 降级。errCode:', e && e.errCode, 'errMsg:', e && e.errMsg)
+        result = await tryPrinted()
+      }
+    }
+
+    console.log('OCR识别完成，provider:', result.provider, '文本长度:', result.ocrText ? result.ocrText.length : 0)
+    console.log('OCR识别结果:', result.ocrText)
+    return { ocrText: result.ocrText, ocrResult: result.ocrResult, provider: result.provider }
   } catch (error) {
     console.error('OCR识别失败:', error)
     // 保持外层 catch 能拿到 errCode
@@ -435,7 +467,7 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   // 获取参数
-  const { fileID, ocrText: ocrTextFromClient } = event
+  const { fileID, ocrText: ocrTextFromClient, ocrProvider } = event
   
   try {
     // 验证参数
@@ -451,7 +483,7 @@ exports.main = async (event, context) => {
     let ocrText = ''
     let ocrFullResult = null
     try {
-      const ocr = await getOCRTextFromFileID(fileID)
+      const ocr = await getOCRTextFromFileID(fileID, ocrProvider || 'auto')
       ocrText = ocr.ocrText
       ocrFullResult = ocr.ocrResult
     } catch (error) {
