@@ -20,12 +20,6 @@ exports.main = async (event, context) => {
     if (existingUser) {
       existingStatus = true
       userData = existingUser
-      await usersCollection.doc(existingUser._id).update({
-        data: {
-            updateTime: db.serverDate()
-        }
-      })
-      console.log(`用户已存在，openid: ${openid}`)
     } else {
       existingStatus = false;
       userData = {
@@ -37,11 +31,11 @@ exports.main = async (event, context) => {
         college: "",
         createTime: db.serverDate(),
         gender: "",
-        name: "czy_test",
+        name: "",
         password: "",
         phone: "",
         status: "active",
-        stu_id: "",
+        stu_id: Math.floor(Math.random() * 9000000000 + 1000000000).toString(),
         totalCount: 0,
         totalDistance: 0,
         totalDuration: 0,

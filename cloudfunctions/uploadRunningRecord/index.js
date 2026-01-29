@@ -7,6 +7,54 @@ cloud.init({
 
 const db = cloud.database()
 
+// 根据fileID调用微信云开发 OCR printedText接口，返回拼接后的纯文本
+async function getOCRTextFromFileID(fileID) {
+  console.log('开始OCR识别，fileID:', fileID)
+
+  try {
+    // 1. 先把 fileID 转成临时访问链接
+    const tempRes = await cloud.getTempFileURL({
+      fileList: [fileID]
+    })
+    const fileList = tempRes && tempRes.fileList ? tempRes.fileList : []
+    const tempFileURL =
+      fileList.length > 0 && fileList[0].tempFileURL
+        ? fileList[0].tempFileURL
+        : ''
+
+    if (!tempFileURL) {
+      throw new Error('获取图片临时链接失败')
+    }
+
+    // 2. 用临时链接调用 printedText
+    const ocrResult = await cloud.openapi.ocr.printedText({
+      type: 'photo',
+      // 注意这里参数名是 imgUrl（驼峰），不是 img_url，也不是 img:{url:...}
+      imgUrl: tempFileURL
+    })
+
+    let ocrText = ''
+    if (ocrResult && Array.isArray(ocrResult.items) && ocrResult.items.length > 0) {
+      // printedText 返回 items 数组，每个 item 有 text/words 等字段
+      ocrText = ocrResult.items
+        .map(item => item.text || item.words || item.word || '')
+        .filter(Boolean)
+        .join('\n')
+    }
+
+    console.log('OCR识别完成，文本长度:', ocrText ? ocrText.length : 0)
+    console.log('OCR识别结果:', ocrText)
+    return { ocrText, ocrResult }
+  } catch (error) {
+    console.error('OCR识别失败:', error)
+    // 保持外层 catch 能拿到 errCode
+    if (error.errCode) {
+      throw error
+    }
+    throw new Error(`OCR识别失败: ${error.message}`)
+  }
+}
+
 // 根据openid获取用户信息并验证OCR文本
 async function verifyUserInfoWithOpenID(openid, ocrText) {
   console.log('根据openid验证用户信息:', openid)
@@ -144,8 +192,10 @@ function parseRunningInfoFromOCR(ocrText) {
     console.log('匹配到时长:', runningInfo.duration)
   }
   
-  // 4. 匹配配速（格式：6'10\"，必须包含单引号和双引号）
-  const paceMatch = ocrText.match(/(\d+)['′]\s*(\d+)[\"″]/)
+  // 4. 匹配配速（格式：6'10\"，需支持英文/中文/数学符号等单引号和双引号变体）
+  // 单引号类字符：'（ASCII）、′（prime）、‘ ’（中文弯引号）
+  // 双引号类字符："（ASCII）、″（double prime）、“ ”（中文弯引号）
+  const paceMatch = ocrText.match(/(\d+)[\'′‘’]\s*(\d+)[\"″“”]/)
   if (paceMatch) {
     runningInfo.pace = `${paceMatch[1]}'${paceMatch[2]}\"`
     console.log('匹配到配速:', runningInfo.pace)
@@ -357,14 +407,14 @@ function convertDurationToMinutes(durationStr) {
   return 0
 }
 
-// 将配速字符串转换为秒数（只处理6'10"格式）
+// 将配速字符串转换为秒数（只处理6'10"格式，支持中英文引号变体）
 function convertPaceToSeconds(paceStr) {
   if (!paceStr) return 0
   
   console.log('原始配速字符串:', paceStr)
   
-  // 只处理6'10"格式
-  const match = paceStr.match(/(\d+)['′]\s*(\d+)[\"″]/)
+  // 只处理形如 6'10" 的格式，兼容中英文引号/双引号
+  const match = paceStr.match(/(\d+)[\'′‘’]\s*(\d+)[\"″“”]/)
   
   if (match) {
     const minutes = parseInt(match[1])
@@ -382,19 +432,47 @@ function convertPaceToSeconds(paceStr) {
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   // 测试环境下使用默认openid，生产环境下使用真实openid
-  // const openid = wxContext.OPENID
-  const openid = "oeRJz1y_B_jB_NTlZNGTlQp6XmRM"
+  const openid = wxContext.OPENID
   
   // 获取参数
-  const { fileID, ocrText } = event
+  const { fileID, ocrText: ocrTextFromClient } = event
   
   try {
     // 验证参数
-    if (!fileID || !ocrText) {
+    if (!fileID) {
       return {
         code: 400,
-        message: '参数错误，缺少必要字段',
+        message: '参数错误，缺少必要字段fileID',
         data: null
+      }
+    }
+
+    // 0. OCR识别：优先使用云函数识别结果；如前端仍传了ocrText则忽略（兼容老版本可按需改为fallback）
+    let ocrText = ''
+    let ocrFullResult = null
+    try {
+      const ocr = await getOCRTextFromFileID(fileID)
+      ocrText = ocr.ocrText
+      ocrFullResult = ocr.ocrResult
+    } catch (error) {
+      console.error('OCR识别失败:', error)
+      const errCode = error.errCode || 500
+      return {
+        code: errCode,
+        message: `OCR识别失败: ${error.message}`,
+        data: {
+          fileID,
+          // 方便排查：保留前端传入的ocrText（如果有），但不参与审核
+          ocrTextFromClient: ocrTextFromClient || ''
+        }
+      }
+    }
+
+    if (!ocrText) {
+      return {
+        code: 422,
+        message: 'OCR未识别到有效文本，请上传清晰的截图',
+        data: { fileID }
       }
     }
     
@@ -454,7 +532,11 @@ exports.main = async (event, context) => {
         auditStatus: auditResult.status,
         auditReason: auditResult.reason,
         ocrInfo: runningInfo,
-        finalPace: runningInfo.pace || auditResult.calculatedPace
+        finalPace: runningInfo.pace || auditResult.calculatedPace,
+        // 便于前端调试/展示：返回OCR文本（如需更轻量可删掉）
+        ocrText: ocrText,
+        // 需要时可打开：返回完整OCR结构（注意数据量可能较大）
+        // ocrFullResult: ocrFullResult
       }
     }
     
