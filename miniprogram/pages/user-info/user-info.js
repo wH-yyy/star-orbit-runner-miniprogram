@@ -66,7 +66,9 @@ Page({
         icon: 'none'
       })
       setTimeout(() => {
-        wx.navigateBack()
+        wx.redirectTo({
+          url: '/pages/phone-login/phone-login'
+        })
       }, 1500)
       wx.hideLoading()
       return
@@ -117,7 +119,8 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    // 每次显示页面时重新加载用户数据（防止从提交页面返回后数据不更新）
+    console.log('=== UserInfo页面显示，重新加载用户信息 ===')
+    // 每次显示页面时重新加载用户数据（防止从提交页面返回后数据不更新，或用户切换账号后数据不更新）
     this.loadUserInfo()
   },
 
