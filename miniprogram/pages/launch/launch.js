@@ -15,7 +15,7 @@ Page({
       
       if (app.globalData.hasLogin) {
         wx.switchTab({
-          url: '/pages/home/home'
+          url: '/pages/submit/submit'
         });
       } else {
         wx.reLaunch({

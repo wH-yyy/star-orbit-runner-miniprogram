@@ -2,7 +2,6 @@
 <view class="container">
   <view class="login-box">
     <view class="logo">
-      <image src="../../images/avatar.png" mode="aspectFill"></image>
       <text class="title">星轨Runner</text>
     </view>
     
