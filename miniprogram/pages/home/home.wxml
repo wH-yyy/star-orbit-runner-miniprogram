@@ -1,7 +1,7 @@
 <!--pages/home/home.wxml-->
 <view class="home-container">
   <!-- 用户信息区域 -->
-  <view class="user-info-section" bindtap="navigateToUserInfo">
+  <view class="user-info-section">
     <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
     <view class="user-details">
       <view class="user-header">

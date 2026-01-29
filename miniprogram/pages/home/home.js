@@ -51,9 +51,6 @@ Page({
    */
   onShow() {
     this.loadUserInfo()
-    console.log('1. 当前 userInfo.gender:', this.data.userInfo.gender);
-    console.log('2. 严格等于"男":', this.data.userInfo.gender === '男');
-    console.log('3. 严格等于"女":', this.data.userInfo.gender === '女');
   },
 
   onPullDownRefresh() {
@@ -112,60 +109,26 @@ Page({
   },
 
   handleLogout() {
-    console.log('=== 开始退出登录 ===')
     wx.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
       success: (res) => {
-        console.log('退出登录确认结果:', res)
         if (res.confirm) {
-          console.log('用户确认退出登录')
-          
-          // 清除本地存储
-          console.log('清除本地存储前的userInfo:', wx.getStorageSync('userInfo'))
           wx.clearStorageSync()
-          console.log('清除本地存储后的userInfo:', wx.getStorageSync('userInfo'))
-          
-          // 重置全局数据
           const app = getApp()
-          console.log('重置前的全局数据:', app.globalData)
           if (app.globalData) {
             app.globalData.userInfo = null
             app.globalData.hasLogin = false
           }
-          console.log('重置后的全局数据:', app.globalData)
-          
-          // 显示退出成功提示
           wx.showToast({
             title: '已退出登录',
             icon: 'success',
-            duration: 500
           })
-          
-          // 立即跳转到手机号一键登录页面
-          console.log('准备跳转到手机号一键登录页面')
           setTimeout(() => {
-            console.log('执行跳转到手机号一键登录页面')
-            wx.redirectTo({
-              url: '/pages/phone-login/phone-login',
-              success: function(res) {
-                console.log('跳转到手机号登录页面成功:', res)
-              },
-              fail: function(res) {
-                console.error('跳转到手机号登录页面失败:', res)
-                // 如果redirectTo失败，尝试使用navigateTo
-                wx.navigateTo({
-                  url: '/pages/phone-login/phone-login',
-                  success: function(res) {
-                    console.log('使用navigateTo跳转到手机号登录页面成功:', res)
-                  },
-                  fail: function(res) {
-                    console.error('使用navigateTo跳转到手机号登录页面也失败:', res)
-                  }
-                })
-              }
+            wx.reLaunch({
+              url: '/pages/phone-login/phone-login'
             })
-          }, 500)
+          }, 1000)
         }
       }
     })
