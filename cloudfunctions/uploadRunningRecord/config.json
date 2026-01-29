@@ -1,7 +1,8 @@
 {
   "permissions": {
     "openapi": [
-      "ocr.printedText"
+      "ocr.printedText",
+      "ocr.recognizeGeneralText"
     ]
   }
 }

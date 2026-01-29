@@ -7,8 +7,6 @@ Page({
 
     // 图片（用于预览展示：临时路径）
     images: [],
-    // 与 images 一一对应的云存储 fileID
-    imageFileIDs: [],
     maxImages: 1,
     imageError: false,
     imageErrorMsg: '',
@@ -82,33 +80,19 @@ Page({
       const tempFiles = res.tempFiles || []
       if (tempFiles.length === 0) return
 
-      wx.showLoading({ title: '上传中...', mask: true })
-      this.setData({ submitDisabled: true, submitText: '上传中...' })
-
-      for (const f of tempFiles) {
-        const tempFilePath = f.tempFilePath
-        const cloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
-        const uploadRes = await wx.cloud.uploadFile({
-          cloudPath,
-          filePath: tempFilePath
-        })
-
-        this.setData({
-          images: [...this.data.images, tempFilePath],
-          imageFileIDs: [...this.data.imageFileIDs, uploadRes.fileID],
-          imageError: false,
-          imageErrorMsg: ''
-        })
-      }
+      // 只在本地展示预览，不在这里上传；上传放到提交时统一处理
+      const newImages = tempFiles.map(f => f.tempFilePath)
+      this.setData({
+        images: [...this.data.images, ...newImages],
+        imageError: false,
+        imageErrorMsg: ''
+      })
     } catch (error) {
       console.error('选择/上传图片失败:', error)
       if (error && error.errMsg && error.errMsg.includes('cancel')) return
       wx.showToast({ title: '图片上传失败', icon: 'none' })
     } finally {
-      wx.hideLoading()
-      if (!this.data.submitting) {
-        this.setData({ submitDisabled: false, submitText: '提交审核' })
-      }
+      // 这里不涉及上传，不需要 loading 状态恢复
     }
   },
 
@@ -118,17 +102,15 @@ Page({
     if (Number.isNaN(index)) return
 
     const images = [...this.data.images]
-    const imageFileIDs = [...this.data.imageFileIDs]
     images.splice(index, 1)
-    imageFileIDs.splice(index, 1)
 
-    this.setData({ images, imageFileIDs })
+    this.setData({ images })
   },
 
   validateForm() {
     let ok = true
 
-    if (!this.data.imageFileIDs || this.data.imageFileIDs.length === 0) {
+    if (!this.data.images || this.data.images.length === 0) {
       ok = false
       this.setData({
         imageError: true,
@@ -157,71 +139,47 @@ Page({
       return
     }
 
-    const fileID = this.data.imageFileIDs[0]
     const mode = this.data.modeOptions[this.data.modeIndex] || ''
 
     try {
       this.setData({
         submitting: true,
         submitDisabled: true,
-        submitText: '审核中...'
+        submitText: '提交中...'
       })
-      wx.showLoading({ title: '审核中...', mask: true })
+      wx.showLoading({ title: '上传中...', mask: true })
 
-      const res = await wx.cloud.callFunction({
-        name: 'uploadRunningRecord',
-        // 目前云函数还未使用 mode，如需存库可以后续在云函数中接收并写入
-        data: { fileID, mode }
+      // 1. 上传首张截图到云存储
+      const tempFilePath = this.data.images[0]
+      const cloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
+      const uploadRes = await wx.cloud.uploadFile({
+        cloudPath,
+        filePath: tempFilePath
       })
+      const fileID = uploadRes.fileID
 
       wx.hideLoading()
 
-      const result = res && res.result ? res.result : null
-      if (!result) {
-        wx.showToast({ title: '提交失败', icon: 'none' })
-        return
-      }
+      // 2. 前端视角：上传成功即视为提交成功
+      this.setData({
+        images: [],
+        imageError: false,
+        imageErrorMsg: '',
+        showSuccess: true
+      })
 
-      // uploadRunningRecord 约定：{ code, message, data }
-      if (result.code !== 200) {
-        wx.showModal({
-          title: '提交失败',
-          content: result.message || '提交失败，请稍后重试',
-          showCancel: false
+      // 3. 在后台触发 OCR + 审核，不阻塞用户
+      wx.cloud
+        .callFunction({
+          name: 'uploadRunningRecord',
+          data: { fileID, mode, ocrProvider: 'auto' }
         })
-        return
-      }
-
-      const auditStatus = result.data ? result.data.auditStatus : ''
-      const auditReason = result.data ? result.data.auditReason : ''
-
-      if (auditStatus === '1') {
-        // 审核通过：清空已选图片与错误提示，再展示成功弹窗
-        this.setData({
-          images: [],
-          imageFileIDs: [],
-          imageError: false,
-          imageErrorMsg: '',
-          showSuccess: true
+        .then(res => {
+          console.log('后台OCR审核完成:', res)
         })
-      } else {
-        // 审核不通过：同样清空已选图片，避免残留
-        this.setData({
-          images: [],
-          imageFileIDs: [],
-          imageError: false,
-          imageErrorMsg: ''
+        .catch(err => {
+          console.error('后台OCR审核失败:', err)
         })
-        wx.showModal({
-          title: '审核未通过',
-          content: auditReason || '不符合打卡规则',
-          showCancel: false,
-          success: () => {
-            // 仍然已入库，返回记录页查看详情
-            wx.navigateBack({ delta: 1 })
-          }
-        })
-      }
     } catch (error) {
       console.error('提交失败:', error)
       wx.hideLoading()
