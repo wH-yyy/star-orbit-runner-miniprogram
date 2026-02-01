@@ -10,8 +10,6 @@ const db = cloud.database()
 // 根据fileID调用微信云开发 OCR，返回拼接后的纯文本
 // provider: 'general' | 'printed' | 'auto'（默认auto：先general后printed）
 async function getOCRTextFromFileID(fileID, provider = 'auto') {
-  console.log('开始OCR识别，fileID:', fileID)
-
   try {
     // A. generalText（通常对截图更友好；如果环境不支持可能报 604100）
     const tryGeneral = async () => {
@@ -69,16 +67,12 @@ async function getOCRTextFromFileID(fileID, provider = 'auto') {
         result = await tryGeneral()
       } catch (e) {
         // 604100: API not found（环境不支持）；其它错误也允许降级尝试
-        console.warn('generalText OCR 失败，尝试 printedText 降级。errCode:', e && e.errCode, 'errMsg:', e && e.errMsg)
         result = await tryPrinted()
       }
     }
 
-    console.log('OCR识别完成，provider:', result.provider, '文本长度:', result.ocrText ? result.ocrText.length : 0)
-    console.log('OCR识别结果:', result.ocrText)
     return { ocrText: result.ocrText, ocrResult: result.ocrResult, provider: result.provider }
   } catch (error) {
-    console.error('OCR识别失败:', error)
     // 保持外层 catch 能拿到 errCode
     if (error.errCode) {
       throw error
@@ -89,9 +83,6 @@ async function getOCRTextFromFileID(fileID, provider = 'auto') {
 
 // 根据openid获取用户信息并验证OCR文本
 async function verifyUserInfoWithOpenID(openid, ocrText) {
-  console.log('根据openid验证用户信息:', openid)
-  console.log('OCR文本:', ocrText)
-  
   try {
     // 根据openid查找用户信息
     const userResult = await db.collection('Users').where({
@@ -108,16 +99,11 @@ async function verifyUserInfoWithOpenID(openid, ocrText) {
     
     const userDoc = userResult.data[0]
     const { name, stu_id } = userDoc
-    
-    console.log('从数据库获取的用户信息:', { name, stu_id })
-    
     // 检查姓名是否在OCR文本中
     const nameInOCR = name && ocrText.includes(name)
-    console.log('姓名匹配结果:', nameInOCR)
     
     // 检查学号是否在OCR文本中
     const stuIdInOCR = stu_id && ocrText.includes(stu_id)
-    console.log('学号匹配结果:', stuIdInOCR)
     
     // 两者都必须存在
     const verified = nameInOCR && stuIdInOCR
@@ -130,7 +116,6 @@ async function verifyUserInfoWithOpenID(openid, ocrText) {
       }
     }
     
-    console.log('用户信息验证结果: 通过')
     return {
       verified: true,
       reason: '',
@@ -138,7 +123,6 @@ async function verifyUserInfoWithOpenID(openid, ocrText) {
     }
     
   } catch (error) {
-    console.error('验证用户信息失败:', error)
     return {
       verified: false,
       reason: '验证用户信息时发生错误'
@@ -148,8 +132,6 @@ async function verifyUserInfoWithOpenID(openid, ocrText) {
 
 // 解析跑步信息函数 - 基于格式规范优化版本
 function parseRunningInfoFromOCR(ocrText) {
-  console.log('OCR文本:', ocrText)
-  
   const runningInfo = {
     distance: null,    // 里程(km)
     duration: null,    // 时长（格式：00:12:28）
@@ -160,68 +142,52 @@ function parseRunningInfoFromOCR(ocrText) {
   // 1. 匹配日期时间（支持多种格式）
   let dateTimeMatch = null
   
-  console.log('开始匹配日期时间，OCR文本:', ocrText)
-  
   // 先尝试匹配标准格式：2026-01-23 20:45
   dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
-  console.log('标准格式匹配结果:', dateTimeMatch)
   
   // 如果没有匹配到标准格式，尝试匹配中文时间格式：下午8:18
   if (!dateTimeMatch) {
     dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(上午|下午|晚上)?\s*(\d{1,2}):(\d{2})/)
-    console.log('中文格式匹配结果:', dateTimeMatch)
   }
   
   if (dateTimeMatch) {
     let dateTimeStr = dateTimeMatch[0]
     
     // 如果是中文时间格式，转换为24小时制
-    console.log('dateTimeMatch完整结果:', dateTimeMatch)
-    
     if (dateTimeMatch[2] && ['上午', '下午', '晚上'].includes(dateTimeMatch[2])) { 
       // 匹配到上午/下午/晚上
       const timePeriod = dateTimeMatch[2]
       let hour = parseInt(dateTimeMatch[3])
       const minute = dateTimeMatch[4]
       
-      console.log('检测到中文时间格式:', { timePeriod, hour, minute })
-      
       // 转换为24小时制
       if ((timePeriod === '下午' || timePeriod === '晚上') && hour < 12) {
         hour += 12
-        console.log('转换为24小时制:', hour)
       } else if (timePeriod === '上午' && hour === 12) {
         hour = 0
-        console.log('上午12点转为0点')
       }
       
       // 重新构建时间字符串
       dateTimeStr = dateTimeStr.replace(/上午|下午|晚上/g, '').trim()
       dateTimeStr = dateTimeStr.replace(/\d{1,2}:\d{2}/, `${hour.toString().padStart(2, '0')}:${minute}`)
-      console.log('转换后的时间字符串:', dateTimeStr)
     } else {
-      console.log('标准时间格式，无需转换')
     }
     
     // 统一格式为：2024-1-1 20:30
     runningInfo.dateTime = normalizeDateTimeFormat(dateTimeStr)
-    console.log('统一格式后的日期时间:', runningInfo.dateTime)
   } else {
-    console.log('未匹配到日期时间')
   }
   
   // 2. 匹配里程（格式：2.02km）
   const distanceMatch = ocrText.match(/(\d+\.?\d*)\s*(?:km|公里|千米)/i)
   if (distanceMatch) {
     runningInfo.distance = parseFloat(distanceMatch[1])
-    console.log('匹配到里程:', runningInfo.distance)
   }
   
   // 3. 匹配时长（格式：00:12:28，必须包含时分秒）
   const durationMatch = ocrText.match(/(\d{1,2}:\d{2}:\d{2})/)
   if (durationMatch) {
     runningInfo.duration = durationMatch[1]
-    console.log('匹配到时长:', runningInfo.duration)
   }
   
   // 4. 匹配配速（格式：6'10\"，需支持英文/中文/数学符号等单引号和双引号变体）
@@ -230,10 +196,8 @@ function parseRunningInfoFromOCR(ocrText) {
   const paceMatch = ocrText.match(/(\d+)[\'′‘’]\s*(\d+)[\"″“”]/)
   if (paceMatch) {
     runningInfo.pace = `${paceMatch[1]}'${paceMatch[2]}\"`
-    console.log('匹配到配速:', runningInfo.pace)
   }
   
-  console.log('最终解析结果:', runningInfo)
   return runningInfo
 }
 
@@ -289,27 +253,20 @@ function auditRunningRecord(runningInfo) {
   // 2. 检查时间 (必须在20:00-22:00之间)
   let timeCheckFailed = false
   if (dateTime) {
-    console.log('检查时间，dateTime:', dateTime)
     const timeMatch = dateTime.match(/(\d{1,2}):(\d{2})/)
     if (timeMatch) {
       const hour = parseInt(timeMatch[1])
       const minute = parseInt(timeMatch[2])
-      console.log('提取到时间:', { hour, minute })
-      
       // 直接使用24小时制时间进行比较
       if (hour < 20 || hour > 22 || (hour === 22 && minute > 0)) {
         auditResult.status = '0'
         auditResult.reason = '打卡时间不在20:00-22:00之间'
         timeCheckFailed = true
-        console.log('时间审核不通过，原因:', auditResult.reason)
       } else {
-        console.log('时间审核通过')
       }
     } else {
-      console.log('无法从dateTime中提取时间')
     }
   } else {
-    console.log('dateTime为空，跳过时间检查')
   }
   
   // 3. 检查配速
@@ -343,15 +300,12 @@ function auditRunningRecord(runningInfo) {
 // 更新用户统计信息
 async function updateUserStatistics(openid, auditStatus, runningInfo) {
   try {
-    console.log('更新用户统计信息:', { openid, auditStatus, runningInfo })
-    
     // 查找用户记录
     const userResult = await db.collection('Users').where({
       openid: openid
     }).get()
     
     if (userResult.data.length === 0) {
-      console.log('用户记录不存在，跳过统计更新')
       return
     }
     
@@ -374,11 +328,9 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
         }
       }
       
-      console.log('审核通过，更新统计:', updateData)
     } else {
       // 审核不通过：更新违规次数
       updateData.violationCount = (userDoc.violationCount || 0) + 1
-      console.log('审核不通过，更新违规次数:', updateData)
     }
     
     // 更新用户记录
@@ -386,24 +338,18 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
       data: updateData
     })
     
-    console.log('用户统计信息更新成功')
   } catch (error) {
-    console.error('更新用户统计信息失败:', error)
   }
 }
 
 // 统一日期时间格式为：2024-1-1 20:30
 function normalizeDateTimeFormat(dateTimeStr) {
-  if (!dateTimeStr) return null
-  
-  console.log('原始日期时间字符串:', dateTimeStr)
-  
+  if (!dateTimeStr) return null  
   // 提取日期和时间部分
   const dateMatch = dateTimeStr.match(/(\d{4})[年\-/.]?(\d{1,2})[月\-/.]?(\d{1,2})[日]?/)
   const timeMatch = dateTimeStr.match(/(\d{1,2}):(\d{2})/)
   
   if (!dateMatch || !timeMatch) {
-    console.log('日期时间格式无法解析')
     return null
   }
   
@@ -419,7 +365,6 @@ function normalizeDateTimeFormat(dateTimeStr) {
   // 构建统一格式：2024-1-1 20:30
   const normalized = `${year}-${month}-${day} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
   
-  console.log('统一格式结果:', normalized)
   return normalized
 }
 
@@ -443,8 +388,6 @@ function convertDurationToMinutes(durationStr) {
 function convertPaceToSeconds(paceStr) {
   if (!paceStr) return 0
   
-  console.log('原始配速字符串:', paceStr)
-  
   // 只处理形如 6'10" 的格式，兼容中英文引号/双引号
   const match = paceStr.match(/(\d+)[\'′‘’]\s*(\d+)[\"″“”]/)
   
@@ -452,11 +395,8 @@ function convertPaceToSeconds(paceStr) {
     const minutes = parseInt(match[1])
     const seconds = parseInt(match[2])
     const totalSeconds = minutes * 60 + seconds
-    console.log(`配速解析: ${paceStr} -> ${minutes}分${seconds}秒 -> ${totalSeconds}秒`)
     return totalSeconds
   }
-  
-  console.log('配速格式无法识别（只支持X\'XX\"格式）:', paceStr)
   return 0
 }
 
@@ -487,7 +427,6 @@ exports.main = async (event, context) => {
       ocrText = ocr.ocrText
       ocrFullResult = ocr.ocrResult
     } catch (error) {
-      console.error('OCR识别失败:', error)
       const errCode = error.errCode || 500
       return {
         code: errCode,
@@ -573,8 +512,6 @@ exports.main = async (event, context) => {
     }
     
   } catch (error) {
-    console.error('上传跑步记录失败:', error)
-    
     return {
       code: 500,
       message: `服务器内部错误: ${error.message}`,

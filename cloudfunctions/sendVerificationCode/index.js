@@ -80,10 +80,7 @@ exports.main = async (event, context) => {
       TemplateParamSet: [code, "10"],
     })
     */
-    
-    // 开发环境下，将验证码返回（生产环境应删除此行）
-    console.log('验证码（仅供测试）:', code)
-    
+
     return {
       success: true,
       code: 200,
@@ -93,7 +90,6 @@ exports.main = async (event, context) => {
     }
     
   } catch (error) {
-    console.error('发送验证码失败:', error)
     return {
       success: false,
       code: 500,
