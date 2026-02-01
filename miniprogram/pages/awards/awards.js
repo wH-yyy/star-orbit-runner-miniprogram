@@ -1,76 +1,34 @@
 // pages/awards/awards.js
 Page({
-  /**
-   * 页面的初始数据
-   */
   data: {
     totalActivities: 60, // 总活动次数（固定为60次）
     userParticipations: 0, // 用户参与次数（从数据库获取）
     participationRate: 0, // 参与比例
     userAward: "", // 用户奖项
-    symbols: {
-      greaterEqual: "≥",
-      lessThan: "<"
-    }
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad(options) {
     this.loadUserParticipations();
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function () {
+  onShow() {
     // 每次显示页面时重新获取参与次数并计算奖项，确保数据最新
     this.loadUserParticipations();
   },
 
   /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh: function () {
+  onPullDownRefresh() {
     // 下拉刷新时重新获取参与次数并计算奖项
     this.loadUserParticipations();
     wx.stopPullDownRefresh();
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
   },
 
   /**
@@ -124,7 +82,7 @@ Page({
   /**
    * 计算用户奖项
    */
-  calculateAward: function () {
+  calculateAward() {
     const { totalActivities, userParticipations } = this.data;
     
     // 计算参与比例
