@@ -10,7 +10,6 @@
       <view class="date-range">3月21日~4月31日</view>
       <view class="time-range">20:00~22:05</view>
     </view>
-    <view wx:if="{{dateError}}" class="error-tip">{{dateErrorMsg}}</view>
   </view>
 
   <!-- 跑步记录截图 -->
@@ -51,7 +50,7 @@
 
   <!-- 提交按钮 -->
   <button class="submit-btn" type="primary" bindtap="submitForm" disabled="{{submitDisabled}}">
-    {{submitText}}
+    {{submitTextList[submitTextIndex]}}
   </button>
 
   <!-- 成功提示 -->

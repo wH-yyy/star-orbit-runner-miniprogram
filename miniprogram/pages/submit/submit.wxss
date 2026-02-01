@@ -85,7 +85,6 @@
   background: rgba(255, 255, 255, 0.95);
 }
 
-/* WXSS */
 .schedule-container {
   width: 100%;
   border: 3rpx solid #e0e0e0;
@@ -95,25 +94,25 @@
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   display: flex;
-  flex-direction: column; /* 改为垂直布局 */
-  align-items: center; /* 每行水平居中 */
-  justify-content: center; /* 整体垂直居中 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   letter-spacing: 2rpx;
   font-weight: 500;
   cursor: default;
   user-select: none;
   background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(245,247,250,0.9) 100%);
   color: #667eea;
-  min-height: 200rpx; /* 设置最小高度，确保垂直居中效果明显 */
-  padding: 30rpx 0; /* 添加内边距 */
+  min-height: 200rpx;
+  padding: 30rpx 0;
 }
 
 .academic-term,
 .date-range,
 .time-range {
-  line-height: 1.5; /* 行高 */
+  line-height: 1.5;
   width: 100%;
-  text-align: center; /* 确保每行文字水平居中 */
+  text-align: center;
 }
 
 .academic-term {
@@ -185,14 +184,6 @@
 .placeholder {
   color: #999999;
   font-style: italic;
-}
-
-.error-tip {
-  color: #f56c6c;
-  font-size: 24rpx;
-  margin-top: 12rpx;
-  font-weight: 500;
-  animation: shake 0.5s ease-in-out;
 }
 
 @keyframes shake {

@@ -1,10 +1,6 @@
 // pages/submit/submit.js
 Page({
   data: {
-    date: '',
-    dateError: false,
-    dateErrorMsg: '',
-
     // 图片（用于预览展示：临时路径）
     images: [],
     maxImages: 1,
@@ -12,41 +8,40 @@ Page({
     imageErrorMsg: '',
 
     // 跑步方式选择
-    // 这里文本可按你实际需要调整
     modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
     modeIndex: 0,
 
     // 提交状态
     submitting: false,
     submitDisabled: false,
-    submitText: "提交审核",
+    submitTextIndex: 0,
+    submitTextList: ['提交记录', '不在提交时间内', '今日停跑'],
 
     // 成功弹窗
     showSuccess: false
   },
 
   onLoad() {
-    // 默认展示当前时间（仅展示用；实际审核以OCR识别到的时间为准）
-    this.setData({
-      date: this.formatNow()
-    })
+    this.checkSubmissionAvailability()
   },
 
   onShow() {
-    // 每次进入提交页时刷新一次当前时间，避免长时间打开小程序后时间不更新
-    this.setData({
-      date: this.formatNow()
-    })
+    this.checkSubmissionAvailability()
   },
 
-  formatNow() {
-    const d = new Date()
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    const hh = String(d.getHours()).padStart(2, '0')
-    const mm = String(d.getMinutes()).padStart(2, '0')
-    return `${y}-${m}-${day} ${hh}:${mm}`
+  checkSubmissionAvailability() {
+    // TODO: 检查今天是否停跑
+    // 检查现在的时间是不是晚上8点到10点之间
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const startMinutes = 20 * 60;
+    const endMinutes = 22 * 60 + 5;
+    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
+      this.setData({
+        submitDisabled: true,
+        submitTextIndex: 1
+      })
+    }
   },
 
   onModeChange(e) {
