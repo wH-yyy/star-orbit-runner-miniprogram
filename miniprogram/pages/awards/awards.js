@@ -2,69 +2,43 @@
 Page({
   data: {
     totalActivities: 60, // 总活动次数（固定为60次）
-    userParticipations: 0, // 用户参与次数（从数据库获取）
+    userParticipations: 0, // 用户参与次数
     participationRate: 0, // 参与比例
-    userAward: "", // 用户奖项
+    userAwardList: ['一等奖', '二等奖', '三等奖', '运动奖'], // 用户奖项
+    userAwardIndex: 0
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
-    this.loadUserParticipations();
+  onLoad() {
+    this.setData({
+      userParticipations: getApp().globalData.userInfo.totalCount || 0
+    })
+    this.calculateAward();
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-    // 每次显示页面时重新获取参与次数并计算奖项，确保数据最新
-    this.loadUserParticipations();
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
   onPullDownRefresh() {
-    // 下拉刷新时重新获取参与次数并计算奖项
     this.loadUserParticipations();
     wx.stopPullDownRefresh();
   },
 
-  /**
-   * 加载用户参与次数
-   */
   async loadUserParticipations() {
     try {
-      // 获取当前用户信息
-      const app = getApp();
-      const openid = app.globalData.userInfo?.openid || wx.getStorageSync('openid');
-      
-      if (!openid) {
-        console.error('未获取到用户openid');
-        wx.showToast({
-          title: '请先登录',
-          icon: 'none'
-        });
-        return;
-      }
-      
       // 从数据库获取用户信息，包含打卡记录次数
       const db = wx.cloud.database();
-      const res = await db.collection('Users')
-        .where({
-          openid: openid
-        })
-        .get();
+      const res = await db.collection('Users').doc(getApp().globalData.userInfo._id).get();
       
       if (res.data.length > 0) {
-        const userInfo = res.data[0];
-        // 获取用户的打卡记录次数作为参与次数
-        const userParticipations = userInfo.totalCount || 0;
+        const userInfo = {
+          ...res.data[0],
+          avatar: res.data[0].gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+        }
+        // 更新本地存储和全局数据
+        const app = getApp()
+        app.globalData.userInfo = userInfo
+        wx.setStorageSync('userInfo', userInfo)
         
         // 更新用户参与次数
         this.setData({
-          userParticipations
+          userParticipations: userInfo.totalCount || 0
         });
         
         // 计算奖项
@@ -79,9 +53,6 @@ Page({
     }
   },
 
-  /**
-   * 计算用户奖项
-   */
   calculateAward() {
     const { totalActivities, userParticipations } = this.data;
     
@@ -92,19 +63,21 @@ Page({
     }
     
     // 根据参与比例计算奖项
-    let userAward = "参与奖";
+    let userAwardIndex = 0;
     if (participationRate >= 85) {
-      userAward = "一等奖";
+      userAwardIndex = 0;
     } else if (participationRate >= 75) {
-      userAward = "二等奖";
+      userAwardIndex = 1;
     } else if (participationRate >= 60) {
-      userAward = "三等奖";
+      userAwardIndex = 2;
+    } else {
+      userAwardIndex = 3;
     }
     
     // 更新数据
     this.setData({
       participationRate,
-      userAward
+      userAwardIndex
     });
   }
 })
