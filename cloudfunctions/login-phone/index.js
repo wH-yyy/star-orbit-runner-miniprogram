@@ -25,7 +25,6 @@ exports.main = async (event, context) => {
       userData = {
         _id: openid,
         openid: openid,
-        avatar: "",
         campus: "",
         class_name: "",
         college: "",
