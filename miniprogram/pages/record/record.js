@@ -153,4 +153,10 @@ Page({
       url: `/pages/record-detail/record-detail?id=${id}`
     });
   },
+
+  goToSubmit() {
+    wx.switchTab({
+      url: '/pages/submit/submit'
+    })
+  }
 })
