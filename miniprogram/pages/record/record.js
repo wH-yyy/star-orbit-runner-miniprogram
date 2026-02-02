@@ -47,7 +47,7 @@ Page({
     }
     
     const app = getApp()
-    const openid = app.globalData.userInfo?.openid
+    const openid = app.globalData.userInfo.openid
     
     if (!openid) {
       return

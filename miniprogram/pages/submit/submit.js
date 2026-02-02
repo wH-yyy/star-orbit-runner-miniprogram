@@ -15,7 +15,7 @@ Page({
     submitting: false,
     submitDisabled: false,
     submitTextIndex: 0,
-    submitTextList: ['提交记录', '不在提交时间内', '今日停跑'],
+    submitTextList: ['提交记录', '未到提交时间', '今日停跑'],
 
     // 成功弹窗
     showSuccess: false

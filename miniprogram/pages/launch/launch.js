@@ -22,6 +22,6 @@ Page({
           url: '/pages/phone-login/phone-login'
         });
       }
-    }, 1500); // 模拟加载时间
+    }, 1000); // 模拟加载时间
   }
 });
