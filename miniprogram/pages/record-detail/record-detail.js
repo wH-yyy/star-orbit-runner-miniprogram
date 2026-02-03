@@ -248,28 +248,52 @@ Page({
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success(res) {
+        console.log('选择图片成功:', res);
         // 临时文件路径
         const tempFilePaths = res.tempFilePaths;
         
-        // 模拟上传到服务器，实际开发中应该调用云函数或API上传
         wx.showLoading({
           title: '图片上传中...',
           mask: true
         });
         
-        setTimeout(() => {
-          wx.hideLoading();
-          // 模拟上传成功，将临时路径添加到已上传列表
-          that.setData({
-            uploadedImages: [...that.data.uploadedImages, ...tempFilePaths]
+        // 实际上传图片到云存储
+        const uploadTasks = tempFilePaths.map((tempFilePath, index) => {
+          const fileName = `appeals/${getApp().globalData.userInfo.openid}_${Date.now()}_${index}.jpg`;
+          console.log('上传图片:', tempFilePath, '到', fileName);
+          return wx.cloud.uploadFile({
+            cloudPath: fileName,
+            filePath: tempFilePath
           });
-          
-          wx.showToast({
-            title: '图片上传成功',
-            icon: 'success',
-            duration: 1000
+        });
+        
+        Promise.all(uploadTasks)
+          .then(uploadResults => {
+            wx.hideLoading();
+            console.log('图片上传结果:', uploadResults);
+            // 获取上传成功的FileID
+            const fileIDs = uploadResults.map(result => result.fileID);
+            console.log('获取到的FileID:', fileIDs);
+            // 将FileID添加到已上传列表
+            that.setData({
+              uploadedImages: [...that.data.uploadedImages, ...fileIDs]
+            }, () => {
+              console.log('上传后的uploadedImages:', that.data.uploadedImages);
+              wx.showToast({
+                title: '图片上传成功',
+                icon: 'success',
+                duration: 1000
+              });
+            });
+          })
+          .catch(error => {
+            wx.hideLoading();
+            console.error('图片上传失败:', error);
+            wx.showToast({
+              title: '图片上传失败',
+              icon: 'none'
+            });
           });
-        }, 1500);
       },
       fail(err) {
         console.error('图片选择失败:', err);
@@ -300,6 +324,9 @@ Page({
    */
   submitAppeal() {
     const { appealReason, uploadedImages, record } = this.data;
+    console.log('提交申诉，appealReason:', appealReason);
+    console.log('提交申诉，uploadedImages:', uploadedImages);
+    console.log('提交申诉，record:', record);
     
     // 表单验证
     if (!appealReason.trim()) {
@@ -317,32 +344,58 @@ Page({
       cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
-          // 模拟提交申诉
           wx.showLoading({
             title: '申诉提交中...',
             mask: true
           });
           
-          setTimeout(() => {
+          // 调用云函数提交申诉
+          wx.cloud.callFunction({
+            name: 'submitAppeal',
+            data: {
+              runningRecordId: record._id,
+              appealReason: appealReason.trim(),
+              appealImages: uploadedImages
+            }
+          })
+          .then(res => {
             wx.hideLoading();
+            console.log('申诉提交结果:', res);
             
+            if (res.result && res.result.success) {
+              wx.showToast({
+                title: res.result.message || '申诉已提交，正在重新审核',
+                icon: 'success',
+                duration: 2000
+              });
+              
+              // 申诉成功后更新状态为审核中
+              this.setData({
+                record: {
+                  ...record,
+                  status: 2
+                },
+                showAppealModal: false,
+                appealReason: '',
+                uploadedImages: []
+              });
+            } else {
+              wx.showToast({
+                title: res.result.message || '申诉提交失败，请稍后重试',
+                icon: 'none',
+                duration: 2000
+              });
+            }
+          })
+          .catch(error => {
+            wx.hideLoading();
+            console.error('申诉提交失败:', error);
             wx.showToast({
-              title: '申诉已提交，正在重新审核',
-              icon: 'success',
+              title: '网络错误，请稍后重试',
+              icon: 'none',
               duration: 2000
             });
-            
-            // 申诉成功后更新状态为审核中
-            this.setData({
-              record: {
-                ...record,
-                status: 2
-              },
-              showAppealModal: false,
-              appealReason: '',
-              uploadedImages: []
-            });
-          }, 2000);
+          });
         }
       }
     });

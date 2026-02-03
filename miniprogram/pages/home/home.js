@@ -30,6 +30,11 @@ Page({
         icon: ''
       },
       {
+        id: 'appeal',
+        name: '申诉历史',
+        icon: ''
+      },
+      {
         id: 'help',
         name: '帮助与反馈',
         icon: ''
@@ -323,6 +328,12 @@ Page({
       case 'awards':
         // 跳转到我的奖项页面
         this.navigateToAwards();
+        break;
+      case 'appeal':
+        // 跳转到申诉历史页面
+        wx.navigateTo({
+          url: '/pages/appeal-history/appeal-history'
+        });
         break;
       case 'help':
         // 跳转到帮助与反馈页面

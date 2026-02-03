@@ -35,17 +35,17 @@
     </view>
   </view>
   
-  <!-- 跑步方式 -->
+  <!-- 跑步地点 -->
   <view class="form-item">
-    <text class="label">跑步方式</text>
+    <text class="label">跑步地点</text>
     <picker 
       class="picker" 
-      bindchange="onModeChange" 
-      value="{{modeIndex}}" 
-      range="{{modeOptions}}"
+      bindchange="onLocationChange" 
+      value="{{locationIndex}}" 
+      range="{{locationOptions}}"
     >
       <view class="picker-content">
-        {{modeOptions[modeIndex]}}
+        {{locationOptions[locationIndex]}}
       </view>
     </picker>
   </view>

@@ -8,7 +8,7 @@
       <view class="form-value avatar-wrapper" bindtap="chooseAvatar">
         <image 
           class="avatar-image" 
-          src="{{userInfo.avatar || '/images/avatar.png'}}" 
+          src="{{userInfo.avatar || '/images/default-avatar.png'}}" 
           mode="aspectFill">
         </image>
         <text class="avatar-tip">点击更换</text>
@@ -266,6 +266,14 @@
     <view class="stat-item">
       <text class="stat-value">{{totalDurationMinutes}}</text>
       <text class="stat-label">总时长(分钟)</text>
+    </view>
+  </view>
+
+  <!-- 申诉历史入口 -->
+  <view class="menu-section">
+    <view class="menu-item" bindtap="goToAppealHistory">
+      <text class="menu-text">申诉历史</text>
+      <text class="menu-arrow">→</text>
     </view>
   </view>
 
