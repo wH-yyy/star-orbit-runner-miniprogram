@@ -9,6 +9,8 @@
     "pages/user-info/user-info",
     "pages/awards/awards",
     "pages/record-detail/record-detail",
+    "pages/appeal-history/appeal-history",
+    "pages/appeal-detail/appeal-detail",
     "pages/finish-info/finish-info"
   ],
   "window": {
@@ -44,6 +46,7 @@
       }
     ]
   },
+  
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents"

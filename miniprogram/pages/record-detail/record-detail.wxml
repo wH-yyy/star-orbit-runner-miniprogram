@@ -123,7 +123,7 @@
       <button class="modal-btn cancel-btn" type="default" bindtap="cancelAppeal">
         <text>取消</text>
       </button>
-      <button class="modal-btn submit-btn" type="warn" bindtap="submitAppeal" disabled="{{!appealReason.trim()}}">
+      <button class="modal-btn submit-btn" type="warn" bindtap="submitAppeal" disabled="{{!appealReason}}">
         <text>提交申诉</text>
       </button>
     </view>

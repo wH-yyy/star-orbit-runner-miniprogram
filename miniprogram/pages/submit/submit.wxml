@@ -41,7 +41,7 @@
     <text class="label">跑步方式</text>
     <picker class="picker" bindchange="onModeChange" value="{{modeIndex}}" range="{{modeOptions}}">
       <view class="picker-content">
-        {{modeOptions[modeIndex]}}
+        {{locationOptions[locationIndex]}}
       </view>
     </picker>
   </view>

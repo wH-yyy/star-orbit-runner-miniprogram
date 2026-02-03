@@ -1276,5 +1276,14 @@ Page({
       return minutes * 60 + seconds
     }
     return 0
+  },
+
+  /**
+   * 跳转到申诉历史页面
+   */
+  goToAppealHistory() {
+    wx.navigateTo({
+      url: '/pages/appeal-history/appeal-history'
+    })
   }
 })

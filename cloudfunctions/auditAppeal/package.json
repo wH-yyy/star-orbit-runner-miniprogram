@@ -1,0 +1,21 @@
+{
+  "name": "auditAppeal",
+  "version": "1.0.0",
+  "description": "审核申诉云函数",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "wechat",
+    "cloud",
+    "function",
+    "appeal",
+    "audit"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.4.0"
+  }
+}

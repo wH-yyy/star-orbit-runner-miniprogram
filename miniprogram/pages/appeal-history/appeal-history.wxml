@@ -1,0 +1,66 @@
+<!--pages/appeal-history/appeal-history.wxml-->
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="nav-left"></view>
+    <view class="nav-title">
+      <text class="title">申诉历史</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载申诉历史中...</text>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:elif="{{!loading && appealList.length === 0}}" class="empty-container">
+    <image src="/images/empty.png" class="empty-icon" mode="aspectFit"></image>
+    <text class="empty-text">暂无申诉记录</text>
+    <text class="empty-desc">您可以在跑步记录详情页提交申诉</text>
+  </view>
+  
+  <!-- 申诉记录 -->
+  <view wx:else class="appeal-content">
+    <!-- 申诉记录列表 -->
+    <view class="appeal-list">
+      <view wx:for="{{appealList}}" wx:key="_id" class="appeal-item">
+        <!-- 申诉状态 -->
+        <view class="appeal-header">
+          <view class="status-badge {{item.statusClass}}">
+            {{item.statusText}}
+          </view>
+          <text class="appeal-time">{{item.formattedTime}}</text>
+        </view>
+        
+        <!-- 申诉信息 -->
+        <view class="appeal-info">
+          <text class="appeal-label">申诉理由</text>
+          <text class="appeal-reason">{{item.appealReason}}</text>
+        </view>
+        
+        <!-- 关联的跑步记录 -->
+        <view class="running-record-link" bindtap="viewRunningRecord" data-runningrecordid="{{item.runningRecordId}}">
+          <text class="link-text">查看关联跑步记录</text>
+          <text class="link-icon">→</text>
+        </view>
+        
+        <!-- 审核结果 -->
+        <view wx:if="{{item.status !== 0 && item.auditResult}}" class="audit-result">
+          <text class="result-label">审核结果</text>
+          <text class="result-content">{{item.auditResult}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMoreAppeals">
+      加载更多
+    </view>
+    <view wx:else class="no-more">
+      没有更多记录了
+    </view>
+  </view>
+</view>
