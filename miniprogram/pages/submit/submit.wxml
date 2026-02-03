@@ -58,7 +58,6 @@
     <view class="success-content">
       <view class="success-icon">✓</view>
       <text class="success-title">上传成功</text>
-      <text class="success-text">您的跑步记录已成功上传</text>
       <button class="success-btn" bindtap="onSuccessClose">确定</button>
     </view>
   </view>

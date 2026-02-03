@@ -19,9 +19,6 @@ Page({
     this.loadRecords()
   },
 
-  /**
-   * 页面显示时重新加载数据
-   */
   onShow() {
     this.loadUserInfo()
     this.loadRecords()

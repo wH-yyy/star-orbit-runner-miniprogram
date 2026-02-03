@@ -443,13 +443,6 @@
   margin-bottom: 16rpx;
 }
 
-.success-text {
-  font-size: 28rpx;
-  color: #666666;
-  margin-bottom: 40rpx;
-  line-height: 40rpx;
-}
-
 .success-btn {
   width: 200rpx;
   height: 80rpx;
