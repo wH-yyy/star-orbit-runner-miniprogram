@@ -2,15 +2,14 @@
 <view class="container">
   <!-- 页面标题 -->
   <view class="header">
-    <text class="title">我的奖项</text>
-    <text class="subtitle">根据您的跑步参与情况</text>
+    <text class="title">根据您的跑步参与情况</text>
   </view>
   
   <!-- 主奖项卡片 -->
   <view class="main-card">
     <view class="award-badge">
-      <text class="award-level">{{userAward}}</text>
       <text class="award-label">当前奖项</text>
+      <text class="award-level">{{userAwardList[userAwardIndex]}}</text>
     </view>
     
     <!-- 进度展示 -->
@@ -44,25 +43,25 @@
     <view class="rules-list">
       <view class="rule-item">
         <view class="rule-badge rule-gold">一等奖</view>
-        <text class="rule-desc">参与率 {{symbols.greaterEqual}} 85%</text>
+        <text class="rule-desc">参与率 ≥ 85%</text>
       </view>
       <view class="rule-item">
         <view class="rule-badge rule-silver">二等奖</view>
-        <text class="rule-desc">参与率 {{symbols.greaterEqual}} 75%</text>
+        <text class="rule-desc">参与率 ≥ 75%</text>
       </view>
       <view class="rule-item">
         <view class="rule-badge rule-bronze">三等奖</view>
-        <text class="rule-desc">参与率 {{symbols.greaterEqual}} 60%</text>
+        <text class="rule-desc">参与率 ≥ 60%</text>
       </view>
       <view class="rule-item">
-        <view class="rule-badge rule-participation">参与奖</view>
-        <text class="rule-desc">参与率 {{symbols.lessThan}} 60%</text>
+        <view class="rule-badge rule-participation">运动奖</view>
+        <text class="rule-desc">参与率 ≥ 60%</text>
       </view>
     </view>
   </view>
   
   <!-- 底部提示 -->
   <view class="footer-tip">
-    <text class="tip-text">数据实时更新，继续加油！</text>
+    <text class="tip-text">本页面奖项不代表最终结果</text>
   </view>
 </view>

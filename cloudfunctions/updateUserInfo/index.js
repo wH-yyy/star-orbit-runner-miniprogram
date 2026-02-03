@@ -21,13 +21,9 @@ exports.main = async (event, context) => {
     oldPassword,  // 修改密码时需要提供旧密码
     newPassword   // 新密码
   } = event
-  
-  // 调试日志
-  console.log('收到更新请求，参数:', { _id, stu_id, name, gender, campus, class_name, college, phone, avatar })
-  
+    
   // 必须提供_id或stu_id用于定位用户
   if (!_id && !stu_id) {
-    console.error('缺少必要参数：_id和stu_id都为空')
     return {
       success: false,
       code: 400,
@@ -40,10 +36,8 @@ exports.main = async (event, context) => {
     let whereClause = {}
     if (_id) {
       whereClause._id = _id
-      console.log('使用_id定位用户:', _id)
     } else {
       whereClause.stu_id = stu_id
-      console.log('使用stu_id定位用户:', stu_id)
     }
 
     const userResult = await db.collection('Users')
@@ -51,15 +45,12 @@ exports.main = async (event, context) => {
       .get()
     
     if (userResult.data.length === 0) {
-      console.error('用户不存在，查询条件:', whereClause)
       return {
         success: false,
         code: 404,
         message: '用户不存在'
       }
     }
-    
-    console.log('找到用户:', userResult.data[0]._id)
     
     const currentUser = userResult.data[0]
     const updateData = {}
@@ -183,7 +174,6 @@ exports.main = async (event, context) => {
     }
     
   } catch (error) {
-    console.error('更新用户信息失败:', error)
     return {
       success: false,
       code: 500,

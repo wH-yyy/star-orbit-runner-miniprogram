@@ -1,272 +1,460 @@
+/* 容器样式 - 添加渐变背景 */
 .container {
-  padding: 20rpx;
-  background-color: #f8f9fa;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #f8fff8 0%, #e8f7ee 100%);
+  padding: 32rpx 0 60rpx 0;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
+/* 顶部装饰栏 */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6rpx;
+  background: linear-gradient(90deg, #5cdd9d, #4cc68f, #5cdd9d);
+  z-index: 10;
+  animation: gradientMove 3s infinite linear;
+}
+
+/* 背景装饰元素 */
+.container::after {
+  content: '';
+  position: absolute;
+  top: -200rpx;
+  right: -200rpx;
+  width: 400rpx;
+  height: 400rpx;
+  background: radial-gradient(circle, rgba(92, 221, 157, 0.1) 0%, rgba(92, 221, 157, 0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* 动态背景装饰 */
+.background-deco {
+  position: absolute;
+  width: 300rpx;
+  height: 300rpx;
+  background: radial-gradient(circle, rgba(92, 221, 157, 0.08) 0%, rgba(92, 221, 157, 0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+  animation: float 15s infinite ease-in-out;
+}
+
+.background-deco:nth-child(1) {
+  top: 10%;
+  left: -100rpx;
+  animation-delay: 0s;
+}
+
+.background-deco:nth-child(2) {
+  bottom: 20%;
+  right: -100rpx;
+  animation-delay: 5s;
+}
+
+/* 头部样式 - 添加动画效果 */
 .header {
   margin-bottom: 40rpx;
   text-align: center;
-  padding-top: 20rpx;
+  width: 80%;
+  position: relative;
+  z-index: 1;
+  animation: fadeInDown 0.8s ease-out;
 }
 
 .title {
   display: block;
-  font-size: 36rpx;
+  font-size: 52rpx;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 12rpx;
-  letter-spacing: 2rpx;
+  color: #2c3e50;
+  margin-bottom: 16rpx;
+  background: linear-gradient(90deg, #5cdd9d, #4cc68f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
   display: block;
-  font-size: 24rpx;
-  color: #666;
+  font-size: 28rpx;
+  color: #7f8c8d;
   line-height: 1.5;
-  max-width: 90%;
-  margin: 0 auto;
 }
 
+/* 表单样式 - 添加阴影和动画 */
 .form {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 10rpx;
-}
-
-.form-item {
-  background: white;
-  border-radius: 20rpx;
-  padding: 28rpx;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 40rpx 36rpx;
+  box-shadow: 0 10rpx 40rpx rgba(92, 221, 157, 0.15);
+  width: 80%;
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+  backdrop-filter: blur(10rpx);
+  border: 1rpx solid rgba(92, 221, 157, 0.1);
   margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
 }
 
-.form-item:hover {
-  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
-  transform: translateY(-2rpx);
+/* 表单项样式 - 减小间距，去掉分割线 */
+.form-item {
+  margin-bottom: 32rpx;
+  animation: formItemFade 0.5s ease-out forwards;
+  opacity: 0;
 }
+
+/* 为每个表单项添加不同的延迟动画 */
+.form-item:nth-child(1) { animation-delay: 0.3s; }
+.form-item:nth-child(2) { animation-delay: 0.4s; }
+.form-item:nth-child(3) { animation-delay: 0.5s; }
+.form-item:nth-child(4) { animation-delay: 0.6s; }
+.form-item:nth-child(5) { animation-delay: 0.7s; }
+.form-item:nth-child(6) { animation-delay: 0.8s; }
 
 .label {
   display: block;
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 16rpx;
+  font-size: 30rpx;
   font-weight: 600;
+  color: #34495e;
+  margin-bottom: 20rpx;
+  position: relative;
+  padding-left: 12rpx;
+  transition: all 0.3s ease;
 }
 
+.label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 24rpx;
+  background: linear-gradient(to bottom, #5cdd9d, #4cc68f);
+  border-radius: 3rpx;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.form-item:focus-within .label {
+  color: #5cdd9d;
+  padding-left: 20rpx;
+}
+
+.form-item:focus-within .label::before {
+  opacity: 1;
+}
+
+/* 输入框样式 */
 .input {
-  font-size: 28rpx;
-  color: #333;
-  padding: 20rpx 0;
-  border-bottom: 2rpx solid #eee;
-  transition: border-color 0.3s ease;
   width: 100%;
+  height: 80rpx;
+  font-size: 30rpx;
+  color: #2c3e50;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  background-color: #fafafa;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input:focus {
-  border-bottom-color: #07c160;
-  outline: none;
+  border-color: #5cdd9d;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4rpx rgba(92, 221, 157, 0.15);
+  transform: translateY(-2rpx);
 }
 
 .placeholder {
-  color: #999;
+  color: #bdc3c7;
+  font-size: 28rpx;
 }
 
+/* 单选按钮组样式 */
 .radio-group {
   display: flex;
-  gap: 40rpx;
-  margin-top: 16rpx;
+  gap: 48rpx;
 }
 
 .radio-item {
   display: flex;
   align-items: center;
-  cursor: pointer;
-  padding: 8rpx 16rpx;
-  border-radius: 10rpx;
-  transition: all 0.2s ease;
+  gap: 16rpx;
+  padding: 8rpx 0;
+  transition: all 0.3s ease;
 }
 
-.radio-item:hover {
-  background-color: #f5f5f5;
+.radio-item:active {
+  transform: scale(0.98);
+}
+
+radio {
+  transform: scale(0.9);
+  color: #5cdd9d;
+}
+
+radio .wx-radio-input.wx-radio-input-checked {
+  background-color: #5cdd9d;
+  border-color: #5cdd9d;
+  animation: radioCheck 0.3s ease;
 }
 
 .radio-label {
   font-size: 28rpx;
-  color: #333;
-  margin-left: 10rpx;
-}
-
-/* 自定义单选按钮样式 */
-radio .wx-radio-input {
-  width: 28rpx;
-  height: 28rpx;
-  border-radius: 50%;
-  border: 2rpx solid #ddd;
+  color: #34495e;
   transition: all 0.3s ease;
 }
 
-radio .wx-radio-input.wx-radio-input-checked {
-  border-color: #07c160;
-  background-color: #07c160;
+radio .wx-radio-input.wx-radio-input-checked + .radio-label {
+  color: #5cdd9d;
+  font-weight: 600;
 }
 
-radio .wx-radio-input.wx-radio-input-checked::before {
-  width: 18rpx;
-  height: 18rpx;
-  border-radius: 50%;
-  background-color: white;
-  transform: translate(-50%, -50%) scale(1);
-  -webkit-transform: translate(-50%, -50%) scale(1);
-}
-
+/* 选择器样式 */
 .picker {
-  font-size: 28rpx;
-  color: #333;
-  padding: 20rpx 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
+  height: 80rpx;
+  font-size: 30rpx;
+  color: #2c3e50;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.picker:active {
+  background-color: #f5f5f5;
+  transform: translateY(-2rpx);
 }
 
 .picker::after {
-  content: "";
-  width: 18rpx;
-  height: 18rpx;
-  border: solid #999;
-  border-width: 0 2rpx 2rpx 0;
-  transform: rotate(45deg);
-  transition: border-color 0.3s ease;
+  content: '';
+  position: absolute;
+  right: 24rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8rpx solid transparent;
+  border-right: 8rpx solid transparent;
+  border-top: 8rpx solid #95a5a6;
+  transition: all 0.3s ease;
 }
 
-.picker:hover::after {
-  border-color: #07c160;
+.picker:not(.picker-placeholder):hover::after {
+  border-top-color: #5cdd9d;
 }
 
 .picker-placeholder {
-  color: #999;
+  color: #bdc3c7;
 }
 
+.picker:not(.picker-placeholder) {
+  color: #5cdd9d;
+  font-weight: 500;
+  border-color: #5cdd9d;
+}
+
+/* 提交按钮样式 - 改为正常排列在表单下面 */
 .submit-btn {
-  background: linear-gradient(135deg, #07c160 0%, #06b358 100%);
-  color: white;
-  border-radius: 20rpx;
-  font-size: 32rpx;
+  width: 80%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #5cdd9d, #4cc68f);
+  color: #ffffff;
+  font-size: 34rpx;
   font-weight: 600;
-  height: 88rpx;
-  line-height: 88rpx;
-  margin-top: 30rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 8rpx 30rpx rgba(7, 193, 96, 0.3);
-  transition: all 0.3s ease;
+  border-radius: 48rpx;
   border: none;
-  width: 100%;
+  box-shadow: 0 12rpx 32rpx rgba(92, 221, 157, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  letter-spacing: 2rpx;
+  overflow: hidden;
+  margin: 40rpx auto 0 auto;
+  display: block;
+  animation: fadeInUp 0.8s ease-out 1s both;
 }
 
-.submit-btn:hover {
-  transform: translateY(-2rpx);
-  box-shadow: 0 12rpx 40rpx rgba(7, 193, 96, 0.4);
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: all 0.5s ease;
+}
+
+.submit-btn:hover::before {
+  left: 100%;
 }
 
 .submit-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.3);
+  transform: translateY(2rpx);
+  box-shadow: 0 6rpx 20rpx rgba(92, 221, 157, 0.4);
 }
 
 .button-hover {
-  opacity: 0.9;
+  background: linear-gradient(135deg, #4cc68f, #3cb47f);
 }
 
-/* 适配不同屏幕尺寸 */
-@media screen and (max-width: 375px) {
+/* 动画定义 */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes formItemFade {
+  from {
+    opacity: 0;
+    transform: translateX(-20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-40rpx) scale(1.05);
+  }
+}
+
+@keyframes radioCheck {
+  0% {
+    transform: scale(0.8);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
   .container {
-    padding: 15rpx;
+    padding: 24rpx 0 50rpx 0;
   }
   
-  .title {
-    font-size: 32rpx;
+  .header {
+    width: 85%;
   }
   
-  .subtitle {
-    font-size: 22rpx;
-  }
-  
-  .form-item {
-    padding: 24rpx;
-    margin-bottom: 16rpx;
-  }
-  
-  .input, .radio-label, .picker {
-    font-size: 26rpx;
-  }
-  
-  .label {
-    font-size: 26rpx;
+  .form {
+    padding: 32rpx 28rpx;
+    width: 85%;
   }
   
   .radio-group {
-    gap: 30rpx;
+    gap: 36rpx;
   }
   
   .submit-btn {
-    height: 80rpx;
-    line-height: 80rpx;
-    font-size: 30rpx;
-    margin-top: 20rpx;
+    width: 85%;
+    height: 88rpx;
+    margin-top: 30rpx;
   }
 }
 
-/* 适配暗色模式 */
-@media (prefers-color-scheme: dark) {
+/* 适配平板 */
+@media (min-width: 768px) {
   .container {
-    background-color: #191919;
+    max-width: 600rpx;
+    margin: 0 auto;
+    padding-top: 80rpx;
+    padding-bottom: 80rpx;
   }
   
-  .title, .label, .input, .radio-label, .picker {
-    color: #e6e6e6;
+  .header {
+    width: 100%;
   }
   
-  .subtitle {
-    color: #999;
+  .form {
+    width: 100%;
   }
   
-  .form-item {
-    background: #2a2a2a;
-    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.2);
+  .submit-btn {
+    width: 100%;
+    max-width: 600rpx;
   }
-  
-  .form-item:hover {
-    box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 增加表单交互效果 */
+.input:focus,
+.picker:focus-within {
+  background-color: #f8fff8;
+  border-color: #5cdd9d;
+}
+
+/* 为表单添加悬停效果 */
+.form-item:hover .label {
+  color: #5cdd9d;
+}
+
+/* 背景动画效果 */
+.container {
+  background-size: 200% 200%;
+  animation: backgroundShift 20s ease infinite;
+}
+
+@keyframes backgroundShift {
+  0% {
+    background-position: 0% 0%;
   }
-  
-  .input {
-    border-bottom-color: #404040;
+  50% {
+    background-position: 100% 100%;
   }
-  
-  .input:focus {
-    border-bottom-color: #07c160;
-  }
-  
-  .radio-item:hover {
-    background-color: #333;
-  }
-  
-  radio .wx-radio-input {
-    border-color: #555;
-  }
-  
-  .picker::after {
-    border-color: #666;
-  }
-  
-  .picker:hover::after {
-    border-color: #07c160;
+  100% {
+    background-position: 0% 0%;
   }
 }

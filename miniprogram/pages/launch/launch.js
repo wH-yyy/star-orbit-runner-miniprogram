@@ -15,13 +15,13 @@ Page({
       
       if (app.globalData.hasLogin) {
         wx.switchTab({
-          url: '/pages/home/home'
+          url: '/pages/submit/submit'
         });
       } else {
         wx.reLaunch({
           url: '/pages/phone-login/phone-login'
         });
       }
-    }, 1500); // 模拟加载时间
+    }, 1000); // 模拟加载时间
   }
 });

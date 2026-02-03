@@ -85,18 +85,16 @@
   background: rgba(255, 255, 255, 0.95);
 }
 
-.datetime-display {
+.schedule-container {
   width: 100%;
-  height: 96rpx;
   border: 3rpx solid #e0e0e0;
   border-radius: 24rpx;
-  padding: 0 30rpx;
   box-sizing: border-box;
   font-size: 32rpx;
-  color: #333333;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   letter-spacing: 2rpx;
@@ -105,6 +103,34 @@
   user-select: none;
   background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(245,247,250,0.9) 100%);
   color: #667eea;
+  min-height: 200rpx;
+  padding: 30rpx 0;
+}
+
+.academic-term,
+.date-range,
+.time-range {
+  line-height: 1.5;
+  width: 100%;
+  text-align: center;
+}
+
+.academic-term {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #6976eb;
+}
+
+.date-range {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #5a67d8;
+}
+
+.time-range {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #5a67d8;
 }
 
 .picker {
@@ -158,14 +184,6 @@
 .placeholder {
   color: #999999;
   font-style: italic;
-}
-
-.error-tip {
-  color: #f56c6c;
-  font-size: 24rpx;
-  margin-top: 12rpx;
-  font-weight: 500;
-  animation: shake 0.5s ease-in-out;
 }
 
 @keyframes shake {

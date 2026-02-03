@@ -32,12 +32,42 @@ page {
   flex: 1;
 }
 
+/* 用户头部信息 */
+.user-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+/* 性别图标 */
+.gender-icon {
+  font-size: 36rpx;
+  margin-right: 12rpx;
+  font-weight: bold;
+}
+
+/* 男性图标颜色 */
+.male-icon {
+  color: #4A90E2; /* 蓝色 */
+}
+
+/* 女性图标颜色 */
+.female-icon {
+  color: #fc0637; /* 粉色 */
+}
+
 /* 用户名 */
 .user-name {
   font-size: 36rpx;
   font-weight: bold;
   color: #333333;
-  margin-bottom: 12rpx;
+  margin-right: 20rpx;
+}
+
+/* 学号 */
+.user-stu-id {
+  font-size: 28rpx;
+  color: #666666;
 }
 
 /* 用户元信息 */

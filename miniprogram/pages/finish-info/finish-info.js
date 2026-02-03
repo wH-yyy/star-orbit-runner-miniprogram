@@ -45,7 +45,6 @@ Page({
 
     const formData = this.data.formData
     try {
-      const app = getApp()
       const res = await wx.cloud.callFunction({
         name: 'saveUserInfo',
         data: {
@@ -56,8 +55,13 @@ Page({
 
       switch (result.code) {
         case 200:
-          app.globalData.userInfo = result.data
-          wx.setStorageSync('userInfo', result.data)
+          const app = getApp()
+          const userInfo = {
+            ...result.data,
+            avatar: result.data.gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+          }
+          app.globalData.userInfo = userInfo
+          wx.setStorageSync('userInfo', userInfo)
           wx.showToast({
             title: '个人信息已完善',
             icon: 'success'

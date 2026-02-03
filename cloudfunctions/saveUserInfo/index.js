@@ -35,7 +35,6 @@ exports.main = async (event, context) => {
       }
     }
   } catch (error) {
-    console.error(error)
     return {
       code: -1,
       message: '更新数据库时出错',

@@ -25,7 +25,6 @@ exports.main = async (event, context) => {
       userData = {
         _id: openid,
         openid: openid,
-        avatar: "",
         campus: "",
         class_name: "",
         college: "",
@@ -45,7 +44,6 @@ exports.main = async (event, context) => {
       const result = await usersCollection.add({
         data: userData
       })
-      console.log(`新用户创建成功，openid: ${openid}`)
     }
     return {
       code: 200,
@@ -57,7 +55,6 @@ exports.main = async (event, context) => {
       }
     }    
   } catch (error) {
-    console.error('登录失败:', error)
     return {
       code: -1,
       message: `登录失败,${error}`
@@ -74,7 +71,6 @@ async function findUserByOpenid(openid) {
       .get()
     return result.data.length > 0 ? result.data[0] : null
   } catch (error) {
-    console.error('查询用户失败:', error)
     throw new Error('查询用户信息失败')
   }
 }
