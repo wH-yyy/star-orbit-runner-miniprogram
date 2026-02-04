@@ -1,5 +1,5 @@
 // pages/home/home.js
-const userHelper = require('../utils/userInfoHelper');
+const userInfoHelper = require('../utils/userInfoHelper');
 
 Page({
   data: {
@@ -79,7 +79,9 @@ Page({
     switch(id) {
       case 'awards':
         // 跳转到我的奖项页面
-        this.navigateToAwards();
+        wx.navigateTo({
+          url: '/pages/awards/awards'
+        });
         break;
       case 'appeal':
         // 跳转到申诉历史页面

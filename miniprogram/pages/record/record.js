@@ -1,5 +1,5 @@
 // pages/record/record.js
-const userHelper = require('../utils/userInfoHelper');
+import { refreshUserInfo } from '../utils/userInfoHelper';
 
 Page({
   data: {
@@ -22,6 +22,12 @@ Page({
   onShow() {
     this.loadUserInfo()
     this.loadRecords()
+  },
+
+  onPullDownRefresh() {
+    refreshUserInfo()
+    this.loadUserInfo()
+    wx.stopPullDownRefresh()
   },
 
   loadUserInfo() {
