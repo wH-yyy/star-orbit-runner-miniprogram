@@ -7,10 +7,10 @@ const refreshUserInfo = async () => {
     const res = await db.collection('Users')
       .doc(app.globalData.userInfo._id)
       .get()
-    if (res.data.length > 0) {
+    if (res.data) {
       const userInfo = {
-        ...res.data[0],
-        avatar: result.data.userInfo.gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+        ...res.data,
+        avatar: res.data.gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
       }
       app.globalData.userInfo = userInfo
       wx.setStorageSync('userInfo', userInfo)

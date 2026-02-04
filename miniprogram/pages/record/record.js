@@ -1,5 +1,7 @@
 // pages/record/record.js
-import { refreshUserInfo } from '../utils/userInfoHelper';
+import {
+  refreshUserInfo
+} from '../utils/userInfoHelper';
 
 Page({
   data: {
@@ -24,10 +26,40 @@ Page({
     this.loadRecords()
   },
 
-  onPullDownRefresh() {
-    refreshUserInfo()
+  async onPullDownRefresh() {
+    this.setData({
+      loading: true
+    })
+    try {
+      const app = getApp()
+      const db = wx.cloud.database()
+      const res = await db.collection('Users')
+        .doc(app.globalData.userInfo._id)
+        .get()
+      if (res.data) {
+        const userInfo = {
+          ...res.data,
+          avatar: res.data.gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+        }
+        app.globalData.userInfo = userInfo
+        wx.setStorageSync('userInfo', userInfo)
+      }
+    } catch (error) {
+      wx.showToast({
+        title: '刷新失败，请检查网络连接状态',
+        icon: 'error',
+      })
+      this.setData({
+        loading: false
+      })
+      return
+    }
     this.loadUserInfo()
+    this.loadRecords()
     wx.stopPullDownRefresh()
+    this.setData({
+      loading: false
+    })
   },
 
   loadUserInfo() {
@@ -46,16 +78,19 @@ Page({
    */
   loadRecords(loadMore = false) {
     if (!loadMore) {
-      this.setData({ loading: true, page: 1 })
+      this.setData({
+        loading: true,
+        page: 1
+      })
     }
-    
+
     const app = getApp()
     const openid = app.globalData.userInfo.openid
-    
+
     if (!openid) {
       return
     }
-    
+
     // 从数据库获取跑步记录
     const db = wx.cloud.database()
     const skip = loadMore ? (this.data.page - 1) * this.data.pageSize : 0
@@ -73,7 +108,7 @@ Page({
           if (item.status !== undefined) {
             item.status = parseInt(item.status);
           }
-          
+
           // 处理未通过原因显示
           if (item.audit_reason) {
             let reason = item.audit_reason.toLowerCase();
@@ -85,17 +120,17 @@ Page({
           } else {
             item.displayAuditReason = '未提供具体原因';
           }
-          
+
           return item;
         });
-        
+
         let newRecordList = []
         if (loadMore) {
           newRecordList = [...this.data.recordList, ...processedData]
         } else {
           newRecordList = processedData;
         }
-        
+
         this.setData({
           recordList: newRecordList,
           hasMore: res.data.length === this.data.pageSize,
@@ -104,7 +139,9 @@ Page({
       })
       .catch(error => {
         console.error('加载跑步记录失败:', error)
-        this.setData({ loading: false })
+        this.setData({
+          loading: false
+        })
         wx.showToast({
           title: '加载失败',
           icon: 'none'
@@ -121,7 +158,7 @@ Page({
       this.loadMoreData();
     }
   },
-    
+
   /**
    * 预览图片
    */
@@ -133,7 +170,7 @@ Page({
       current: images[index]
     })
   },
-  
+
   /**
    * 加载更多数据
    */
@@ -141,8 +178,10 @@ Page({
     if (this.data.loading || !this.data.hasMore) {
       return
     }
-    
-    this.setData({ loading: true })
+
+    this.setData({
+      loading: true
+    })
     this.data.page++
     this.loadRecords(true)
   },

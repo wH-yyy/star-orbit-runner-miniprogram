@@ -22,11 +22,11 @@ Page({
   },
 
   onLoad() {
-    this.checkSubmissionAvailability()
+    // this.checkSubmissionAvailability()
   },
 
   onShow() {
-    this.checkSubmissionAvailability()
+    // this.checkSubmissionAvailability()
   },
 
   checkSubmissionAvailability() {

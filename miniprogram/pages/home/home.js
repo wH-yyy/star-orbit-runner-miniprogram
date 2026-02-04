@@ -1,6 +1,4 @@
 // pages/home/home.js
-const userInfoHelper = require('../utils/userInfoHelper');
-
 Page({
   data: {
     userInfo : {},
@@ -13,11 +11,6 @@ Page({
       {
         id: 'appeal',
         name: '申诉历史',
-        icon: ''
-      },
-      {
-        id: 'help',
-        name: '帮助与反馈',
         icon: ''
       },
       {
@@ -34,12 +27,6 @@ Page({
 
   onShow() {
     this.loadUserInfo()
-  },
-
-  onPullDownRefresh() {
-    userInfoHelper.refreshUserInfo()
-    this.loadUserInfo()
-    wx.stopPullDownRefresh()
   },
 
   loadUserInfo() {
@@ -78,22 +65,13 @@ Page({
     const id = e.currentTarget.dataset.id;
     switch(id) {
       case 'awards':
-        // 跳转到我的奖项页面
         wx.navigateTo({
           url: '/pages/awards/awards'
         });
         break;
       case 'appeal':
-        // 跳转到申诉历史页面
         wx.navigateTo({
           url: '/pages/appeal-history/appeal-history'
-        });
-        break;
-      case 'help':
-        // 跳转到帮助与反馈页面
-        wx.showToast({
-          title: '功能开发中',
-          icon: 'none'
         });
         break;
       case 'logout':
