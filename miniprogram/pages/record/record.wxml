@@ -45,7 +45,7 @@
       <view class="record-item" wx:for="{{recordList}}" wx:key="_id">
         <!-- 记录头部 -->
         <view class="record-header">
-          <view class="record-date">{{item.running_date}}</view>
+          <view class="record-date">打卡时间：{{item.create_time}}</view>
           <view class="record-status" wx:if="{{item.status !== undefined}}">
             <text class="status-text {{item.status === 1 ? 'status-passed' : item.status === 2 ? 'status-pending' : 'status-failed'}}">
               {{item.status === 1 ? '已通过' : item.status === 2 ? '审核中' : '未通过'}}

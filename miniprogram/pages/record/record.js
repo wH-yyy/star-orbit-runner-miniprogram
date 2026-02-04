@@ -118,6 +118,18 @@ Page({
             item.displayAuditReason = '未提供具体原因';
           }
 
+          // 转换创建时间格式
+          if (item.create_time) {
+            const createTime = new Date(item.create_time)
+            const formattedTime = createTime.toLocaleString('zh-CN', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+            item.create_time = formattedTime
+          }
           return item;
         });
 
