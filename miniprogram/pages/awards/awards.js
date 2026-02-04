@@ -29,7 +29,7 @@ Page({
       if (res.data.length > 0) {
         const userInfo = {
           ...res.data[0],
-          avatar: res.data[0].gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+          avatar: res.data[0].gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
         }
         // 更新本地存储和全局数据
         const app = getApp()

@@ -68,7 +68,7 @@ Page({
           setTimeout(() => {
             const userInfo = {
               ...result.data.userInfo,
-              avatar: result.data.userInfo.gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+              avatar: result.data.userInfo.gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
             }
             wx.setStorageSync('userInfo', userInfo)
             const app = getApp()

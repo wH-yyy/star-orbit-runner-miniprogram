@@ -58,7 +58,7 @@ Page({
           const app = getApp()
           const userInfo = {
             ...result.data,
-            avatar: result.data.gender === '男'? '/images/male-avatar.png' : '/images/female-avatar.png'
+            avatar: result.data.gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
           }
           app.globalData.userInfo = userInfo
           wx.setStorageSync('userInfo', userInfo)
