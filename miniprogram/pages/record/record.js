@@ -1,26 +1,23 @@
 // pages/record/record.js
-
 Page({
   data: {
     userInfo: {},
-    recordList: [],
+    // 所有记录（从数据库获取的全部记录）
+    allRecords: [],
+    // 当前显示的记录（筛选后）
+    displayedRecords: [],
     // 加载状态
     loading: true,
-    // 是否有更多数据
-    hasMore: true,
-    // 分页参数
-    page: 1,
-    pageSize: 10
+    
+    // 筛选条件
+    filterDateStart: '',
+    filterDateEnd: '',
+    filterStatus: '',
   },
 
   onLoad() {
     this.loadUserInfo()
-    this.loadRecords()
-  },
-
-  onShow() {
-    this.loadUserInfo()
-    this.loadRecords()
+    this.loadAllRecords()
   },
 
   async onPullDownRefresh() {
@@ -52,11 +49,8 @@ Page({
       return
     }
     this.loadUserInfo()
-    this.loadRecords()
+    this.loadAllRecords()
     wx.stopPullDownRefresh()
-    this.setData({
-      loading: false
-    })
   },
 
   loadUserInfo() {
@@ -71,51 +65,29 @@ Page({
   },
 
   /**
-   * 加载跑步记录
+   * 加载所有跑步记录（一次性加载全部）
    */
-  loadRecords(loadMore = false) {
-    if (!loadMore) {
-      this.setData({
-        loading: true,
-        page: 1
-      })
-    }
+  loadAllRecords() {
+    this.setData({
+      loading: true
+    })
 
     const app = getApp()
     const openid = app.globalData.userInfo.openid
 
-    if (!openid) {
-      return
-    }
-
-    // 从数据库获取跑步记录
+    // 从数据库获取所有跑步记录
     const db = wx.cloud.database()
-    const skip = loadMore ? (this.data.page - 1) * this.data.pageSize : 0
     db.collection('RunningRecords')
       .where({
         openid: openid
       })
       .orderBy('create_time', 'desc')
-      .skip(skip)
-      .limit(this.data.pageSize)
       .get()
       .then(res => {
-        // 确保status字段为数字类型，并处理未通过原因
+        // 处理数据
         const processedData = res.data.map(item => {
           if (item.status !== undefined) {
             item.status = parseInt(item.status);
-          }
-
-          // 处理未通过原因显示
-          if (item.audit_reason) {
-            let reason = item.audit_reason.toLowerCase();
-            if (reason.includes('ocr') || reason.includes('识别')) {
-              item.displayAuditReason = '学号和姓名不匹配';
-            } else {
-              item.displayAuditReason = item.audit_reason;
-            }
-          } else {
-            item.displayAuditReason = '未提供具体原因';
           }
 
           // 转换创建时间格式为24小时制，日期和时间分行显示
@@ -137,20 +109,15 @@ Page({
             // 保存日期和时间到不同的字段
             item.create_date = dateStr;
             item.create_time_24 = timeStr;
+            // 保存时间戳用于筛选
+            item.timestamp = createTime.getTime();
           }
           return item;
         });
 
-        let newRecordList = []
-        if (loadMore) {
-          newRecordList = [...this.data.recordList, ...processedData]
-        } else {
-          newRecordList = processedData;
-        }
-
         this.setData({
-          recordList: newRecordList,
-          hasMore: res.data.length === this.data.pageSize,
+          allRecords: processedData,
+          displayedRecords: processedData, // 初始显示全部记录
           loading: false
         })
       })
@@ -167,13 +134,99 @@ Page({
   },
 
   /**
-   * 页面上拉触底事件的处理函数
+   * 日期筛选 - 开始日期变化
    */
-  onReachBottom() {
-    // 上拉加载更多
-    if (this.data.hasMore && !this.data.loading) {
-      this.loadMoreData();
+  onDateStartChange(e) {
+    const date = e.detail.value;
+    if (this.data.filterDateEnd && new Date(date) > new Date(this.data.filterDateEnd)) {
+      wx.showToast({
+        title: '开始日期不能晚于结束日期',
+        icon: 'none'
+      })
+      return;
     }
+    this.setData({
+      filterDateStart: date
+    });
+  },
+
+  /**
+   * 日期筛选 - 结束日期变化
+   */
+  onDateEndChange(e) {
+    const date = e.detail.value;
+    if (this.data.filterDateStart && new Date(date) < new Date(this.data.filterDateStart)) {
+      wx.showToast({
+        title: '结束日期不能早于开始日期',
+        icon: 'none'
+      })
+      return;
+    }
+    this.setData({
+      filterDateEnd: date
+    });
+  },
+
+  /**
+   * 状态筛选变化
+   */
+  changeStatus(e) {
+    const status = e.currentTarget.dataset.status;
+    this.setData({
+      filterStatus: status
+    });
+  },
+
+  /**
+   * 应用筛选
+   */
+  applyFilter() {
+    if (this.data.allRecords.length === 0) {
+      return;
+    }
+    
+    let filteredRecords = [...this.data.allRecords];
+    
+    // 应用状态筛选
+    if (this.data.filterStatus !== '') {
+      const status = parseInt(this.data.filterStatus);
+      filteredRecords = filteredRecords.filter(record => record.status === status);
+    }
+    
+    // 应用日期筛选
+    if (this.data.filterDateStart || this.data.filterDateEnd) {
+      const startDate = this.data.filterDateStart ? new Date(this.data.filterDateStart).getTime() : null;
+      const endDate = this.data.filterDateEnd ? new Date(this.data.filterDateEnd + 'T23:59:59').getTime() : null;
+      
+      filteredRecords = filteredRecords.filter(record => {
+        const recordTime = record.timestamp;
+        
+        if (startDate && endDate) {
+          return recordTime >= startDate && recordTime <= endDate;
+        } else if (startDate) {
+          return recordTime >= startDate;
+        } else if (endDate) {
+          return recordTime <= endDate;
+        }
+        return true;
+      });
+    }
+    
+    this.setData({
+      displayedRecords: filteredRecords
+    });
+  },
+
+  /**
+   * 重置筛选
+   */
+  resetFilter() {
+    this.setData({
+      filterDateStart: '',
+      filterDateEnd: '',
+      filterStatus: '',
+      displayedRecords: this.data.allRecords
+    });
   },
 
   /**
@@ -186,21 +239,6 @@ Page({
       urls: images,
       current: images[index]
     })
-  },
-
-  /**
-   * 加载更多数据
-   */
-  loadMoreData() {
-    if (this.data.loading || !this.data.hasMore) {
-      return
-    }
-
-    this.setData({
-      loading: true
-    })
-    this.data.page++
-    this.loadRecords(true)
   },
 
   /**

@@ -25,18 +25,80 @@
     </view>
   </view>
 
+  <!-- 筛选区域 -->
+  <view class="filter-container">
+    <!-- 日期筛选 -->
+    <view class="filter-section">
+      <view class="filter-label">打卡时间</view>
+      <view class="date-filter">
+        <picker mode="date" value="{{filterDateStart}}" bindchange="onDateStartChange">
+          <view class="date-picker {{filterDateStart ? 'date-selected' : ''}}">
+            {{filterDateStart || '开始日期'}}
+          </view>
+        </picker>
+        <text class="date-separator">至</text>
+        <picker mode="date" value="{{filterDateEnd}}" bindchange="onDateEndChange">
+          <view class="date-picker {{filterDateEnd ? 'date-selected' : ''}}">
+            {{filterDateEnd || '结束日期'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 状态筛选 -->
+    <view class="filter-section">
+      <view class="filter-label">审核状态</view>
+      <view class="status-filter">
+        <view 
+          class="status-option {{filterStatus === '' ? 'status-active' : ''}}" 
+          bindtap="changeStatus"
+          data-status=""
+        >
+          全部
+        </view>
+        <view 
+          class="status-option {{filterStatus === '1' ? 'status-active' : ''}}" 
+          bindtap="changeStatus"
+          data-status="1"
+        >
+          已通过
+        </view>
+        <view 
+          class="status-option {{filterStatus === '2' ? 'status-active' : ''}}" 
+          bindtap="changeStatus"
+          data-status="2"
+        >
+          审核中
+        </view>
+        <view 
+          class="status-option {{filterStatus === '0' ? 'status-active' : ''}}" 
+          bindtap="changeStatus"
+          data-status="0"
+        >
+          未通过
+        </view>
+      </view>
+    </view>
+
+    <!-- 筛选操作按钮 -->
+    <view class="filter-actions">
+      <button class="filter-btn filter-reset" bindtap="resetFilter">重置</button>
+      <button class="filter-btn filter-apply" bindtap="applyFilter">应用筛选</button>
+    </view>
+  </view>
+
   <!-- 跑步记录列表 -->
   <view class="record-list">
     <view class="list-header">
       <view class="list-title">跑步记录</view>
-      <view class="list-count">{{recordList.length}}条记录</view>
+      <view class="list-count">{{displayedRecords.length}}条记录</view>
     </view>
     
     <view wx:if="{{loading}}" class="loading">
       <text>加载中...</text>
     </view>
     
-    <view wx:elif="{{recordList.length === 0}}" class="empty">
+    <view wx:elif="{{allRecords.length === 0}}" class="empty">
       <text>暂无跑步记录</text>
       <button class="submit-btn" bindtap="goToSubmit">去提交记录</button>
     </view>
@@ -51,7 +113,7 @@
       
       <!-- 记录列表项 -->
       <view class="list-row" 
-            wx:for="{{recordList}}" 
+            wx:for="{{displayedRecords}}" 
             wx:key="_id"
             bindtap="viewRecord" 
             data-id="{{item._id}}">
@@ -69,12 +131,9 @@
         </view>
       </view>
       
-      <!-- 加载更多 -->
-      <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMoreData">
-        <text>加载更多...</text>
-      </view>
-      <view wx:elif="{{!hasMore && recordList.length > 0}}" class="no-more">
-        <text>没有更多记录了</text>
+      <!-- 没有筛选结果时的提示 -->
+      <view wx:if="{{displayedRecords.length === 0 && allRecords.length > 0}}" class="no-result">
+        <text>没有找到符合条件的记录</text>
       </view>
     </view>
   </view>

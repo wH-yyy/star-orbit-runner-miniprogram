@@ -101,6 +101,128 @@ page {
   opacity: 0;
 }
 
+/* 筛选容器样式 */
+.filter-container {
+  background-color: #fff;
+  margin: 10px 15px;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* 日期筛选样式 */
+.date-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.date-picker {
+  flex: 1;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #999;
+  font-size: 14px;
+}
+
+.date-selected {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.date-separator {
+  padding: 0 10px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 状态筛选样式 */
+.status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-option {
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  min-width: 70px;
+  transition: all 0.3s ease;
+}
+
+.status-active {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+/* 筛选操作按钮样式 */
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.filter-btn {
+  flex: 1;
+  height: 40px;
+  line-height: 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.filter-reset {
+  background-color: #f8f9fa;
+  color: #666;
+}
+
+.filter-apply {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.filter-reset:active {
+  background-color: #e6e6e6;
+}
+
+.filter-apply:active {
+  background-color: #096dd9;
+}
+
+/* 无筛选结果提示 */
+.no-result {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 列表计数样式调整 */
+.list-count {
+  color: #1890ff;
+  font-weight: 500;
+}
+
 /* 记录列表 */
 .record-list {
   background: rgba(255, 255, 255, 0.95);
