@@ -9,10 +9,12 @@ Page({
     // 加载状态
     loading: true,
     
+    // 筛选面板是否可见
+    showFilterPanel: false,
     // 筛选条件
     filterDateStart: '',
     filterDateEnd: '',
-    filterStatus: '',
+    filterStatus: ''
   },
 
   onLoad() {
@@ -177,6 +179,13 @@ Page({
     });
   },
 
+  // 切换筛选面板显示/隐藏
+  toggleFilterPanel() {
+    this.setData({
+      showFilterPanel: !this.data.showFilterPanel
+    });
+  },
+
   /**
    * 应用筛选
    */
@@ -213,7 +222,8 @@ Page({
     }
     
     this.setData({
-      displayedRecords: filteredRecords
+      displayedRecords: filteredRecords,
+      showFilterPanel: false
     });
   },
 
@@ -222,6 +232,7 @@ Page({
    */
   resetFilter() {
     this.setData({
+      showFilterPanel: false,
       filterDateStart: '',
       filterDateEnd: '',
       filterStatus: '',

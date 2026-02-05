@@ -1,4 +1,4 @@
-<!--pages/record/record.wxml-->
+<!-- pages/record/record.wxml -->
 <view class="record-container">
   <!-- 用户信息卡片 -->
   <view class="user-card">
@@ -25,115 +25,125 @@
     </view>
   </view>
 
-  <!-- 筛选区域 -->
-  <view class="filter-container">
-    <!-- 日期筛选 -->
-    <view class="filter-section">
-      <view class="filter-label">打卡时间</view>
-      <view class="date-filter">
-        <picker mode="date" value="{{filterDateStart}}" bindchange="onDateStartChange">
-          <view class="date-picker {{filterDateStart ? 'date-selected' : ''}}">
-            {{filterDateStart || '开始日期'}}
-          </view>
-        </picker>
-        <text class="date-separator">至</text>
-        <picker mode="date" value="{{filterDateEnd}}" bindchange="onDateEndChange">
-          <view class="date-picker {{filterDateEnd ? 'date-selected' : ''}}">
-            {{filterDateEnd || '结束日期'}}
-          </view>
-        </picker>
-      </view>
-    </view>
-
-    <!-- 状态筛选 -->
-    <view class="filter-section">
-      <view class="filter-label">审核状态</view>
-      <view class="status-filter">
-        <view 
-          class="status-option {{filterStatus === '' ? 'status-active' : ''}}" 
-          bindtap="changeStatus"
-          data-status=""
-        >
-          全部
-        </view>
-        <view 
-          class="status-option {{filterStatus === '1' ? 'status-active' : ''}}" 
-          bindtap="changeStatus"
-          data-status="1"
-        >
-          已通过
-        </view>
-        <view 
-          class="status-option {{filterStatus === '2' ? 'status-active' : ''}}" 
-          bindtap="changeStatus"
-          data-status="2"
-        >
-          审核中
-        </view>
-        <view 
-          class="status-option {{filterStatus === '0' ? 'status-active' : ''}}" 
-          bindtap="changeStatus"
-          data-status="0"
-        >
-          未通过
+  <!-- 跑步记录卡片（包含标题和列表） -->
+  <view class="record-card">
+    <!-- 卡片头部 -->
+    <view class="card-header">
+      <view class="card-title">跑步记录</view>
+      <view class="card-header-right">
+        <view class="record-count">{{displayedRecords.length}}条记录</view>
+        <view class="filter-toggle" bindtap="toggleFilterPanel">
+          <text class="filter-icon">筛选</text>
+          <text class="filter-arrow {{showFilterPanel ? 'filter-arrow-up' : ''}}">▼</text>
         </view>
       </view>
     </view>
 
-    <!-- 筛选操作按钮 -->
-    <view class="filter-actions">
-      <button class="filter-btn filter-reset" bindtap="resetFilter">重置</button>
-      <button class="filter-btn filter-apply" bindtap="applyFilter">应用筛选</button>
-    </view>
-  </view>
+    <!-- 筛选面板 -->
+    <view class="filter-panel {{showFilterPanel ? 'filter-panel-show' : ''}}">
+      <!-- 日期筛选 -->
+      <view class="filter-section">
+        <view class="filter-label">打卡时间</view>
+        <view class="date-filter">
+          <picker mode="date" value="{{filterDateStart}}" bindchange="onDateStartChange">
+            <view class="date-picker {{filterDateStart ? 'date-selected' : ''}}">
+              {{filterDateStart || '开始日期'}}
+            </view>
+          </picker>
+          <text class="date-separator">至</text>
+          <picker mode="date" value="{{filterDateEnd}}" bindchange="onDateEndChange">
+            <view class="date-picker {{filterDateEnd ? 'date-selected' : ''}}">
+              {{filterDateEnd || '结束日期'}}
+            </view>
+          </picker>
+        </view>
+      </view>
 
-  <!-- 跑步记录列表 -->
-  <view class="record-list">
-    <view class="list-header">
-      <view class="list-title">跑步记录</view>
-      <view class="list-count">{{displayedRecords.length}}条记录</view>
+      <!-- 状态筛选 -->
+      <view class="filter-section">
+        <view class="filter-label">审核状态</view>
+        <view class="status-filter">
+          <view 
+            class="status-option {{filterStatus === '' ? 'status-active' : ''}}" 
+            bindtap="changeStatus"
+            data-status=""
+          >
+            全部
+          </view>
+          <view 
+            class="status-option {{filterStatus === '1' ? 'status-active' : ''}}" 
+            bindtap="changeStatus"
+            data-status="1"
+          >
+            已通过
+          </view>
+          <view 
+            class="status-option {{filterStatus === '2' ? 'status-active' : ''}}" 
+            bindtap="changeStatus"
+            data-status="2"
+          >
+            审核中
+          </view>
+          <view 
+            class="status-option {{filterStatus === '0' ? 'status-active' : ''}}" 
+            bindtap="changeStatus"
+            data-status="0"
+          >
+            未通过
+          </view>
+        </view>
+      </view>
+
+      <!-- 筛选操作按钮 -->
+      <view class="filter-actions">
+        <button class="filter-btn filter-reset" bindtap="resetFilter">重置</button>
+        <button class="filter-btn filter-apply" bindtap="applyFilter">应用筛选</button>
+      </view>
     </view>
-    
-    <view wx:if="{{loading}}" class="loading">
-      <text>加载中...</text>
-    </view>
-    
-    <view wx:elif="{{allRecords.length === 0}}" class="empty">
-      <text>暂无跑步记录</text>
-      <button class="submit-btn" bindtap="goToSubmit">去提交记录</button>
-    </view>
-    
-    <view wx:else class="record-list-container">
-      <!-- 列表头部 -->
-      <view class="list-row list-header-row">
-        <view class="list-col list-col-date">打卡时间</view>
-        <view class="list-col list-col-status">状态</view>
-        <view class="list-col list-col-arrow"></view>
+
+    <!-- 记录列表内容 -->
+    <view class="card-content">
+      <view wx:if="{{loading}}" class="loading">
+        <text>加载中...</text>
       </view>
       
-      <!-- 记录列表项 -->
-      <view class="list-row" 
-            wx:for="{{displayedRecords}}" 
-            wx:key="_id"
-            bindtap="viewRecord" 
-            data-id="{{item._id}}">
-        <view class="list-col list-col-date">
-          <view class="date">{{item.create_date}}</view>
-          <view class="time">{{item.create_time_24}}</view>
-        </view>
-        <view class="list-col list-col-status">
-          <view class="status-text {{item.status === 1 ? 'status-passed' : item.status === 2 ? 'status-pending' : 'status-failed'}}">
-            {{item.status === 1 ? '已通过' : item.status === 2 ? '审核中' : '未通过'}}
-          </view>
-        </view>
-        <view class="list-col list-col-arrow">
-          <view class="arrow">›</view>
-        </view>
+      <view wx:elif="{{allRecords.length === 0}}" class="empty">
+        <text>暂无跑步记录</text>
+        <button class="submit-btn" bindtap="goToSubmit">去提交记录</button>
       </view>
       
-      <!-- 没有筛选结果时的提示 -->
-      <view wx:if="{{displayedRecords.length === 0 && allRecords.length > 0}}" class="no-result">
-        <text>没有找到符合条件的记录</text>
+      <view wx:else class="record-list-container">
+        <!-- 列表头部 -->
+        <view class="list-row list-header-row">
+          <view class="list-col list-col-date">打卡时间</view>
+          <view class="list-col list-col-status">状态</view>
+          <view class="list-col list-col-arrow"></view>
+        </view>
+        
+        <!-- 记录列表项 -->
+        <view class="list-row" 
+              wx:for="{{displayedRecords}}" 
+              wx:key="_id"
+              bindtap="viewRecord" 
+              data-id="{{item._id}}">
+          <view class="list-col list-col-date">
+            <view class="date">{{item.create_date}}</view>
+            <view class="time">{{item.create_time_24}}</view>
+          </view>
+          <view class="list-col list-col-status">
+            <view class="status-text {{item.status === 1 ? 'status-passed' : item.status === 2 ? 'status-pending' : 'status-failed'}}">
+              {{item.status === 1 ? '已通过' : item.status === 2 ? '审核中' : '未通过'}}
+            </view>
+          </view>
+          <view class="list-col list-col-arrow">
+            <view class="arrow">›</view>
+          </view>
+        </view>
+        
+        <!-- 没有筛选结果时的提示 -->
+        <view wx:if="{{displayedRecords.length === 0 && allRecords.length > 0}}" class="no-result">
+          <text>没有找到符合条件的记录</text>
+        </view>
       </view>
     </view>
   </view>
