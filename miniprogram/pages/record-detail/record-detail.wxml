@@ -1,70 +1,94 @@
 <!--pages/record-detail/record-detail.wxml-->
 <view class="container">
-  <!-- 顶部导航 -->
-  <view class="nav-bar">
-    <view class="nav-left"></view>
-    <view class="nav-title">
-      <text class="title">跑步打卡记录</text>
-      <text class="subtitle">记录详情</text>
-    </view>
-    <view class="nav-right"></view>
-  </view>
-  
   <!-- 加载状态 -->
   <view wx:if="{{loading}}" class="loading-container">
     <view class="loading-spinner"></view>
     <text class="loading-text">加载记录详情中...</text>
   </view>
-  
-  <!-- 记录卡片 -->
-  <view wx:else class="detail-card">
-    <!-- 状态标识 -->
-    <view class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 2 ? 'status-pending' : 'status-failed'}}">
-      {{record.status === 1 ? '已通过' : record.status === 2 ? '审核中' : '未通过'}}
-    </view>
+
+  <!-- 记录详情 -->
+  <view wx:else class="detail-container">
     
-    <!-- 基本信息 -->
-    <view class="info-item">
-      <text class="info-label">记录时间</text>
-      <text class="info-value">{{record.running_date}}</text>
-    </view>
-    
-    <!-- 不通过原因 -->
-    <view wx:if="{{record.status === 0 && record.displayAuditReason}}" class="fail-reason">
-      <text class="reason-label">未通过原因</text>
-      <text class="reason-content">{{record.displayAuditReason}}</text>
-    </view>
-    
-    <!-- 跑步数据 -->
-    <view class="data-grid">
-      <view class="data-item">
-        <text class="data-value">{{record.running_distance || '0'}} km</text>
-        <text class="data-label">跑步距离</text>
+    <!-- 第一部分：打卡时间 -->
+    <view class="detail-section">
+      <view class="section-header">
+        <text class="section-title">打卡时间</text>
       </view>
-      <view class="data-item">
-        <text class="data-value">{{record.running_duration || '0'}}</text>
-        <text class="data-label">跑步时长</text>
-      </view>
-      <view class="data-item">
-        <text class="data-value">{{record.running_pace || '0'}}</text>
-        <text class="data-label">配速</text>
+      <view class="section-content">
+        <text class="create-time">{{record.display_time || '--'}}</text>
       </view>
     </view>
-    
-    <!-- 打卡图片 -->
-    <view wx:if="{{record.imageFileID}}" class="manual-images">
-      <text class="images-title">打卡图片</text>
-      <view class="images-grid">
-        <view class="image-item">
-          <image src="{{record.imageFileID}}" class="manual-image" mode="aspectFill" bindtap="previewImage" data-index="0"></image>
+
+    <!-- 第二部分：审核状态 -->
+    <view class="detail-section">
+      <view class="section-header">
+        <text class="section-title">审核状态</text>
+      </view>
+      <view class="section-content">
+        <view
+          class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 2 ? 'status-pending' : 'status-failed'}}">
+          {{record.status === 1 ? '已通过' : record.status === 2 ? '审核中' : '未通过'}}
+        </view>
+        
+        <!-- 不通过原因 -->
+        <view wx:if="{{record.status === 0 && record.displayAuditReason}}" class="fail-reason">
+          <text class="reason-label">未通过原因：</text>
+          <text class="reason-content">{{record.displayAuditReason}}</text>
         </view>
       </view>
     </view>
-    
+
+    <!-- 第三部分：识别的跑步数据 -->
+    <view class="detail-section">
+      <view class="section-header">
+        <text class="section-title">识别的跑步数据</text>
+      </view>
+      <view class="section-content">
+        <view class="data-grid">
+          <view class="data-item">
+            <text class="data-label">跑步时间</text>
+            <text class="data-value">{{record.running_date || '--'}}</text>
+          </view>
+          <view class="data-item">
+            <text class="data-label">跑步距离</text>
+            <text class="data-value">{{record.running_distance || '0'}} km</text>
+          </view>
+          <view class="data-item">
+            <text class="data-label">跑步时长</text>
+            <text class="data-value">{{record.running_duration || '0'}}</text>
+          </view>
+          <view class="data-item">
+            <text class="data-label">配速</text>
+            <text class="data-value">{{record.running_pace || '0'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 第四部分：打卡图片 -->
+    <view wx:if="{{record.imageFileID}}" class="detail-section">
+      <view class="section-header">
+        <text class="section-title">打卡图片</text>
+      </view>
+      <view class="section-content">
+        <view class="images-container">
+          <image 
+            src="{{record.imageFileID}}" 
+            class="detail-image" 
+            mode="aspectFill" 
+            bindtap="previewImage"
+            data-index="0"
+          ></image>
+        </view>
+      </view>
+    </view>
+
     <!-- 申诉按钮，仅未通过记录显示 -->
-    <button wx:if="{{record.status === 0}}" class="appeal-btn" type="warn" bindtap="showAppealModal">提交申诉</button>
+    <view wx:if="{{record.status === 0}}" class="appeal-section">
+      <button class="appeal-btn" type="warn" bindtap="showAppealModal">提交申诉</button>
+    </view>
   </view>
-  
+
   <!-- 申诉模态框 -->
   <view wx:if="{{showAppealModal}}" class="modal-overlay" bindtap="hideAppealModal"></view>
   <view wx:if="{{showAppealModal}}" class="modal-content" catchtap="">
@@ -75,27 +99,20 @@
         <text class="close-text">×</text>
       </view>
     </view>
-    
+
     <!-- 模态框内容 -->
     <view class="modal-body">
       <text class="modal-desc">请说明您的申诉理由，并上传相关证明材料</text>
-      
+
       <!-- 申诉理由输入 -->
       <view class="form-item">
         <text class="form-label">申诉理由</text>
-        <textarea 
-          class="form-textarea" 
-          placeholder="请详细说明您的申诉理由..." 
-          placeholder-class="placeholder" 
-          bindinput="onAppealReasonInput" 
-          value="{{appealReason}}"
-          maxlength="500"
-          auto-height
-          show-confirm-bar
-        ></textarea>
+        <textarea class="form-textarea" placeholder="请详细说明您的申诉理由..." placeholder-class="placeholder"
+          bindinput="onAppealReasonInput" value="{{appealReason}}" maxlength="500" auto-height
+          show-confirm-bar></textarea>
         <text class="count-text">{{appealReason.length}}/500</text>
       </view>
-      
+
       <!-- 图片上传 -->
       <view class="form-item">
         <text class="form-label">上传证明材料</text>
@@ -108,7 +125,7 @@
               <image src="/images/delete.png" class="delete-icon" mode="aspectFit"></image>
             </view>
           </view>
-          
+
           <!-- 上传按钮 -->
           <view wx:if="{{uploadedImages.length < 5}}" class="upload-btn" bindtap="uploadImage">
             <image src="/images/upload.png" class="upload-icon" mode="aspectFit"></image>
@@ -117,7 +134,7 @@
         </view>
       </view>
     </view>
-    
+
     <!-- 模态框底部按钮 -->
     <view class="modal-footer">
       <button class="modal-btn cancel-btn" type="default" bindtap="cancelAppeal">

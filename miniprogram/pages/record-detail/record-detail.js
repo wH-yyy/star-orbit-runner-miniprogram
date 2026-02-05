@@ -1,9 +1,5 @@
 // pages/record-detail/record-detail.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
     record: {}, // 记录详情数据
     loading: true, // 加载状态
@@ -12,19 +8,12 @@ Page({
     showAppealModal: false // 申诉模态框显示状态
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
     // 从页面参数中获取记录ID
     const id = options.id;
-    console.log('=== 详情页面加载，获取到的记录ID:', id);
     if (id) {
-      // 加载记录详情
       this.loadRecordDetail(id);
     } else {
-      // 没有ID参数，返回上一页
-      console.error('=== 详情页面加载失败：没有获取到记录ID');
       wx.showToast({
         title: '加载失败：没有记录ID',
         icon: 'none'
@@ -35,46 +24,11 @@ Page({
     }
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
   onPullDownRefresh() {
-    // 下拉刷新时重新加载数据
-    console.log('=== 详情页面下拉刷新');
     const id = this.data.record.id;
-    console.log('=== 下拉刷新时获取到的记录ID:', id);
     if (id) {
       this.loadRecordDetail(id);
     } else {
-      console.error('=== 下拉刷新失败：未找到记录ID');
       wx.showToast({
         title: '刷新失败：未找到记录',
         icon: 'none'
@@ -85,32 +39,12 @@ Page({
     }, 500);
   },
 
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
-  },
-
-  /**
-   * 返回上一页
-   */
   goBack() {
     wx.navigateBack({
       delta: 1
     });
   },
 
-  /**
-   * 预览图片
-   */
   previewImage(e) {
     const imageFileID = this.data.record.imageFileID;
     if (imageFileID) {
@@ -121,27 +55,18 @@ Page({
     }
   },
 
-  /**
-   * 加载记录详情
-   */
   loadRecordDetail(id) {
-    console.log('=== 开始加载记录详情，ID:', id);
     this.setData({
       loading: true
     });
 
-    // 从数据库获取记录详情
     const db = wx.cloud.database();
     db.collection('RunningRecords')
       .doc(id)
       .get()
       .then(res => {
-        console.log('=== 加载记录详情成功，结果:', res);
         const recordData = res.data;
-        
-        // 检查是否获取到数据
         if (!recordData) {
-          console.error('=== 加载记录详情失败：未获取到数据');
           this.setData({
             loading: false
           });
@@ -155,12 +80,10 @@ Page({
           return;
         }
         
-        // 确保status字段为数字类型
         if (recordData.status !== undefined) {
           recordData.status = parseInt(recordData.status);
         }
         
-        // 处理未通过原因显示
         if (recordData.audit_reason) {
           let reason = recordData.audit_reason.toLowerCase();
           if (reason.includes('ocr') || reason.includes('识别')) {
@@ -171,6 +94,24 @@ Page({
         } else {
           recordData.displayAuditReason = '未提供具体原因';
         }
+
+        // 处理创建时间格式
+        if (recordData.create_time) {
+          
+          const createTime = new Date(recordData.create_time);
+          // 格式化日期和时间
+          const year = createTime.getFullYear();
+          const month = String(createTime.getMonth() + 1).padStart(2, '0');
+          const day = String(createTime.getDate()).padStart(2, '0');
+          const hours = String(createTime.getHours()).padStart(2, '0');
+          const minutes = String(createTime.getMinutes()).padStart(2, '0');
+          const seconds = String(createTime.getSeconds()).padStart(2, '0');
+          
+          // 创建完整的显示时间，用于打卡时间显示
+          recordData.display_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        } else {
+          recordData.display_time = '--';
+        }
         
         // 添加记录ID到数据中，用于下拉刷新
         recordData.id = id;
@@ -179,10 +120,9 @@ Page({
           record: recordData,
           loading: false
         });
-        console.log('=== 记录详情数据已设置:', this.data.record);
       })
       .catch(error => {
-        console.error('=== 加载记录详情失败:', error);
+        console.error('加载记录详情失败:', error);
         this.setData({
           loading: false
         });
@@ -248,7 +188,6 @@ Page({
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success(res) {
-        console.log('选择图片成功:', res);
         // 临时文件路径
         const tempFilePaths = res.tempFilePaths;
         
@@ -260,7 +199,6 @@ Page({
         // 实际上传图片到云存储
         const uploadTasks = tempFilePaths.map((tempFilePath, index) => {
           const fileName = `appeals/${getApp().globalData.userInfo.openid}_${Date.now()}_${index}.jpg`;
-          console.log('上传图片:', tempFilePath, '到', fileName);
           return wx.cloud.uploadFile({
             cloudPath: fileName,
             filePath: tempFilePath
@@ -270,15 +208,12 @@ Page({
         Promise.all(uploadTasks)
           .then(uploadResults => {
             wx.hideLoading();
-            console.log('图片上传结果:', uploadResults);
             // 获取上传成功的FileID
             const fileIDs = uploadResults.map(result => result.fileID);
-            console.log('获取到的FileID:', fileIDs);
             // 将FileID添加到已上传列表
             that.setData({
               uploadedImages: [...that.data.uploadedImages, ...fileIDs]
             }, () => {
-              console.log('上传后的uploadedImages:', that.data.uploadedImages);
               wx.showToast({
                 title: '图片上传成功',
                 icon: 'success',
@@ -296,7 +231,6 @@ Page({
           });
       },
       fail(err) {
-        console.error('图片选择失败:', err);
         if (err.errMsg !== 'chooseImage:fail cancel') {
           wx.showToast({
             title: '图片选择失败',
@@ -324,9 +258,6 @@ Page({
    */
   submitAppeal() {
     const { appealReason, uploadedImages, record } = this.data;
-    console.log('提交申诉，appealReason:', appealReason);
-    console.log('提交申诉，uploadedImages:', uploadedImages);
-    console.log('提交申诉，record:', record);
     
     // 表单验证
     if (!appealReason.trim()) {
@@ -360,7 +291,6 @@ Page({
           })
           .then(res => {
             wx.hideLoading();
-            console.log('申诉提交结果:', res);
             
             if (res.result && res.result.success) {
               wx.showToast({
