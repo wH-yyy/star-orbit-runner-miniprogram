@@ -118,17 +118,25 @@ Page({
             item.displayAuditReason = '未提供具体原因';
           }
 
-          // 转换创建时间格式
+          // 转换创建时间格式为24小时制，日期和时间分行显示
           if (item.create_time) {
-            const createTime = new Date(item.create_time)
-            const formattedTime = createTime.toLocaleString('zh-CN', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-            item.create_time = formattedTime
+            const createTime = new Date(item.create_time);
+            
+            // 获取日期部分 (YYYY-MM-DD)
+            const year = createTime.getFullYear();
+            const month = String(createTime.getMonth() + 1).padStart(2, '0');
+            const day = String(createTime.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            
+            // 获取时间部分 (HH:mm:ss) 24小时制
+            const hours = String(createTime.getHours()).padStart(2, '0');
+            const minutes = String(createTime.getMinutes()).padStart(2, '0');
+            const seconds = String(createTime.getSeconds()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}:${seconds}`;
+            
+            // 保存日期和时间到不同的字段
+            item.create_date = dateStr;
+            item.create_time_24 = timeStr;
           }
           return item;
         });
