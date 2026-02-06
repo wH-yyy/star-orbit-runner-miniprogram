@@ -1,4 +1,3 @@
-// pages/record-detail/record-detail.js
 Page({
   data: {
     record: {}, // 记录详情数据
@@ -97,7 +96,6 @@ Page({
 
         // 处理创建时间格式
         if (recordData.create_time) {
-          
           const createTime = new Date(recordData.create_time);
           // 格式化日期和时间
           const year = createTime.getFullYear();
@@ -137,9 +135,18 @@ Page({
    * 显示申诉模态框
    */
   showAppealModal() {
-    this.setData({
-      showAppealModal: true
-    });
+    // 只有状态为2（不通过）且不在申诉中状态下才能申诉
+    if (this.data.record.status === 2) {
+      this.setData({
+        showAppealModal: true
+      });
+    } else if (this.data.record.status === 3) {
+      wx.showToast({
+        title: '该记录已在申诉中，请等待审核',
+        icon: 'none',
+        duration: 2000
+      });
+    }
   },
 
   /**
@@ -299,11 +306,11 @@ Page({
                 duration: 2000
               });
               
-              // 申诉成功后更新状态为审核中
+              // 申诉成功后更新状态为申诉中（3）
               this.setData({
                 record: {
                   ...record,
-                  status: 2
+                  status: 3
                 },
                 showAppealModal: false,
                 appealReason: '',
@@ -337,4 +344,4 @@ Page({
   cancelAppeal() {
     this.hideAppealModal();
   }
-})
+});

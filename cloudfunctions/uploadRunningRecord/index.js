@@ -145,9 +145,9 @@ function parseRunningInfoFromOCR(ocrText) {
   // 先尝试匹配标准格式：2026-01-23 20:45
   dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
   
-  // 如果没有匹配到标准格式，尝试匹配中文时间格式：下午8:18
+  // 如果没有匹配到标准格式，尝试匹配中文时间格式：下午8:18（不匹配年份）
   if (!dateTimeMatch) {
-    dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(上午|下午|晚上)?\s*(\d{1,2}):(\d{2})/)
+    dateTimeMatch = ocrText.match(/(\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(上午|下午|晚上)?\s*(\d{1,2}):(\d{2})/)
   }
   
   if (dateTimeMatch) {
@@ -181,7 +181,9 @@ function parseRunningInfoFromOCR(ocrText) {
   // 2. 匹配里程（格式：2.02km）
   const distanceMatch = ocrText.match(/(\d+\.?\d*)\s*(?:km|公里|千米)/i)
   if (distanceMatch) {
-    runningInfo.distance = parseFloat(distanceMatch[1])
+    const rawDistance = parseFloat(distanceMatch[1])
+    runningInfo.distance = Math.round(rawDistance * 100) / 100 // 保留两位小数
+    console.log('OCR识别到里程:', rawDistance, '-> 格式化后:', runningInfo.distance, 'km')
   }
   
   // 3. 匹配时长（格式：00:12:28，必须包含时分秒）
@@ -198,7 +200,68 @@ function parseRunningInfoFromOCR(ocrText) {
     runningInfo.pace = `${paceMatch[1]}'${paceMatch[2]}\"`
   }
   
+  // 5. 如果里程识别不到，但配速和时间都识别到了，根据配速和时间计算里程
+  if (!runningInfo.distance && runningInfo.pace && runningInfo.duration) {
+    console.log('里程识别失败，尝试根据配速和时间计算里程')
+    const calculatedDistance = calculateDistanceFromPaceAndDuration(runningInfo.pace, runningInfo.duration)
+    if (calculatedDistance) {
+      runningInfo.distance = calculatedDistance
+      console.log('根据配速和时间计算出里程:', runningInfo.distance, 'km')
+    } else {
+      console.log('根据配速和时间计算里程失败')
+    }
+  }
+  
+  console.log('最终解析结果:', runningInfo)
   return runningInfo
+}
+
+// 根据配速和时间计算里程 (km，保留两位小数)
+function calculateDistanceFromPaceAndDuration(pace, duration) {
+  if (!pace || !duration) {
+    return null
+  }
+  
+  console.log('根据配速和时间计算里程:', { pace, duration })
+  
+  // 1. 将配速转换为秒/公里
+  const paceInSeconds = convertPaceToSeconds(pace)
+  if (paceInSeconds === 0) {
+    console.log('配速转换失败，无法计算里程')
+    return null
+  }
+  
+  console.log('配速(秒/公里):', paceInSeconds)
+  
+  // 2. 将时长转换为秒
+  let totalSeconds = 0
+  
+  // 处理不同时长格式
+  if (duration.includes(':')) {
+    // 格式: 00:12:28
+    const [hours, minutes, seconds] = duration.split(':').map(Number)
+    totalSeconds = hours * 3600 + minutes * 60 + seconds
+  } else {
+    // 格式: 20分钟
+    const minutesMatch = duration.match(/(\d+)/)
+    if (minutesMatch) {
+      totalSeconds = parseInt(minutesMatch[1]) * 60
+    }
+  }
+  
+  if (totalSeconds === 0) {
+    console.log('时长转换失败，无法计算里程')
+    return null
+  }
+  
+  console.log('总时长(秒):', totalSeconds)
+  
+  // 3. 计算里程: 总时长(秒) / 配速(秒/公里)
+  const distance = totalSeconds / paceInSeconds
+  const roundedDistance = Math.round(distance * 100) / 100 // 保留两位小数
+  
+  console.log('计算出的里程:', roundedDistance, 'km')
+  return roundedDistance
 }
 
 // 计算配速 (分钟/公里)
@@ -236,7 +299,7 @@ function calculatePace(duration, distance) {
 // 审核跑步记录
 function auditRunningRecord(runningInfo) {
   const auditResult = {
-    status: '1', // 默认通过
+    status: '0', // 默认设为待审核（OCR基础规则通过）
     reason: '',
     calculatedPace: null
   }
@@ -245,7 +308,7 @@ function auditRunningRecord(runningInfo) {
   
   // 1. 检查里程 (必须 >= 2.0km)
   if (!distance || distance < 2.0) {
-    auditResult.status = '0'
+    auditResult.status = '2'
     auditResult.reason = '里程不足2.0公里'
     return auditResult
   }
@@ -259,7 +322,7 @@ function auditRunningRecord(runningInfo) {
       const minute = parseInt(timeMatch[2])
       // 直接使用24小时制时间进行比较
       if (hour < 20 || hour > 22 || (hour === 22 && minute > 0)) {
-        auditResult.status = '0'
+        auditResult.status = '2'
         auditResult.reason = '打卡时间不在20:00-22:00之间'
         timeCheckFailed = true
       } else {
@@ -284,7 +347,7 @@ function auditRunningRecord(runningInfo) {
     
     // 配速必须在3'00"到7'30"之间 (180秒到450秒)
     if (paceInSeconds < 180 || paceInSeconds > 450) {
-      auditResult.status = '0'
+      auditResult.status = '2'
       // 如果之前已经有失败原因，追加配速原因
       if (auditResult.reason) {
         auditResult.reason += '；配速异常，不在3\'00\"-7\'30\"范围内'
@@ -312,6 +375,7 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
     const userDoc = userResult.data[0]
     const updateData = {}
     
+    // 只有人工审核通过（状态为'1'）才更新用户统计信息
     if (auditStatus === '1') {
       // 审核通过：更新打卡次数、总里程、总时长
       updateData.totalCount = (userDoc.totalCount || 0) + 1
@@ -328,10 +392,11 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
         }
       }
       
-    } else {
-      // 审核不通过：更新违规次数
+    } else if (auditStatus === '2') {
+      // OCR基础规则审核不通过：更新违规次数
       updateData.violationCount = (userDoc.violationCount || 0) + 1
     }
+    // 待审核（状态为'0'）和申诉中（状态为'3'）不更新统计信息
     
     // 更新用户记录
     await db.collection('Users').doc(userDoc._id).update({
@@ -344,27 +409,34 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
 
 // 统一日期时间格式为：2024-1-1 20:30
 function normalizeDateTimeFormat(dateTimeStr) {
-  if (!dateTimeStr) return null  
-  // 提取日期和时间部分
-  const dateMatch = dateTimeStr.match(/(\d{4})[年\-/.]?(\d{1,2})[月\-/.]?(\d{1,2})[日]?/)
+  if (!dateTimeStr) return null
+  
+  console.log('统一日期时间格式，原始字符串:', dateTimeStr)
+  
+  // 提取日期和时间部分（现在只匹配月日，不匹配年份）
+  const dateMatch = dateTimeStr.match(/(\d{1,2})[月\-/.]?(\d{1,2})[日]?/)
   const timeMatch = dateTimeStr.match(/(\d{1,2}):(\d{2})/)
   
   if (!dateMatch || !timeMatch) {
+    console.log('日期时间格式无法解析')
     return null
   }
   
-  // 提取日期部分
-  const year = parseInt(dateMatch[1])
-  const month = parseInt(dateMatch[2])
-  const day = parseInt(dateMatch[3])
+  // 提取日期部分（只有月日）
+  const month = parseInt(dateMatch[1])
+  const day = parseInt(dateMatch[2])
+  
+  // 使用当前年份
+  const currentYear = new Date().getFullYear()
   
   // 提取时间部分
   const hour = parseInt(timeMatch[1])
   const minute = parseInt(timeMatch[2])
   
   // 构建统一格式：2024-1-1 20:30
-  const normalized = `${year}-${month}-${day} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+  const normalized = `${month}-${day} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
   
+  console.log('统一格式结果:', normalized)
   return normalized
 }
 
@@ -407,7 +479,7 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   // 获取参数
-  const { fileID, ocrText: ocrTextFromClient, ocrProvider } = event
+  const { fileID, ocrText: ocrTextFromClient, ocrProvider, coordinates } = event
   
   try {
     // 验证参数
@@ -454,11 +526,11 @@ exports.main = async (event, context) => {
     const runningInfo = parseRunningInfoFromOCR(ocrText)
     
     // 3. 审核记录（先检查用户信息，再检查跑步规则）
-    let auditResult = { status: '1', reason: '', calculatedPace: null }
+    let auditResult = { status: '0', reason: '', calculatedPace: null } // 默认设为待审核
     
     // 如果用户信息验证失败，直接标记为不通过
     if (!userInfoVerification.verified) {
-      auditResult.status = '0'
+      auditResult.status = '2'
       auditResult.reason = userInfoVerification.reason
     } else {
       // 用户信息验证通过，再检查跑步规则
@@ -481,7 +553,15 @@ exports.main = async (event, context) => {
       status: auditResult.status,
       audit_reason: auditResult.reason,
       create_time: db.serverDate(),
-      openid: openid
+      openid: openid,
+      // 位置信息（如果有）
+      ...(coordinates && {
+        coordinates: {
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
+          accuracy: coordinates.accuracy || 0
+        }
+      })
     }
     
     const dbResult = await db.collection('RunningRecords').add({
@@ -492,8 +572,14 @@ exports.main = async (event, context) => {
     await updateUserStatistics(openid, auditResult.status, runningInfo)
     
     // 返回结果
-    const message = auditResult.status === '1' ? '审核通过' : 
-                   (auditResult.reason.includes('用户姓名和学号') ? '用户信息验证失败' : '跑步记录审核不通过')
+    let message = ''
+    if (auditResult.status === '0') {
+      message = 'OCR基础规则审核通过，等待人工审核'
+    } else if (auditResult.status === '2') {
+      message = auditResult.reason.includes('用户姓名和学号') ? '用户信息验证失败' : 'OCR基础规则审核不通过'
+    } else {
+      message = '提交成功，等待审核'
+    }
     
     return {
       code: 200,

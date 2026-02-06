@@ -1,4 +1,3 @@
-// pages/record/record.js
 Page({
   data: {
     userInfo: {},
