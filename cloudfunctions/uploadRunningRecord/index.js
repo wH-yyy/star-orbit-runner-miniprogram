@@ -479,7 +479,7 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   // 获取参数
-  const { fileID, ocrText: ocrTextFromClient, ocrProvider } = event
+  const { fileID, ocrText: ocrTextFromClient, ocrProvider, coordinates } = event
   
   try {
     // 验证参数
@@ -553,7 +553,15 @@ exports.main = async (event, context) => {
       status: auditResult.status,
       audit_reason: auditResult.reason,
       create_time: db.serverDate(),
-      openid: openid
+      openid: openid,
+      // 位置信息（如果有）
+      ...(coordinates && {
+        coordinates: {
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
+          accuracy: coordinates.accuracy || 0
+        }
+      })
     }
     
     const dbResult = await db.collection('RunningRecords').add({

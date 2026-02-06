@@ -11,6 +11,11 @@ Page({
     modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
     modeIndex: 0,
 
+    // 位置信息
+    currentLocation: null,
+    locationError: false,
+    locationErrorMsg: '',
+
     // 提交状态
     submitting: false,
     submitDisabled: false,
@@ -121,6 +126,85 @@ Page({
     return ok
   },
 
+  // 获取当前位置
+  getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      console.log('开始获取当前位置...')
+      
+      // 检查位置权限
+      wx.getSetting({
+        success: (settingRes) => {
+          if (!settingRes.authSetting['scope.userLocation']) {
+            // 未授权，请求授权
+            console.log('位置权限未授权，请求授权...')
+            wx.authorize({
+              scope: 'scope.userLocation',
+              success: (authRes) => {
+                if (authRes.errMsg === 'authorize:ok') {
+                  this._getLocation(resolve, reject)
+                } else {
+                  reject(new Error('位置权限未授权'))
+                }
+              },
+              fail: (err) => {
+                reject(new Error('位置权限授权失败'))
+              }
+            })
+          } else {
+            // 已授权，直接获取位置
+            this._getLocation(resolve, reject)
+          }
+        },
+        fail: (err) => {
+          reject(new Error('获取权限设置失败'))
+        }
+      })
+    })
+  },
+
+  // 实际获取位置的方法
+  _getLocation(resolve, reject) {
+    console.log('开始获取位置坐标...')
+    
+    wx.getLocation({
+      type: 'wgs84', // 使用WGS84坐标系统
+      success: (res) => {
+        const locationData = {
+          latitude: res.latitude,
+          longitude: res.longitude,
+          accuracy: res.accuracy || 0
+        }
+        
+        this.setData({
+          currentLocation: locationData,
+          locationError: false,
+          locationErrorMsg: ''
+        })
+        
+        console.log('获取位置成功:', locationData)
+        resolve(locationData)
+      },
+      fail: (err) => {
+        console.error('获取位置失败:', err)
+        this.setData({
+          locationError: true,
+          locationErrorMsg: '获取位置失败，请检查位置权限或网络连接'
+        })
+        reject(new Error('获取位置失败'))
+      }
+    })
+  },
+
+  // 显示位置获取提示
+  showLocationPrompt() {
+    wx.showModal({
+      title: '位置信息',
+      content: '提交跑步记录需要获取您的位置信息，用于记录跑步地点',
+      confirmText: '确定',
+      showCancel: false
+    })
+  },
+
   async submitForm() {
     if (this.data.submitting) return
     if (!this.validateForm()) return
@@ -140,7 +224,15 @@ Page({
       this.setData({
         submitting: true,
         submitDisabled: true,
-        submitText: '提交中...'
+        submitText: '获取位置中...'
+      })
+      
+      // 0. 获取当前位置信息
+      wx.showLoading({ title: '获取位置中...', mask: true })
+      const location = await this.getCurrentLocation()
+      
+      this.setData({
+        submitText: '上传中...'
       })
       wx.showLoading({ title: '上传中...', mask: true })
 
@@ -163,11 +255,16 @@ Page({
         showSuccess: true
       })
 
-      // 3. 在后台触发 OCR + 审核，不阻塞用户
+      // 3. 在后台触发 OCR + 审核，不阻塞用户（传递位置信息）
       wx.cloud
         .callFunction({
           name: 'uploadRunningRecord',
-          data: { fileID, mode, ocrProvider: 'auto' }
+          data: { 
+            fileID, 
+            mode, 
+            ocrProvider: 'auto',
+            coordinates: location // 传递位置坐标信息
+          }
         })
         .then(res => {
           console.log('后台OCR审核完成:', res)
