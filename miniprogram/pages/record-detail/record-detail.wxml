@@ -1,4 +1,3 @@
-<!--pages/record-detail/record-detail.wxml-->
 <view class="container">
   <!-- 加载状态 -->
   <view wx:if="{{loading}}" class="loading-container">
@@ -26,14 +25,20 @@
       </view>
       <view class="section-content">
         <view
-          class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 2 ? 'status-pending' : 'status-failed'}}">
-          {{record.status === 1 ? '已通过' : record.status === 2 ? '审核中' : '未通过'}}
+          class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 0 ? 'status-pending' : record.status === 2 ? 'status-failed' : 'status-appeal'}}">
+          {{record.status === 1 ? '已通过' : record.status === 0 ? '待审核' : record.status === 2 ? '不通过' : '申诉中'}}
         </view>
         
         <!-- 不通过原因 -->
-        <view wx:if="{{record.status === 0 && record.displayAuditReason}}" class="fail-reason">
+        <view wx:if="{{record.status === 2 && record.displayAuditReason}}" class="fail-reason">
           <text class="reason-label">未通过原因：</text>
           <text class="reason-content">{{record.displayAuditReason}}</text>
+        </view>
+        
+        <!-- 申诉状态说明 -->
+        <view wx:if="{{record.status === 3}}" class="appeal-info">
+          <text class="appeal-label">申诉说明：</text>
+          <text class="appeal-content">已提交申诉，请等待管理员审核</text>
         </view>
       </view>
     </view>
@@ -83,9 +88,9 @@
       </view>
     </view>
 
-    <!-- 申诉按钮，仅未通过记录显示 -->
-    <view wx:if="{{record.status === 0}}" class="appeal-section">
-      <button class="appeal-btn" type="warn" bindtap="showAppealModal">提交申诉</button>
+    <!-- 申诉按钮，仅不通过记录（状态2）显示，申诉中（状态3）不显示 -->
+    <view wx:if="{{record.status === 2}}" class="appeal-section">
+      <button class="appeal-btn" bindtap="showAppealModal">提交申诉</button>
     </view>
   </view>
 
@@ -128,7 +133,6 @@
 
           <!-- 上传按钮 -->
           <view wx:if="{{uploadedImages.length < 5}}" class="upload-btn" bindtap="uploadImage">
-            <image src="/images/upload.png" class="upload-icon" mode="aspectFit"></image>
             <text class="upload-text">+ 上传图片</text>
           </view>
         </view>

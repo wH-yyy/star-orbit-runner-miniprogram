@@ -59,40 +59,47 @@
         </view>
       </view>
 
-      <!-- 状态筛选 -->
-      <view class="filter-section">
-        <view class="filter-label">审核状态</view>
-        <view class="status-filter">
-          <view 
-            class="status-option {{filterStatus === '' ? 'status-active' : ''}}" 
-            bindtap="changeStatus"
-            data-status=""
-          >
-            全部
-          </view>
-          <view 
-            class="status-option {{filterStatus === '1' ? 'status-active' : ''}}" 
-            bindtap="changeStatus"
-            data-status="1"
-          >
-            已通过
-          </view>
-          <view 
-            class="status-option {{filterStatus === '2' ? 'status-active' : ''}}" 
-            bindtap="changeStatus"
-            data-status="2"
-          >
-            审核中
-          </view>
-          <view 
-            class="status-option {{filterStatus === '0' ? 'status-active' : ''}}" 
-            bindtap="changeStatus"
-            data-status="0"
-          >
-            未通过
-          </view>
-        </view>
-      </view>
+<!-- 状态筛选 -->
+<view class="filter-section">
+  <view class="filter-label">审核状态</view>
+  <view class="status-filter">
+    <view 
+      class="status-option {{filterStatus === '' ? 'status-active' : ''}}" 
+      bindtap="changeStatus"
+      data-status=""
+    >
+      全部
+    </view>
+    <view 
+      class="status-option {{filterStatus === '0' ? 'status-active' : ''}}" 
+      bindtap="changeStatus"
+      data-status="0"
+    >
+      待审核
+    </view>
+    <view 
+      class="status-option {{filterStatus === '1' ? 'status-active' : ''}}" 
+      bindtap="changeStatus"
+      data-status="1"
+    >
+      已通过
+    </view>
+    <view 
+      class="status-option {{filterStatus === '2' ? 'status-active' : ''}}" 
+      bindtap="changeStatus"
+      data-status="2"
+    >
+      不通过
+    </view>
+    <view 
+      class="status-option {{filterStatus === '3' ? 'status-active' : ''}}" 
+      bindtap="changeStatus"
+      data-status="3"
+    >
+      申诉中
+    </view>
+  </view>
+</view>
 
       <!-- 筛选操作按钮 -->
       <view class="filter-actions">
@@ -121,24 +128,24 @@
         </view>
         
         <!-- 记录列表项 -->
-        <view class="list-row" 
-              wx:for="{{displayedRecords}}" 
-              wx:key="_id"
-              bindtap="viewRecord" 
-              data-id="{{item._id}}">
-          <view class="list-col list-col-date">
-            <view class="date">{{item.create_date}}</view>
-            <view class="time">{{item.create_time_24}}</view>
-          </view>
-          <view class="list-col list-col-status">
-            <view class="status-text {{item.status === 1 ? 'status-passed' : item.status === 2 ? 'status-pending' : 'status-failed'}}">
-              {{item.status === 1 ? '已通过' : item.status === 2 ? '审核中' : '未通过'}}
-            </view>
-          </view>
-          <view class="list-col list-col-arrow">
-            <view class="arrow">›</view>
-          </view>
-        </view>
+<view class="list-row" 
+      wx:for="{{displayedRecords}}" 
+      wx:key="_id"
+      bindtap="viewRecord" 
+      data-id="{{item._id}}">
+  <view class="list-col list-col-date">
+    <view class="date">{{item.create_date}}</view>
+    <view class="time">{{item.create_time_24}}</view>
+  </view>
+  <view class="list-col list-col-status">
+    <view class="status-text {{item.status === 1 ? 'status-passed' : item.status === 0 ? 'status-pending' : item.status === 2 ? 'status-failed' : 'status-appeal'}}">
+      {{item.status === 1 ? '已通过' : item.status === 0 ? '待审核' : item.status === 2 ? '不通过' : '申诉中'}}
+    </view>
+  </view>
+  <view class="list-col list-col-arrow">
+    <view class="arrow">›</view>
+  </view>
+</view>
         
         <!-- 没有筛选结果时的提示 -->
         <view wx:if="{{displayedRecords.length === 0 && allRecords.length > 0}}" class="no-result">

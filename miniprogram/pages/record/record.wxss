@@ -415,33 +415,33 @@ page {
   margin-top: 4rpx;
 }
 
-/* 状态标签 */
-.status-text {
-  font-size: 28rpx;
-  font-weight: 600;
-  padding: 6rpx 20rpx;
-  border-radius: 20rpx;
-  text-align: center;
-  min-width: 100rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-}
-
+/* 状态样式 */
 .status-passed {
-  color: #52c41a;
-  background: linear-gradient(135deg, rgba(82, 196, 26, 0.1) 0%, rgba(82, 196, 26, 0.15) 100%);
-  border: 1rpx solid rgba(82, 196, 26, 0.3);
-}
-
-.status-failed {
-  color: #ff4d4f;
-  background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 77, 79, 0.15) 100%);
-  border: 1rpx solid rgba(255, 77, 79, 0.3);
+  color: #07c160;
+  background-color: rgba(7, 193, 96, 0.1);
 }
 
 .status-pending {
-  color: #faad14;
-  background: linear-gradient(135deg, rgba(250, 173, 20, 0.1) 0%, rgba(250, 173, 20, 0.15) 100%);
-  border: 1rpx solid rgba(250, 173, 20, 0.3);
+  color: #ff9f0a;
+  background-color: rgba(255, 159, 10, 0.1);
+}
+
+.status-failed {
+  color: #ff2b2b;
+  background-color: rgba(255, 43, 43, 0.1);
+}
+
+.status-appeal {
+  color: #007aff;
+  background-color: rgba(0, 122, 255, 0.1);
+}
+
+.status-text {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* 箭头样式 */
