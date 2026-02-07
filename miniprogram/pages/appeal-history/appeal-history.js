@@ -104,14 +104,14 @@ Page({
         // 处理申诉状态和时间
         const processedAppeals = appealData.map(item => {
           // 处理状态显示
-          let statusText = '待处理'
+          let statusText = '正在申诉中'
           let statusClass = 'status-pending'
           
           if (item.status === 1) {
-            statusText = '申诉成功'
+            statusText = '记录通过'
             statusClass = 'status-success'
           } else if (item.status === 2) {
-            statusText = '申诉失败'
+            statusText = '记录未通过'
             statusClass = 'status-failed'
           }
           
@@ -125,11 +125,25 @@ Page({
             minute: '2-digit'
           })
           
+          // 格式化日期和时间
+          const formattedDate = createTime.toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+          
+          const formattedTimeOnly = createTime.toLocaleTimeString('zh-CN', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+          
           return {
             ...item,
             statusText: statusText,
             statusClass: statusClass,
-            formattedTime: formattedTime
+            formattedTime: formattedTime,
+            formattedDate: formattedDate,
+            formattedTimeOnly: formattedTimeOnly
           }
         })
         
@@ -177,31 +191,21 @@ Page({
   },
 
   /**
-   * 查看申诉详情
-   */
-  viewAppealDetail(e) {
-    const appealId = e.currentTarget.dataset.id
-    wx.navigateTo({
-      url: `/pages/appeal-detail/appeal-detail?id=${appealId}`
-    })
-  },
-
-  /**
    * 查看关联的跑步记录
    */
-  viewRunningRecord(e) {
-    const runningRecordId = e.currentTarget.dataset.runningrecordid
-    wx.navigateTo({
-      url: `/pages/record-detail/record-detail?id=${runningRecordId}`
-    })
+  viewAppealDetail(e) {
+    const appealItem = this.data.appealList.find(item => item._id === e.currentTarget.dataset.id)
+    if (appealItem && appealItem.runningRecordId) {
+      wx.navigateTo({
+        url: `/pages/record-detail/record-detail?id=${appealItem.runningRecordId}`
+      })
+    } else {
+      wx.showToast({
+        title: '无法查看跑步记录',
+        icon: 'none'
+      })
+    }
   },
 
-  /**
-   * 返回上一页
-   */
-  goBack() {
-    wx.navigateBack({
-      delta: 1
-    })
-  }
+
 })
