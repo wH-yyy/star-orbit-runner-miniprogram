@@ -1,0 +1,75 @@
+// cloudfunctions/getAppealDetail/index.js
+const cloud = require('wx-server-sdk')
+cloud.init({
+  env: cloud.DYNAMIC_CURRENT_ENV
+})
+
+const db = cloud.database()
+
+exports.main = async (event, context) => {
+  try {
+    const { appealId } = event
+    
+    if (!appealId) {
+      return {
+        code: 400,
+        data: null,
+        message: '申诉ID不能为空'
+      }
+    }
+    
+    // 获取申诉详情
+    const appealResult = await db.collection('Appeals').doc(appealId).get()
+    
+    if (!appealResult.data) {
+      return {
+        code: 404,
+        data: null,
+        message: '申诉记录不存在'
+      }
+    }
+    
+    const appeal = appealResult.data
+    
+    // 获取对应的跑步记录
+    let runningRecord = null
+    if (appeal.runningRecordId) {
+      const recordResult = await db.collection('RunningRecords')
+        .doc(appeal.runningRecordId)
+        .get()
+      runningRecord = recordResult.data
+    }
+    
+    // 获取申诉图片的临时URL
+    const imageUrls = await Promise.all(
+      (appeal.appealImages || []).map(async (imageFileID) => {
+        try {
+          const result = await cloud.getTempFileURL({
+            fileList: [imageFileID]
+          })
+          return result.fileList[0].tempFileURL || imageFileID
+        } catch (error) {
+          console.error('获取图片URL失败:', error)
+          return imageFileID
+        }
+      })
+    )
+    
+    return {
+      code: 200,
+      data: {
+        ...appeal,
+        appealImageUrls: imageUrls,
+        runningRecord
+      },
+      message: '获取申诉详情成功'
+    }
+  } catch (error) {
+    console.error('获取申诉详情失败:', error)
+    return {
+      code: 500,
+      data: null,
+      message: '获取申诉详情失败: ' + error.message
+    }
+  }
+}
