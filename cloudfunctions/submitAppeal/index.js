@@ -81,13 +81,13 @@ exports.main = async (event, context) => {
       }
     }
     
-    // 验证跑步记录状态是否为未通过（只有未通过的记录才能申诉）
+    // 验证跑步记录状态是否为不通过（只有不通过的记录才能申诉）
     const statusNum = parseInt(runningRecord.status)
-    if (statusNum !== 0) {
-      console.error('=== 提交申诉失败：只有未通过的记录才能申诉 ===')
+    if (statusNum !== 2) {
+      console.error('=== 提交申诉失败：只有不通过的记录才能申诉 ===')
       return {
         success: false,
-        message: '只有未通过的记录才能申诉'
+        message: '只有不通过的记录才能申诉'
       }
     }
     
@@ -131,11 +131,11 @@ exports.main = async (event, context) => {
     
     console.log('=== 申诉记录创建成功，ID:', appealResult._id, '===')
     
-    // 更新跑步记录状态为审核中
-    console.log('=== 更新跑步记录状态为审核中 ===')
+    // 更新跑步记录状态为申诉中
+    console.log('=== 更新跑步记录状态为申诉中 ===')
     await db.collection('RunningRecords').doc(runningRecordId).update({
       data: {
-        status: 2 // 2: 审核中
+        status: 3 // 3: 申诉中
       }
     })
     

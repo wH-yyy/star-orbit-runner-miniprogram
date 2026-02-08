@@ -21,6 +21,15 @@ Page({
     this.loadAllRecords()
   },
 
+  /**
+   * 页面显示时执行
+   * 当从详情页面返回时，重新加载数据以更新状态
+   */
+  onShow() {
+    console.log('=== 页面显示，重新加载跑步记录 ===')
+    this.loadAllRecords()
+  },
+
   async onPullDownRefresh() {
     this.setData({
       loading: true

@@ -76,14 +76,14 @@ exports.main = async (event, context) => {
     
     // 更新关联的跑步记录状态
     console.log('=== 更新关联的跑步记录状态 ===')
-    let runningRecordStatus = 0 // 默认未通过
+    let runningRecordStatus = 2 // 默认不通过
     
     if (status === 1) {
       // 申诉成功，跑步记录状态改为通过
       runningRecordStatus = 1
     } else if (status === 2) {
-      // 申诉失败，跑步记录状态保持未通过
-      runningRecordStatus = 0
+      // 申诉失败，跑步记录状态保持不通过
+      runningRecordStatus = 2
     }
     
     await db.collection('RunningRecords').doc(appeal.runningRecordId).update({

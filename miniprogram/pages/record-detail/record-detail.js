@@ -38,6 +38,18 @@ Page({
     }, 500);
   },
 
+  /**
+   * 页面显示时执行
+   * 当从其他页面返回时，重新加载数据以更新状态
+   */
+  onShow() {
+    const id = this.data.record.id;
+    if (id) {
+      console.log('=== 页面显示，重新加载记录详情 ===');
+      this.loadRecordDetail(id);
+    }
+  },
+
   goBack() {
     wx.navigateBack({
       delta: 1
@@ -80,7 +92,9 @@ Page({
         }
         
         if (recordData.status !== undefined) {
+          console.log('=== 原始状态值:', recordData.status);
           recordData.status = parseInt(recordData.status);
+          console.log('=== 转换后状态值:', recordData.status);
         }
         
         if (recordData.audit_reason) {
@@ -135,14 +149,24 @@ Page({
    * 显示申诉模态框
    */
   showAppealModal() {
+    console.log('=== 显示申诉模态框，当前记录状态:', this.data.record.status, '===');
     // 只有状态为2（不通过）且不在申诉中状态下才能申诉
     if (this.data.record.status === 2) {
+      console.log('=== 状态为2（不通过），显示申诉模态框 ===');
       this.setData({
         showAppealModal: true
       });
     } else if (this.data.record.status === 3) {
+      console.log('=== 状态为3（申诉中），不显示申诉模态框 ===');
       wx.showToast({
         title: '该记录已在申诉中，请等待审核',
+        icon: 'none',
+        duration: 2000
+      });
+    } else {
+      console.log('=== 状态为', this.data.record.status, '，不显示申诉模态框 ===');
+      wx.showToast({
+        title: '只有不通过的记录才能申诉',
         icon: 'none',
         duration: 2000
       });
