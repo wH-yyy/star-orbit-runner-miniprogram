@@ -21,15 +21,6 @@ Page({
     this.loadAllRecords()
   },
 
-  /**
-   * 页面显示时执行
-   * 当从详情页面返回时，重新加载数据以更新状态
-   */
-  onShow() {
-    console.log('=== 页面显示，重新加载跑步记录 ===')
-    this.loadAllRecords()
-  },
-
   async onPullDownRefresh() {
     this.setData({
       loading: true
@@ -264,9 +255,9 @@ Page({
    * 查看记录详情
    */
   viewRecord(e) {
-    const id = e.currentTarget.dataset.id;
+    const index = e.currentTarget.dataset.index;
     wx.navigateTo({
-      url: `/pages/record-detail/record-detail?id=${id}`
+      url: `/pages/record-detail/record-detail?index=${index}`
     });
   },
 

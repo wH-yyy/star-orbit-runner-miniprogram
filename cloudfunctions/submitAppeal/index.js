@@ -101,11 +101,22 @@ exports.main = async (event, context) => {
       .get()
     
     if (existingAppealResult.data && existingAppealResult.data.length > 0) {
-      console.error('=== 提交申诉失败：已经提交过申诉 ===')
-      return {
-        success: false,
-        message: '已经提交过申诉，请等待审核结果'
+      // 检查是否有未处理或成功的申诉
+      const hasActiveAppeal = existingAppealResult.data.some(appeal => {
+        const appealStatus = parseInt(appeal.status)
+        return appealStatus === 0 || appealStatus === 1
+      })
+      
+      if (hasActiveAppeal) {
+        console.error('=== 提交申诉失败：已经提交过申诉 ===')
+        return {
+          success: false,
+          message: '已经提交过申诉，请等待审核结果'
+        }
       }
+      
+      // 如果所有申诉都已失败，则允许再次提交
+      console.log('=== 之前的申诉都已失败，允许再次提交 ===')
     }
     
     // 创建申诉记录
