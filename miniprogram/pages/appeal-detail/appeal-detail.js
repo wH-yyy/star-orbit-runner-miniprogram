@@ -78,14 +78,14 @@ Page({
         }
         
         // 处理申诉状态和时间
-        let statusText = '待处理'
+        let statusText = '正在申诉中'
         let statusClass = 'status-pending'
         
         if (appealData.status === 1) {
-          statusText = '申诉成功'
+          statusText = '记录通过'
           statusClass = 'status-success'
         } else if (appealData.status === 2) {
-          statusText = '申诉失败'
+          statusText = '记录未通过'
           statusClass = 'status-failed'
         }
         

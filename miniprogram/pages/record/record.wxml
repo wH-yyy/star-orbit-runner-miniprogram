@@ -13,7 +13,7 @@
   <view class="stats-card">
     <view class="stat-item">
       <view class="stat-value">{{userInfo.totalCount}}</view>
-      <view class="stat-label">总次数</view>
+      <view class="stat-label">成功次数</view>
     </view>
     <view class="stat-item">
       <view class="stat-value">{{userInfo.totalDistance}}</view>

@@ -1,12 +1,10 @@
 <!--pages/appeal-history/appeal-history.wxml-->
-<view class="container">
+<view class="appeal-container">
   <!-- 顶部导航 -->
   <view class="nav-bar">
-    <view class="nav-left"></view>
     <view class="nav-title">
       <text class="title">申诉历史</text>
     </view>
-    <view class="nav-right"></view>
   </view>
   
   <!-- 加载状态 -->
@@ -22,36 +20,46 @@
     <text class="empty-desc">您可以在跑步记录详情页提交申诉</text>
   </view>
   
-  <!-- 申诉记录 -->
-  <view wx:else class="appeal-content">
-    <!-- 申诉记录列表 -->
-    <view class="appeal-list">
-      <view wx:for="{{appealList}}" wx:key="_id" class="appeal-item">
-        <!-- 申诉状态 -->
-        <view class="appeal-header">
-          <view class="status-badge {{item.statusClass}}">
+  <!-- 申诉记录卡片 -->
+  <view wx:else class="appeal-card">
+    <!-- 卡片头部 -->
+    <view class="card-header">
+      <view class="card-title">申诉记录</view>
+      <view class="record-count">{{appealList.length}}条记录</view>
+    </view>
+    
+    <!-- 卡片内容 -->
+    <view class="card-content">
+      <!-- 列表头部 -->
+      <view class="list-header-row">
+        <view class="list-col list-col-time">提交时间</view>
+        <view class="list-col list-col-status">状态</view>
+        <view class="list-col list-col-arrow"></view>
+      </view>
+      
+      <!-- 申诉列表项 -->
+      <view class="list-row" 
+            wx:for="{{appealList}}" 
+            wx:key="_id"
+            bindtap="viewAppealDetail" 
+            data-id="{{item._id}}">
+        <view class="list-col list-col-time">
+          <view class="date">{{item.formattedDate}}</view>
+          <view class="time">{{item.formattedTimeOnly}}</view>
+        </view>
+        <view class="list-col list-col-status">
+          <view class="status-text {{item.statusClass}}">
             {{item.statusText}}
           </view>
-          <text class="appeal-time">{{item.formattedTime}}</text>
         </view>
-        
-        <!-- 申诉信息 -->
-        <view class="appeal-info">
-          <text class="appeal-label">申诉理由</text>
-          <text class="appeal-reason">{{item.appealReason}}</text>
+        <view class="list-col list-col-arrow">
+          <view class="arrow">›</view>
         </view>
-        
-        <!-- 关联的跑步记录 -->
-        <view class="running-record-link" bindtap="viewRunningRecord" data-runningrecordid="{{item.runningRecordId}}">
-          <text class="link-text">查看关联跑步记录</text>
-          <text class="link-icon">→</text>
-        </view>
-        
-        <!-- 审核结果 -->
-        <view wx:if="{{item.status !== 0 && item.auditResult}}" class="audit-result">
-          <text class="result-label">审核结果</text>
-          <text class="result-content">{{item.auditResult}}</text>
-        </view>
+      </view>
+      
+      <!-- 没有记录时的提示 -->
+      <view wx:if="{{appealList.length === 0}}" class="no-result">
+        <text>没有找到符合条件的记录</text>
       </view>
     </view>
     
