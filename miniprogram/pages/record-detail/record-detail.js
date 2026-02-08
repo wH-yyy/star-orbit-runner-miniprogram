@@ -8,13 +8,21 @@ Page({
   },
 
   onLoad(options) {
-    // 从页面参数中获取记录ID
-    const id = options.id;
-    if (id) {
-      this.loadRecordDetail(id);
+    const index = options.index;
+    console.log(index)
+    if (index) {
+      const pages = getCurrentPages()
+      const prevPage = pages[pages.length - 2];
+      if (prevPage && prevPage.data) {
+        const record = prevPage.data.displayedRecords[index];
+        this.setData({ 
+          record,
+          loading: false
+        });
+      }
     } else {
       wx.showToast({
-        title: '加载失败：没有记录ID',
+        title: '加载失败：没有记录索引',
         icon: 'none'
       });
       setTimeout(() => {
@@ -38,24 +46,6 @@ Page({
     }, 500);
   },
 
-  /**
-   * 页面显示时执行
-   * 当从其他页面返回时，重新加载数据以更新状态
-   */
-  onShow() {
-    const id = this.data.record.id;
-    if (id) {
-      console.log('=== 页面显示，重新加载记录详情 ===');
-      this.loadRecordDetail(id);
-    }
-  },
-
-  goBack() {
-    wx.navigateBack({
-      delta: 1
-    });
-  },
-
   previewImage(e) {
     const imageFileID = this.data.record.imageFileID;
     if (imageFileID) {
@@ -64,85 +54,6 @@ Page({
         urls: [imageFileID]
       });
     }
-  },
-
-  loadRecordDetail(id) {
-    this.setData({
-      loading: true
-    });
-
-    const db = wx.cloud.database();
-    db.collection('RunningRecords')
-      .doc(id)
-      .get()
-      .then(res => {
-        const recordData = res.data;
-        if (!recordData) {
-          this.setData({
-            loading: false
-          });
-          wx.showToast({
-            title: '加载详情失败：未找到记录',
-            icon: 'none'
-          });
-          setTimeout(() => {
-            this.goBack();
-          }, 1500);
-          return;
-        }
-        
-        if (recordData.status !== undefined) {
-          console.log('=== 原始状态值:', recordData.status);
-          recordData.status = parseInt(recordData.status);
-          console.log('=== 转换后状态值:', recordData.status);
-        }
-        
-        if (recordData.audit_reason) {
-          let reason = recordData.audit_reason.toLowerCase();
-          if (reason.includes('ocr') || reason.includes('识别')) {
-            recordData.displayAuditReason = '学号和姓名不匹配';
-          } else {
-            recordData.displayAuditReason = recordData.audit_reason;
-          }
-        } else {
-          recordData.displayAuditReason = '未提供具体原因';
-        }
-
-        // 处理创建时间格式
-        if (recordData.create_time) {
-          const createTime = new Date(recordData.create_time);
-          // 格式化日期和时间
-          const year = createTime.getFullYear();
-          const month = String(createTime.getMonth() + 1).padStart(2, '0');
-          const day = String(createTime.getDate()).padStart(2, '0');
-          const hours = String(createTime.getHours()).padStart(2, '0');
-          const minutes = String(createTime.getMinutes()).padStart(2, '0');
-          const seconds = String(createTime.getSeconds()).padStart(2, '0');
-          
-          // 创建完整的显示时间，用于打卡时间显示
-          recordData.display_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        } else {
-          recordData.display_time = '--';
-        }
-        
-        // 添加记录ID到数据中，用于下拉刷新
-        recordData.id = id;
-        
-        this.setData({
-          record: recordData,
-          loading: false
-        });
-      })
-      .catch(error => {
-        console.error('加载记录详情失败:', error);
-        this.setData({
-          loading: false
-        });
-        wx.showToast({
-          title: '加载详情失败',
-          icon: 'none'
-        });
-      });
   },
 
   /**

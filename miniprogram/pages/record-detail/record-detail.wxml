@@ -7,14 +7,14 @@
 
   <!-- 记录详情 -->
   <view wx:else class="detail-container">
-    
+
     <!-- 第一部分：打卡时间 -->
     <view class="detail-section">
       <view class="section-header">
         <text class="section-title">打卡时间</text>
       </view>
       <view class="section-content">
-        <text class="create-time">{{record.display_time || '--'}}</text>
+        <text class="create-time">{{record.create_date}}-{{record.create_time_24}}</text>
       </view>
     </view>
 
@@ -28,13 +28,12 @@
           class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 0 ? 'status-pending' : record.status === 2 ? 'status-failed' : 'status-appeal'}}">
           {{record.status === 1 ? '已通过' : record.status === 0 ? '待审核' : record.status === 2 ? '不通过' : '申诉中'}}
         </view>
-        
+
         <!-- 不通过原因 -->
-        <view wx:if="{{record.status === 2 && record.displayAuditReason}}" class="fail-reason">
-          <text class="reason-label">未通过原因：</text>
-          <text class="reason-content">{{record.displayAuditReason}}</text>
+        <view wx:if="{{record.status === 2 && record.audit_reason}}" class="fail-reason">
+          {{record.audit_reason}}
         </view>
-        
+
         <!-- 申诉状态说明 -->
         <view wx:if="{{record.status === 3}}" class="appeal-info">
           <text class="appeal-label">申诉说明：</text>
@@ -77,13 +76,8 @@
       </view>
       <view class="section-content">
         <view class="images-container">
-          <image 
-            src="{{record.imageFileID}}" 
-            class="detail-image" 
-            mode="aspectFill" 
-            bindtap="previewImage"
-            data-index="0"
-          ></image>
+          <image src="{{record.imageFileID}}" class="detail-image" mode="aspectFill" bindtap="previewImage"
+            data-index="0"></image>
         </view>
       </view>
     </view>
@@ -144,7 +138,7 @@
       <button class="modal-btn cancel-btn" type="default" bindtap="cancelAppeal">
         <text>取消</text>
       </button>
-      <button class="modal-btn submit-btn" type="warn" bindtap="submitAppeal" disabled="{{!appealReason}}">
+      <button class="modal-btn submit-btn" bindtap="submitAppeal" disabled="{{!appealReason}}">
         <text>提交申诉</text>
       </button>
     </view>
