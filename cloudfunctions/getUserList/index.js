@@ -1,74 +1,133 @@
-// 云函数：getUserList/index.js
+// 云函数目录: cloudfunctions/getUserList/index.js
 const cloud = require('wx-server-sdk')
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 })
 const db = cloud.database()
+const _ = db.command
 
 exports.main = async (event, context) => {
-  console.log('收到获取用户列表请求')
+  const { 
+    page = 1, 
+    pageSize = 10, 
+    searchKeyword = '',
+    searchFields = ['name', 'stu_id', 'class_name'],
+    campus = [],
+    college = [],
+    gender = [] 
+  } = event
   
   try {
-    // 获取用户数据（不包含敏感信息如密码、openid等）
-    const result = await db.collection('user')
-      .orderBy('createTime', 'desc') // 按创建时间倒序排列
+    // 构建查询条件
+    let query = {}
+    
+    // 搜索条件
+    if (searchKeyword && searchKeyword.trim() !== '') {
+      const orConditions = []
+      
+      if (searchFields.includes('name')) {
+        orConditions.push({
+          name: db.RegExp({
+            regexp: searchKeyword,
+            options: 'i'
+          })
+        })
+      }
+      
+      if (searchFields.includes('stu_id')) {
+        orConditions.push({
+          stu_id: db.RegExp({
+            regexp: searchKeyword,
+            options: 'i'
+          })
+        })
+      }
+      
+      if (searchFields.includes('class_name')) {
+        orConditions.push({
+          class_name: db.RegExp({
+            regexp: searchKeyword,
+            options: 'i'
+          })
+        })
+      }
+      
+      if (orConditions.length > 0) {
+        query = _.and([query, _.or(orConditions)])
+      }
+    }
+    
+    // 校区筛选 - 只在数组非空时添加条件
+    if (campus && campus.length > 0 && campus[0] !== '') {
+      query.campus = _.in(campus)
+    }
+
+    // 书院筛选
+    if (college && college.length > 0 && college[0] !== '') {
+      query.college = _.in(college)
+    }
+
+    // 性别筛选
+    if (gender && gender.length > 0 && gender[0] !== '') {
+      query.gender = _.in(gender)
+    }
+    
+    // 计算总数
+    const countResult = await db.collection('Users')
+      .where(query)
+      .count()
+    
+    const total = countResult.total
+    
+    // 计算分页
+    const skip = (page - 1) * pageSize
+    
+    // 查询数据
+    const res = await db.collection('Users')
+      .where(query)
+      .skip(skip)
+      .limit(pageSize)
+      .orderBy('createTime', 'desc')
       .get()
     
-    console.log('获取到用户数量:', result.data.length)
-    
-    // 处理数据，只返回需要的字段
-    const userList = result.data.map(user => {
-      // 安全地获取每个字段，如果不存在则返回 undefined
-      const safeGet = (obj, path) => {
-        try {
-          return path.split('.').reduce((acc, key) => acc && acc[key], obj)
-        } catch (e) {
-          return undefined
-        }
+    // 处理数据，转换状态显示
+    const data = res.data.map(user => {
+      let statusText = '正常'
+      if (user.status === 'suspended') {
+        statusText = '停跑'
+      } else if (user.status === 'banned') {
+        statusText = '封号'
       }
       
       return {
-        stu_id: safeGet(user, 'stu_id') || undefined,
-        name: safeGet(user, 'name') || undefined,
-        gender: safeGet(user, 'gender') || undefined,
-        campus: safeGet(user, 'campus') || undefined,
-        college: safeGet(user, 'college') || undefined,
-        class: safeGet(user, 'class') || undefined,
-        phone: safeGet(user, 'phone') || undefined,
-        createTime: safeGet(user, 'createTime') || undefined,
-        updateTime: safeGet(user, 'updateTime') || undefined,
-        status: safeGet(user, 'status') || undefined,
-        totalDistance: safeGet(user, 'totalDistance') || undefined,
-        totalDuration: safeGet(user, 'totalDuration') || undefined,
-        totalCount: safeGet(user, 'totalCount') || undefined,
-        violationCount: safeGet(user, 'violationCount') || undefined,
-        // 保留_id，便于后续操作
-        _id: user._id
+        ...user,
+        status: statusText,
+        createTime: user.createTime ? 
+          new Date(user.createTime).toISOString().split('T')[0] : '',
+        // 确保数值字段都有默认值
+        totalDistance: user.totalDistance || 0,
+        totalDuration: user.totalDuration || 0,
+        totalCount: user.totalCount || 0,
+        violationCount: user.violationCount || 0
       }
     })
     
     return {
-      code: 200,
       success: true,
-      message: '获取用户列表成功',
-      data: userList,
-      total: result.data.length
+      data: {
+        list: data,
+        total: total,
+        page: page,
+        pageSize: pageSize,
+        totalPages: Math.ceil(total / pageSize)
+      }
     }
+    
   } catch (error) {
     console.error('获取用户列表失败:', error)
-    
-    let errorMessage = '获取用户列表失败'
-    if (error.errCode === -502005) {
-      errorMessage = '数据库集合不存在，请先创建 user 集合'
-    }
-    
     return {
-      code: 500,
       success: false,
-      message: errorMessage,
-      error: error.message,
-      data: [],
-      total: 0
+      message: error.message || '获取用户列表失败'
     }
   }
 }
