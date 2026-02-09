@@ -92,19 +92,20 @@ exports.main = async (event, context) => {
     
     // 处理数据，转换状态显示
     const data = res.data.map(user => {
+      // 根据数字状态获取显示文本
       let statusText = '正常'
-      if (user.status === 'suspended') {
+      if (user.status === 1) {
         statusText = '停跑'
-      } else if (user.status === 'banned') {
+      } else if (user.status === 2) {
         statusText = '封号'
       }
-      
+
       return {
         ...user,
-        status: statusText,
+        status: user.status || 0,  // 确保状态有默认值
+        statusText: statusText,     // 添加文本字段用于显示
         createTime: user.createTime ? 
           new Date(user.createTime).toISOString().split('T')[0] : '',
-        // 确保数值字段都有默认值
         totalDistance: user.totalDistance || 0,
         totalDuration: user.totalDuration || 0,
         totalCount: user.totalCount || 0,

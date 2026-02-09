@@ -8,7 +8,7 @@ const db = cloud.database()
 exports.main = async (event, context) => {
   const { userId, status } = event
   
-  if (!userId || !status) {
+  if (!userId || status === undefined || status === null) {
     return {
       success: false,
       message: '参数缺失'
@@ -16,7 +16,7 @@ exports.main = async (event, context) => {
   }
   
   // 验证状态值
-  const validStatus = ['active', 'suspended', 'banned']
+  const validStatus = [0, 1, 2]
   if (!validStatus.includes(status)) {
     return {
       success: false,
