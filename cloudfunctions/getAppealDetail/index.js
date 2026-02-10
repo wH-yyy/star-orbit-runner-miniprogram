@@ -49,21 +49,42 @@ exports.main = async (event, context) => {
           })
           return result.fileList[0].tempFileURL || imageFileID
         } catch (error) {
-          console.error('获取图片URL失败:', error)
+          console.error('获取申诉图片URL失败:', error)
           return imageFileID
         }
       })
     )
     
+    // 获取跑步记录图片的临时URL
+    let runningRecordImageUrl = null
+    if (appeal.runningRecordId) {
+      try {
+        const runningRecordResult = await db.collection('RunningRecords')
+          .doc(appeal.runningRecordId)
+          .get()
+
+        if (runningRecordResult.data && runningRecordResult.data.imageFileID) {
+          const imageResult = await cloud.getTempFileURL({
+            fileList: [runningRecordResult.data.imageFileID]
+          })
+          runningRecordImageUrl = imageResult.fileList[0].tempFileURL || runningRecordResult.data.    imageFileID
+        }
+      } catch (error) {
+        console.error('获取跑步记录图片URL失败:', error)
+      }
+    }
+
     return {
       code: 200,
       data: {
         ...appeal,
         appealImageUrls: imageUrls,
+        runningRecordImageUrl: runningRecordImageUrl,
         runningRecord
       },
       message: '获取申诉详情成功'
     }
+
   } catch (error) {
     console.error('获取申诉详情失败:', error)
     return {

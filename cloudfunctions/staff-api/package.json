@@ -1,7 +1,7 @@
 {
-  "name": "processAppeal",
+  "name": "staff-api",
   "version": "1.0.0",
-  "description": "处理申诉",
+  "description": "工作人员审核相关API云函数",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "wx-server-sdk": "latest"
+    "wx-server-sdk": "~2.6.3"
   }
 }

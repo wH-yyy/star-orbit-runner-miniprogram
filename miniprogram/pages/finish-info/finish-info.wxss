@@ -193,10 +193,6 @@
   transition: all 0.3s ease;
 }
 
-.radio-item:active {
-  transform: scale(0.98);
-}
-
 radio {
   transform: scale(0.9);
   color: #5cdd9d;
@@ -234,11 +230,6 @@ radio .wx-radio-input.wx-radio-input-checked + .radio-label {
   align-items: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-}
-
-.picker:active {
-  background-color: #f5f5f5;
-  transform: translateY(-2rpx);
 }
 
 .picker::after {
@@ -302,11 +293,6 @@ radio .wx-radio-input.wx-radio-input-checked + .radio-label {
 
 .submit-btn:hover::before {
   left: 100%;
-}
-
-.submit-btn:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 6rpx 20rpx rgba(92, 221, 157, 0.4);
 }
 
 .button-hover {
