@@ -191,20 +191,13 @@ Page({
   },
 
   /**
-   * 查看关联的跑步记录
+   * 查看申诉详情
    */
   viewAppealDetail(e) {
-    const appealItem = this.data.appealList.find(item => item._id === e.currentTarget.dataset.id)
-    if (appealItem && appealItem.runningRecordId) {
-      wx.navigateTo({
-        url: `/pages/record-detail/record-detail?id=${appealItem.runningRecordId}`
-      })
-    } else {
-      wx.showToast({
-        title: '无法查看跑步记录',
-        icon: 'none'
-      })
-    }
+    const appealId = e.currentTarget.dataset.id
+    wx.navigateTo({
+      url: `/pages/appeal-detail/appeal-detail?id=${appealId}`
+    })
   },
 
 

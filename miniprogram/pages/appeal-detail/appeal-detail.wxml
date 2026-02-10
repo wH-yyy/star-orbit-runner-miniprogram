@@ -2,13 +2,9 @@
 <view class="container">
   <!-- 顶部导航 -->
   <view class="nav-bar">
-    <view class="nav-left" bindtap="goBack">
-      <text class="back-icon">←</text>
-    </view>
     <view class="nav-title">
       <text class="title">申诉详情</text>
     </view>
-    <view class="nav-right"></view>
   </view>
   
   <!-- 加载状态 -->
@@ -19,70 +15,72 @@
   
   <!-- 申诉详情卡片 -->
   <view wx:else class="detail-card">
-    <!-- 申诉状态 -->
-    <view class="status-badge large {{appeal.statusClass}}">
-      {{appeal.statusText}}
-    </view>
-    
-    <!-- 申诉基本信息 -->
-    <view class="info-item">
-      <text class="info-label">申诉时间</text>
-      <text class="info-value">{{appeal.formattedCreateTime}}</text>
-    </view>
-    
-    <!-- 审核时间 -->
-    <view wx:if="{{appeal.status !== 0 && appeal.formattedAuditTime}}" class="info-item">
-      <text class="info-label">审核时间</text>
-      <text class="info-value">{{appeal.formattedAuditTime}}</text>
-    </view>
-    
-    <!-- 申诉理由 -->
-    <view class="appeal-reason-section">
-      <text class="section-title">申诉理由</text>
-      <text class="appeal-reason-content">{{appeal.appealReason}}</text>
-    </view>
-    
-    <!-- 证明材料 -->
-    <view wx:if="{{appeal.appealImages && appeal.appealImages.length > 0}}" class="evidence-section">
-      <text class="section-title">证明材料</text>
-      <view class="evidence-grid">
-        <view wx:for="{{appeal.appealImages}}" wx:key="index" class="evidence-item">
-          <image src="{{item}}" class="evidence-image" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"></image>
+    <view class="card-content">
+      <!-- 申诉状态 -->
+      <view class="status-badge large {{appeal.statusClass}}">
+        {{appeal.statusText}}
+      </view>
+      
+      <!-- 申诉基本信息 -->
+      <view class="info-item">
+        <text class="info-label">申诉时间</text>
+        <text class="info-value">{{appeal.formattedCreateTime}}</text>
+      </view>
+      
+      <!-- 审核时间 -->
+      <view wx:if="{{appeal.status !== 0 && appeal.formattedAuditTime}}" class="info-item">
+        <text class="info-label">审核时间</text>
+        <text class="info-value">{{appeal.formattedAuditTime}}</text>
+      </view>
+      
+      <!-- 申诉理由 -->
+      <view class="appeal-reason-section">
+        <text class="section-title">申诉理由</text>
+        <text class="appeal-reason-content">{{appeal.appealReason}}</text>
+      </view>
+      
+      <!-- 证明材料 -->
+      <view wx:if="{{appeal.appealImages && appeal.appealImages.length > 0}}" class="evidence-section">
+        <text class="section-title">证明材料</text>
+        <view class="evidence-grid">
+          <view wx:for="{{appeal.appealImages}}" wx:key="index" class="evidence-item">
+            <image src="{{item}}" class="evidence-image" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"></image>
+          </view>
         </view>
       </view>
-    </view>
-    
-    <!-- 审核结果 -->
-    <view wx:if="{{appeal.status !== 0 && appeal.auditResult}}" class="audit-result-section">
-      <text class="section-title">审核结果</text>
-      <text class="audit-result-content">{{appeal.auditResult}}</text>
-    </view>
-    
-    <!-- 关联的跑步记录 -->
-    <view wx:if="{{runningRecord}}" class="running-record-section">
-      <text class="section-title">关联跑步记录</text>
-      <view class="running-record-card" bindtap="viewRunningRecord">
-        <view class="record-header">
-          <text class="record-date">{{runningRecord.running_date}}</text>
-          <view class="record-status-badge {{runningRecord.status === 1 ? 'status-passed' : runningRecord.status === 2 ? 'status-pending' : 'status-failed'}}">
-            {{runningRecord.status === 1 ? '已通过' : runningRecord.status === 2 ? '审核中' : '未通过'}}
+      
+      <!-- 审核结果 -->
+      <view wx:if="{{appeal.status !== 0 && appeal.auditResult}}" class="audit-result-section">
+        <text class="section-title">审核结果</text>
+        <text class="audit-result-content">{{appeal.auditResult}}</text>
+      </view>
+      
+      <!-- 关联的跑步记录 -->
+      <view wx:if="{{runningRecord}}" class="running-record-section">
+        <text class="section-title">关联跑步记录</text>
+        <view class="running-record-card" bindtap="viewRunningRecord">
+          <view class="record-header">
+            <text class="record-date">{{runningRecord.running_date}}</text>
+            <view class="record-status-badge {{runningRecord.status === 1 ? 'status-passed' : runningRecord.status === 2 ? 'status-pending' : 'status-failed'}}">
+              {{runningRecord.status === 1 ? '已通过' : runningRecord.status === 2 ? '审核中' : '未通过'}}
+            </view>
           </view>
+          <view class="record-data">
+            <view class="data-item">
+              <text class="data-value">{{runningRecord.running_distance || '0'}} km</text>
+              <text class="data-label">距离</text>
+            </view>
+            <view class="data-item">
+              <text class="data-value">{{runningRecord.running_duration || '0'}}</text>
+              <text class="data-label">时长</text>
+            </view>
+            <view class="data-item">
+              <text class="data-value">{{runningRecord.running_pace || '0'}}</text>
+              <text class="data-label">配速</text>
+            </view>
+          </view>
+          <text class="view-detail-text">查看详情 →</text>
         </view>
-        <view class="record-data">
-          <view class="data-item">
-            <text class="data-value">{{runningRecord.running_distance || '0'}} km</text>
-            <text class="data-label">距离</text>
-          </view>
-          <view class="data-item">
-            <text class="data-value">{{runningRecord.running_duration || '0'}}</text>
-            <text class="data-label">时长</text>
-          </view>
-          <view class="data-item">
-            <text class="data-value">{{runningRecord.running_pace || '0'}}</text>
-            <text class="data-label">配速</text>
-          </view>
-        </view>
-        <text class="view-detail-text">查看详情 →</text>
       </view>
     </view>
   </view>
