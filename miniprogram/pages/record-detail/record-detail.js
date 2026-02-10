@@ -9,7 +9,6 @@ Page({
 
   onLoad(options) {
     const index = options.index;
-    console.log(index)
     if (index) {
       const pages = getCurrentPages()
       const prevPage = pages[pages.length - 2];
