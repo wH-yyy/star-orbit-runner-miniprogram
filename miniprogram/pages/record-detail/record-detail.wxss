@@ -164,10 +164,6 @@
   font-weight: 700;
 }
 
-.appeal-btn:active {
-  opacity: 0.8;
-}
-
 .status-passed.large {
   background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
   box-shadow: 0 12rpx 40rpx rgba(82, 196, 26, 0.45);

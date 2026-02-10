@@ -204,11 +204,6 @@ page {
   border-bottom: none;
 }
 
-/* 添加点击效果 */
-.list-row:active {
-  background-color: rgba(102, 126, 234, 0.05);
-}
-
 /* 列表列 */
 .list-col {
   padding: 0 10rpx;
@@ -306,10 +301,6 @@ page {
 
 .load-more:hover {
   background-color: rgba(102, 126, 234, 0.05);
-  color: #667eea;
-}
-
-.load-more:active {
   color: #667eea;
 }
 

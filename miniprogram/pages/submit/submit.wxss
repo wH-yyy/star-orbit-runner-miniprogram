@@ -154,10 +154,6 @@
   transform: translateY(-2rpx);
 }
 
-.picker:active {
-  transform: scale(0.98);
-}
-
 .picker-content {
   font-size: 32rpx;
   color: #333333;
@@ -365,11 +361,6 @@
   left: 100%;
 }
 
-.submit-btn:active {
-  transform: scale(0.96);
-  box-shadow: 0 10rpx 32rpx rgba(102, 126, 234, 0.3), 0 6rpx 16rpx rgba(102, 126, 234, 0.2);
-}
-
 .submit-btn[disabled] {
   background: linear-gradient(135deg, #cccccc 0%, #999999 100%);
   color: #ffffff;
@@ -377,10 +368,6 @@
   transform: none;
   cursor: not-allowed;
   text-shadow: none;
-}
-
-.submit-btn[disabled]:active {
-  transform: none;
 }
 
 /* 成功提示模态框 */
@@ -459,9 +446,4 @@
 .success-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.4);
-}
-
-.success-btn:active {
-  transform: scale(0.95);
-  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.2);
 }

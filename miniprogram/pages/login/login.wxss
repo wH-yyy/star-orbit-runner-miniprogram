@@ -495,20 +495,6 @@
   height: 300rpx;
 }
 
-.login-btn:active {
-  transform: scale(0.98);
-  box-shadow: 
-    0 16rpx 48rpx rgba(102, 126, 234, 0.4), 
-    0 8rpx 24rpx rgba(102, 126, 234, 0.3),
-    inset 0 2rpx 6rpx rgba(255, 255, 255, 0.2);
-}
-
-.login-btn:active::after {
-  width: 0;
-  height: 0;
-  transition: all 0.2s ease;
-}
-
 .login-btn[disabled] {
   background: linear-gradient(135deg, #cccccc 0%, #999999 100%);
   color: #ffffff;
@@ -516,10 +502,6 @@
   transform: none;
   cursor: not-allowed;
   text-shadow: none;
-}
-
-.login-btn[disabled]:active {
-  transform: none;
 }
 
 .login-btn[disabled]:hover {
