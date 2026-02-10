@@ -568,7 +568,31 @@ exports.main = async (event, context) => {
       data: recordData
     })
     
-    // 4. 更新用户统计信息
+    // 4. 自动分配审核任务
+    // 调用 staff-api 云函数进行任务分配
+    let assignmentResult = null
+    try {
+      console.log('开始自动分配审核任务，记录ID:', dbResult._id)
+      assignmentResult = await cloud.callFunction({
+        name: 'staff-api',
+        data: {
+          action: 'audit/assignTask',
+          recordId: dbResult._id
+        }
+      })
+      console.log('任务分配结果:', assignmentResult)
+      
+      if (assignmentResult?.result?.code === 200) {
+        console.log('任务分配成功，分配给工作人员:', assignmentResult.result.data.assignedStaffId)
+      } else {
+        console.log('任务分配失败或未分配:', assignmentResult?.result?.message)
+      }
+    } catch (assignError) {
+      // 任务分配失败不影响记录提交，仅记录日志
+      console.error('任务分配失败:', assignError)
+    }
+    
+    // 5. 更新用户统计信息
     await updateUserStatistics(openid, auditResult.status, runningInfo)
     
     // 返回结果
@@ -590,6 +614,7 @@ exports.main = async (event, context) => {
         auditReason: auditResult.reason,
         ocrInfo: runningInfo,
         finalPace: runningInfo.pace || auditResult.calculatedPace,
+        assignedStaffId: assignmentResult?.result?.data?.assignedStaffId || null, // 返回分配的工作人员ID
         // 便于前端调试/展示：返回OCR文本（如需更轻量可删掉）
         ocrText: ocrText,
         // 需要时可打开：返回完整OCR结构（注意数据量可能较大）
