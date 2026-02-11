@@ -142,8 +142,8 @@ function parseRunningInfoFromOCR(ocrText) {
   // 1. 匹配日期时间（支持多种格式）
   let dateTimeMatch = null
   
-  // 先尝试匹配标准格式：2026-01-23 20:45
-  dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
+  // // 先尝试匹配标准格式：2026-01-23 20:45
+  // dateTimeMatch = ocrText.match(/(\d{4}[年\-/.]\d{1,2}[月\-/.]\d{1,2}[日]?)\s*(\d{1,2}:\d{2})/)
   
   // 如果没有匹配到标准格式，尝试匹配中文时间格式：下午8:18（不匹配年份）
   if (!dateTimeMatch) {
@@ -413,7 +413,7 @@ function normalizeDateTimeFormat(dateTimeStr) {
   
   console.log('统一日期时间格式，原始字符串:', dateTimeStr)
   
-  // 提取日期和时间部分（现在只匹配月日，不匹配年份）
+  // 提取日期和时间部分（只匹配月日，不匹配年份）
   const dateMatch = dateTimeStr.match(/(\d{1,2})[月\-/.]?(\d{1,2})[日]?/)
   const timeMatch = dateTimeStr.match(/(\d{1,2}):(\d{2})/)
   
@@ -426,14 +426,11 @@ function normalizeDateTimeFormat(dateTimeStr) {
   const month = parseInt(dateMatch[1])
   const day = parseInt(dateMatch[2])
   
-  // 使用当前年份
-  const currentYear = new Date().getFullYear()
-  
   // 提取时间部分
   const hour = parseInt(timeMatch[1])
   const minute = parseInt(timeMatch[2])
   
-  // 构建统一格式：2024-1-1 20:30
+  // 构建统一格式：月-日 时:分（不包含年份）
   const normalized = `${month}-${day} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
   
   console.log('统一格式结果:', normalized)
