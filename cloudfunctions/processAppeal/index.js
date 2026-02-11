@@ -44,6 +44,18 @@ exports.main = async (event, context) => {
   
   try {
     const { appealId, result, auditResult, staffName } = event
+
+        const staffId = event.staffId
+
+        console.log("当前工作人员的staffId = ", staffId)
+
+        if (!staffId) {
+          return {
+            code: 401,
+            data: null,
+            message: '无法获取工作人员身份标识'
+          }
+        }
     
     if (!appealId || result === undefined || !auditResult || !staffName) {
       return {
