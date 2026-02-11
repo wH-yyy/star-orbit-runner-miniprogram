@@ -152,8 +152,8 @@ async function getAuditRecords(event) {
         assignedStaffName: record.assignedStaffName || '',
         assignTime: record.assignTime || null,
         auditReason: record.audit_reason || '',
-        auditReasons: record.auditReasons || [],
-        auditRemark: record.auditRemark || '',
+        reasons: [],
+        remark: record.audit_reason || '',
         auditTime: record.auditTime || null
       }
     })
@@ -223,8 +223,8 @@ async function getAuditRecordDetail(event) {
       assignedStaffName: record.assignedStaffName || '',
       assignTime: record.assignTime || null,
       auditReason: record.audit_reason || '',
-      auditReasons: record.auditReasons || [],
-      auditRemark: record.auditRemark || '',
+      reasons: [],
+      remark: record.audit_reason || '',
       auditTime: record.auditTime || null,
       ocrText: record.ocr_text || '',
       campus: record.campus || ''
@@ -279,12 +279,13 @@ async function submitAudit(event) {
     const record = recordResult.data
     const assignedStaffId = record.assignedStaffId
 
+    const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
+
     // 2. 更新记录状态
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
       data: {
         status: statusCode,
-        auditReasons: reasons,
-        auditRemark: remark,
+        audit_reason: combinedReason,
         auditTime: db.serverDate(),
         auditedByStaffId: assignedStaffId // 记录审核员ID
       }
@@ -376,11 +377,12 @@ async function updateAuditResult(event) {
     // 将审核结果转换为状态码：approved->1 通过, rejected->2 不通过
     const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
     
+    const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
+
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
       data: {
         status: statusCode,
-        auditReasons: reasons,
-        auditRemark: remark + ' [Updated]',
+        audit_reason: combinedReason,
         auditTime: db.serverDate()
       }
     })
@@ -432,11 +434,12 @@ async function batchAudit(event) {
         // 将审核结果转换为状态码
         const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
         
+        const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
+
         await db.collection(RECORDS_COLLECTION).doc(recordId).update({
           data: {
             status: statusCode,
-            auditReasons: reasons,
-            auditRemark: remark,
+            audit_reason: combinedReason,
             auditTime: db.serverDate()
           }
         })
