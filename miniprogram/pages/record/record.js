@@ -90,10 +90,6 @@ Page({
       .then(res => {
         // 处理数据
         const processedData = res.data.map(item => {
-          if (item.status !== undefined) {
-            item.status = parseInt(item.status);
-          }
-
           // 转换创建时间格式为24小时制，日期和时间分行显示
           if (item.create_time) {
             const createTime = new Date(item.create_time);
@@ -200,8 +196,7 @@ Page({
     
     // 应用状态筛选
     if (this.data.filterStatus !== '') {
-      const status = parseInt(this.data.filterStatus);
-      filteredRecords = filteredRecords.filter(record => record.status === status);
+      filteredRecords = filteredRecords.filter(record => record.status === this.data.filterStatus);
     }
     
     // 应用日期筛选

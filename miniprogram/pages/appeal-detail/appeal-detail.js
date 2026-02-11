@@ -129,11 +129,6 @@ Page({
         const recordData = res.data;
         
         if (recordData) {
-          // 确保status字段为数字类型
-          if (recordData.status !== undefined) {
-            recordData.status = parseInt(recordData.status);
-          }
-          
           // 处理未通过原因显示
           if (recordData.audit_reason) {
             let reason = recordData.audit_reason.toLowerCase();
