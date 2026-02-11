@@ -1,6 +1,7 @@
 Page({
   data: {
     record: {}, // 记录详情数据
+    appeal: null, // 申诉详情数据
     loading: true, // 加载状态
     appealReason: '', // 申诉理由
     uploadedImages: [], // 已上传图片列表
@@ -8,41 +9,92 @@ Page({
   },
 
   onLoad(options) {
-    const index = options.index;
+    const index = options.index
     if (index) {
       const pages = getCurrentPages()
-      const prevPage = pages[pages.length - 2];
+      const prevPage = pages[pages.length - 2]
       if (prevPage && prevPage.data) {
-        const record = prevPage.data.displayedRecords[index];
+        const record = prevPage.data.displayedRecords[index]
         this.setData({ 
           record,
           loading: false
-        });
+        })
       }
+      this.loadAppealDetail(this.data.record._id)
     } else {
       wx.showToast({
         title: '加载失败：没有记录索引',
         icon: 'none'
       });
       setTimeout(() => {
-        this.goBack();
+        wx.navigateBack({
+          delta: 1
+        });
       }, 1500);
     }
   },
 
-  onPullDownRefresh() {
-    const id = this.data.record.id;
-    if (id) {
-      this.loadRecordDetail(id);
-    } else {
-      wx.showToast({
-        title: '刷新失败：未找到记录',
-        icon: 'none'
+  loadAppealDetail(recordId) {
+    const db = wx.cloud.database();
+    db.collection('Appeals')
+      .where({
+        runningRecordId: recordId
+      })
+      .get()
+      .then(res => {
+        if (res.data && res.data.length > 0) {
+          const appealData = res.data[0];
+          this.processAppealData(appealData);
+        }
+      })
+      .catch(error => {
+        console.error('加载申诉详情失败:', error);
       });
+  },
+
+  processAppealData(appealData) {
+    let statusText = '申诉中';
+    let statusClass = 'status-pending';
+    
+    if (appealData.status === 1) {
+      statusText = '申诉被接受';
+      statusClass = 'status-success';
+    } else if (appealData.status === 2) {
+      statusText = '申诉被驳回';
+      statusClass = 'status-failed';
     }
-    setTimeout(() => {
-      wx.stopPullDownRefresh();
-    }, 500);
+    
+    // 处理时间显示
+    const createTime = appealData.createTime ? new Date(appealData.createTime) : new Date();
+    const formattedCreateTime = createTime.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const auditTime = appealData.auditTime ? new Date(appealData.auditTime) : null;
+    const formattedAuditTime = auditTime ? auditTime.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) : '';
+    
+    // 处理后的申诉数据
+    const processedAppeal = {
+      ...appealData,
+      statusText: statusText,
+      statusClass: statusClass,
+      formattedCreateTime: formattedCreateTime,
+      formattedAuditTime: formattedAuditTime
+    };
+    
+    this.setData({
+      appeal: processedAppeal
+    });
   },
 
   previewImage(e) {
@@ -51,6 +103,20 @@ Page({
       wx.previewImage({
         current: imageFileID,
         urls: [imageFileID]
+      });
+    }
+  },
+
+  /**
+   * 预览申诉图片
+   */
+  previewAppealImage(e) {
+    const index = e.currentTarget.dataset.index;
+    const appealImages = this.data.appeal?.appealImages;
+    if (appealImages && appealImages.length > 0) {
+      wx.previewImage({
+        current: appealImages[index],
+        urls: appealImages
       });
     }
   },
@@ -246,6 +312,9 @@ Page({
                 appealReason: '',
                 uploadedImages: []
               });
+              
+              // 重新加载申诉详情
+              this.loadAppealDetail(record._id);
             } else {
               wx.showToast({
                 title: res.result.message || '申诉提交失败，请稍后重试',
@@ -266,12 +335,5 @@ Page({
         }
       }
     });
-  },
-
-  /**
-   * 取消申诉
-   */
-  cancelAppeal() {
-    this.hideAppealModal();
   }
 });
