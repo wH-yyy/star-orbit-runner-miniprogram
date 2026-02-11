@@ -21,7 +21,7 @@
     </view>
     <view class="stat-item">
       <view class="stat-value">{{userInfo.totalDuration}}</view>
-      <view class="stat-label">总时长(分钟)</view>
+      <view class="stat-label">运动时长</view>
     </view>
   </view>
 

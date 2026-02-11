@@ -56,11 +56,14 @@ Page({
 
   loadUserInfo() {
     const userInfo = getApp().globalData.userInfo
+    const totalDuration_hour = userInfo.totalDuration.hour < 10 ? "0" + userInfo.totalDuration.hour : userInfo.totalDuration.hour
+    const totalDuration_minute = userInfo.totalDuration.minute < 10 ? "0" + userInfo.totalDuration.minute : userInfo.totalDuration.minute
+    const totalDuration_second = userInfo.totalDuration.second < 10 ? "0" + userInfo.totalDuration.second : userInfo.totalDuration.second
     this.setData({
       userInfo: {
         ...userInfo,
         totalDistance: userInfo.totalDistance.toFixed(2),
-        totalDuration: userInfo.totalDuration.toFixed(2)
+        totalDuration: totalDuration_hour + ":" + totalDuration_minute + ":" + totalDuration_second
       }
     })
   },
