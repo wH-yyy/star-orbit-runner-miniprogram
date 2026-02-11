@@ -370,6 +370,95 @@
   text-shadow: none;
 }
 
+/* 步数截图特定样式 */
+.step-image-section {
+  margin-top: 16rpx;
+}
+
+.step-image-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  animation: scaleIn 0.3s ease forwards;
+  border: 2rpx solid #4CAF50;
+}
+
+.step-image-item .uploaded-image {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+}
+
+.step-image-item .delete-btn {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background: rgba(245, 108, 108, 0.9);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 8rpx rgba(245, 108, 108, 0.3);
+}
+
+.step-image-item .delete-btn:hover {
+  background: rgba(245, 108, 108, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4rpx 16rpx rgba(245, 108, 108, 0.4);
+}
+
+.step-upload-btn {
+  width: 200rpx;
+  height: 200rpx;
+  border: 3rpx dashed #4CAF50;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.step-upload-btn:hover {
+  border-color: #388E3C;
+  background: rgba(76, 175, 80, 0.1);
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.15);
+}
+
+.step-upload-btn .upload-icon {
+  font-size: 64rpx;
+  color: #4CAF50;
+  margin-bottom: 8rpx;
+  transition: all 0.3s ease;
+}
+
+.step-upload-btn:hover .upload-icon {
+  color: #388E3C;
+  transform: scale(1.1);
+}
+
+.step-upload-btn .upload-text {
+  font-size: 28rpx;
+  color: #4CAF50;
+  margin-bottom: 4rpx;
+  font-weight: 500;
+}
+
+.step-upload-btn .upload-hint {
+  font-size: 22rpx;
+  color: #81C784;
+}
+
 /* 成功提示模态框 */
 .success-modal {
   position: fixed;
