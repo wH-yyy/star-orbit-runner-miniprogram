@@ -7,57 +7,63 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 
-// 辅助函数：将时间字符串转换为分钟数
-function durationToMinutes(durationStr) {
-  if (!durationStr) return 0
-  
-  try {
-    // 处理格式如 "00:12:27" 的时间字符串
-    const parts = durationStr.split(':')
-    
-    if (parts.length === 3) {
-      // HH:MM:SS 格式
-      const hours = parseInt(parts[0]) || 0
-      const minutes = parseInt(parts[1]) || 0
-      const seconds = parseInt(parts[2]) || 0
-      
-      // 转换为分钟数（保留2位小数）
-      return parseFloat((hours * 60 + minutes + seconds / 60).toFixed(2))
-    } else if (parts.length === 2) {
-      // MM:SS 格式
-      const minutes = parseInt(parts[0]) || 0
-      const seconds = parseInt(parts[1]) || 0
-      
-      return parseFloat((minutes + seconds / 60).toFixed(2))
-    } else {
-      // 尝试直接转换为数字
-      return parseFloat(durationStr) || 0
-    }
-  } catch (error) {
-    console.error('时间转换失败:', durationStr, error)
-    return 0
+/**
+ * 解析时间字符串 "HH:MM:SS" 为时长对象
+ * @param {string} durationStr - 如 "00:12:27"
+ * @returns {{hour: number, minute: number, second: number}}
+ */
+function parseDuration(durationStr) {
+  if (!durationStr || typeof durationStr !== 'string') {
+    return { hour: 0, minute: 0, second: 0 }
   }
+  
+  const parts = durationStr.split(':')
+  if (parts.length === 3) {
+    const hour = parseInt(parts[0]) || 0
+    const minute = parseInt(parts[1]) || 0
+    const second = parseInt(parts[2]) || 0
+    return { hour, minute, second }
+  } else if (parts.length === 2) {
+    // 支持 "MM:SS" 格式
+    const minute = parseInt(parts[0]) || 0
+    const second = parseInt(parts[1]) || 0
+    return { hour: 0, minute, second }
+  }
+  return { hour: 0, minute: 0, second: 0 }
+}
+
+/**
+ * 将两个时长对象相加，自动处理进位
+ * @param {{hour: number, minute: number, second: number}} a
+ * @param {{hour: number, minute: number, second: number}} b
+ * @returns {{hour: number, minute: number, second: number}}
+ */
+function addDuration(a, b) {
+  let second = a.second + b.second
+  let minute = a.minute + b.minute
+  let hour = a.hour + b.hour
+
+  // 秒进位到分
+  if (second >= 60) {
+    minute += Math.floor(second / 60)
+    second = second % 60
+  }
+  // 分进位到时
+  if (minute >= 60) {
+    hour += Math.floor(minute / 60)
+    minute = minute % 60
+  }
+
+  return { hour, minute, second }
 }
 
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   
   try {
-    const { appealId, result, auditResult, staffName } = event
-
-        const staffId = event.staffId
-
-        console.log("当前工作人员的staffId = ", staffId)
-
-        if (!staffId) {
-          return {
-            code: 401,
-            data: null,
-            message: '无法获取工作人员身份标识'
-          }
-        }
+    const { appealId, result, auditResult, staffName, staffId } = event
     
-    if (!appealId || result === undefined || !auditResult || !staffName) {
+    if (!appealId || result === undefined || !auditResult || !staffName || !staffId) {
       return {
         code: 400,
         data: null,
@@ -95,18 +101,15 @@ exports.main = async (event, context) => {
         message: '该申诉已处理，不可重复处理'
       }
     }
-
-    // 检查权限：验证工作人员是否有权处理该申诉
+    
+    // --- 权限验证：检查该申诉对应的跑步记录是否分配给当前工作人员 ---
     if (appeal.runningRecordId) {
-      // 获取对应的跑步记录
       const runningRecordResult = await db.collection('RunningRecords')
         .doc(appeal.runningRecordId)
         .get()
       
       if (runningRecordResult.data) {
         const runningRecord = runningRecordResult.data
-        
-        // 验证工作人员是否有权限处理
         if (runningRecord.assignedStaffId !== staffId) {
           return {
             code: 403,
@@ -116,9 +119,9 @@ exports.main = async (event, context) => {
         }
       }
     }
+    // --------------------------------------------------------------
     
     const now = new Date()
-    const auditTime = now.toISOString()
     
     // 开始事务处理
     const transaction = await db.startTransaction()
@@ -133,29 +136,28 @@ exports.main = async (event, context) => {
           auditor: staffName
         }
       })
-
+      
       // 2. 获取跑步记录详情
       let runningRecord = null
       if (appeal.runningRecordId) {
-        const recordResult = await transaction.collection('RunningRecords').doc(appeal.runningRecordId).get()
+        const recordResult = await transaction.collection('RunningRecords')
+          .doc(appeal.runningRecordId)
+          .get()
         runningRecord = recordResult.data
       }
       
       // 3. 更新跑步记录状态
-      // 申诉通过 => 跑步记录状态设为 1（通过）
-      // 申诉不通过 => 跑步记录状态设为 2（不通过）
       const runningRecordStatus = result === 1 ? 1 : 2
-      
       await transaction.collection('RunningRecords').doc(appeal.runningRecordId).update({
         data: {
           status: runningRecordStatus,
           audit_reason: result === 1 ? "申诉通过" : auditResult
         }
       })
-
+      
       // 4. 如果申诉通过，更新用户数据
       if (result === 1 && runningRecord) {
-        // 获取用户记录
+        // 4.1 根据学号查找用户
         const userQuery = await transaction.collection('Users')
           .where({
             stu_id: appeal.stu_id
@@ -165,23 +167,29 @@ exports.main = async (event, context) => {
         if (userQuery.data.length > 0) {
           const user = userQuery.data[0]
           
-          // 计算跑步距离（确保是数字）
-          const runningDistance = parseFloat(runningRecord.running_distance) || 0
+          // 4.2 解析本次跑步的时长
+          const durationObj = parseDuration(runningRecord.running_duration)
           
-          // 计算跑步时长（转换为分钟数）
-          const runningDurationMinutes = durationToMinutes(runningRecord.running_duration)
+          // 4.3 获取当前用户的 totalDuration，若不存在则初始化为 {hour:0,minute:0,second:0}
+          const currentDuration = user.totalDuration || { hour: 0, minute: 0, second: 0 }
           
-          // 更新用户数据
+          // 4.4 计算新的总时长
+          const newDuration = addDuration(currentDuration, durationObj)
+          
+          // 4.5 准备更新数据
+          const updateData = {
+            totalDistance: _.inc(parseFloat(runningRecord.running_distance) || 0),
+            totalCount: _.inc(1),
+            totalDuration: newDuration,  // 直接设置新对象
+            updateTime: now
+          }
+          
+          // 4.6 执行更新
           await transaction.collection('Users').doc(user._id).update({
-            data: {
-              totalDistance: _.inc(runningDistance),
-              totalDuration: _.inc(runningDurationMinutes),
-              totalCount: _.inc(1),
-              updateTime: now
-            }
+            data: updateData
           })
           
-          console.log(`用户数据更新成功: stu_id=${appeal.stu_id}, 增加距离=${runningDistance}km, 增加时长=${runningDurationMinutes}min`)
+          console.log(`用户数据更新成功: stu_id=${appeal.stu_id}, 增加距离=${runningRecord.running_distance}km, 增加时长=${runningRecord.running_duration}, 新总时长=${JSON.stringify(newDuration)}`)
         } else {
           console.warn(`用户记录不存在: stu_id=${appeal.stu_id}`)
         }
@@ -190,7 +198,7 @@ exports.main = async (event, context) => {
       // 提交事务
       await transaction.commit()
       
-      console.log(`申诉处理成功: appealId=${appealId}, result=${result}, 用户更新=${result === 1 ? '是' : '否'}`)
+      console.log(`申诉处理成功: appealId=${appealId}, result=${result}`)
       
       return {
         code: 200,
@@ -198,7 +206,7 @@ exports.main = async (event, context) => {
           appealId,
           runningRecordId: appeal.runningRecordId,
           result,
-          auditTime,
+          auditTime: now.toISOString(),
           userUpdated: result === 1
         },
         message: '申诉处理成功' + (result === 1 ? '，用户数据已更新' : '')

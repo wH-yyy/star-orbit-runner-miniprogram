@@ -9,7 +9,6 @@
     "pages/awards/awards",
     "pages/record-detail/record-detail",
     "pages/appeal-history/appeal-history",
-    "pages/appeal-detail/appeal-detail",
     "pages/finish-info/finish-info"
   ],
   "window": {
