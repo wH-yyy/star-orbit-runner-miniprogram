@@ -4,7 +4,6 @@ Page({
     loginDisabled: false,
     loginText: '微信一键登录',
     agreementChecked: false,
-    phoneNumber: ''
   },
 
   toggleAgreement() {

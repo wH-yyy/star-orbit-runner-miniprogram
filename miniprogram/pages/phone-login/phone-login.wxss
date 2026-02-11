@@ -109,13 +109,6 @@
   letter-spacing: 2rpx;
 }
 
-.welcome-text .sub-text {
-  display: block;
-  font-size: 28rpx;
-  color: #666666;
-  line-height: 40rpx;
-}
-
 .phone-display {
   width: 100%;
   padding: 24rpx;

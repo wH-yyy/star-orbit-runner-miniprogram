@@ -8,7 +8,6 @@
     <view class="form">
       <view class="welcome-text">
         <text class="main-text">欢迎使用星轨Runner</text>
-        <text class="sub-text">手机号一键登录，快速便捷</text>
       </view>
       
       <!-- 手机号显示区域 -->
