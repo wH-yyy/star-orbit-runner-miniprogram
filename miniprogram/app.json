@@ -45,7 +45,6 @@
       }
     ]
   },
-  
   "sitemapLocation": "sitemap.json",
   "permission": {
     "scope.userLocation": {
