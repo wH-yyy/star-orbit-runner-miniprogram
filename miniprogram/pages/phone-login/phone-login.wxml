@@ -2,7 +2,7 @@
 <view class="container">
   <view class="login-box">
     <view class="logo">
-      <text class="title">星轨Runner</text>
+      <text class="title">星轨Runner（logo）</text>
     </view>
     
     <view class="form">
@@ -24,13 +24,7 @@
       >
         {{loginText}}
       </button>
-      
-      <!-- 验证码登录入口 -->
-      <view class="other-login">
-        <text>其他登录方式：</text>
-        <navigator url="/pages/login/login" class="link">账号密码登录</navigator>
-      </view>
-      
+            
       <!-- 用户协议 -->
       <view class="agreement">
         <view class="checkbox-item" bindtap="toggleAgreement">

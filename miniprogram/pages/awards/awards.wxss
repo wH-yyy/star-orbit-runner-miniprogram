@@ -19,18 +19,12 @@
 }
 
 .title {
-  font-size: 48rpx;
-  font-weight: 700;
+  font-size: 40rpx;
+  font-weight: 600;
   color: #ffffff;
   letter-spacing: 2rpx;
   margin-bottom: 12rpx;
   text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
-}
-
-.subtitle {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 1rpx;
 }
 
 /* 主奖项卡片 */
@@ -200,7 +194,7 @@
 }
 
 .rule-silver {
-  background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+  background: linear-gradient(135deg, #F0F2F4 0%, #C0C0C0 100%);
   box-shadow: 0 4rpx 12rpx rgba(192, 192, 192, 0.3);
 }
 
@@ -227,7 +221,7 @@
 }
 
 .tip-text {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: rgba(255, 255, 255, 0.7);
   letter-spacing: 1rpx;
 }
