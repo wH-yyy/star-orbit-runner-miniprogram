@@ -299,7 +299,7 @@ function calculatePace(duration, distance) {
 // 审核跑步记录
 function auditRunningRecord(runningInfo) {
   const auditResult = {
-    status: '0', // 默认设为待审核（OCR基础规则通过）
+    status: 0, // 默认设为待审核（OCR基础规则通过）
     reason: '',
     calculatedPace: null
   }
@@ -308,7 +308,7 @@ function auditRunningRecord(runningInfo) {
   
   // 1. 检查里程 (必须 >= 2.0km)
   if (!distance || distance < 2.0) {
-    auditResult.status = '2'
+    auditResult.status = 2
     auditResult.reason = '里程不足2.0公里'
     return auditResult
   }
@@ -322,7 +322,7 @@ function auditRunningRecord(runningInfo) {
       const minute = parseInt(timeMatch[2])
       // 直接使用24小时制时间进行比较
       if (hour < 20 || hour > 22 || (hour === 22 && minute > 0)) {
-        auditResult.status = '2'
+        auditResult.status = 2
         auditResult.reason = '打卡时间不在20:00-22:00之间'
         timeCheckFailed = true
       } else {
@@ -347,7 +347,7 @@ function auditRunningRecord(runningInfo) {
     
     // 配速必须在3'00"到7'30"之间 (180秒到450秒)
     if (paceInSeconds < 180 || paceInSeconds > 450) {
-      auditResult.status = '2'
+      auditResult.status = 2
       // 如果之前已经有失败原因，追加配速原因
       if (auditResult.reason) {
         auditResult.reason += '；配速异常，不在3\'00\"-7\'30\"范围内'
@@ -375,8 +375,8 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
     const userDoc = userResult.data[0]
     const updateData = {}
     
-    // 只有人工审核通过（状态为'1'）才更新用户统计信息
-    if (auditStatus === '1') {
+    // 只有人工审核通过（状态为1）才更新用户统计信息
+    if (auditStatus === 1) {
       // 审核通过：更新打卡次数、总里程、总时长
       updateData.totalCount = (userDoc.totalCount || 0) + 1
       
@@ -392,11 +392,11 @@ async function updateUserStatistics(openid, auditStatus, runningInfo) {
         }
       }
       
-    } else if (auditStatus === '2') {
+    } else if (auditStatus === 2) {
       // OCR基础规则审核不通过：更新违规次数
       updateData.violationCount = (userDoc.violationCount || 0) + 1
     }
-    // 待审核（状态为'0'）和申诉中（状态为'3'）不更新统计信息
+    // 待审核（状态为0）和申诉中（状态为3）不更新统计信息
     
     // 更新用户记录
     await db.collection('Users').doc(userDoc._id).update({
@@ -526,11 +526,11 @@ exports.main = async (event, context) => {
     const runningInfo = parseRunningInfoFromOCR(ocrText)
     
     // 3. 审核记录（先检查用户信息，再检查跑步规则）
-    let auditResult = { status: '0', reason: '', calculatedPace: null } // 默认设为待审核
+    let auditResult = { status: 0, reason: '', calculatedPace: null } // 默认设为待审核
     
     // 如果用户信息验证失败，直接标记为不通过
     if (!userInfoVerification.verified) {
-      auditResult.status = '2'
+      auditResult.status = 2
       auditResult.reason = userInfoVerification.reason
     } else {
       // 用户信息验证通过，再检查跑步规则
@@ -568,43 +568,65 @@ exports.main = async (event, context) => {
       data: recordData
     })
     
-    // 4. 自动分配审核任务
-    // 调用 staff-api 云函数进行任务分配
-    let assignmentResult = null
+    // 4. 自动分配审核任务 (智能分配)
+    let assignedStaffId = null
     try {
-      console.log('开始自动分配审核任务，记录ID:', dbResult._id)
-      assignmentResult = await cloud.callFunction({
-        name: 'staff-api',
-        data: {
-          action: 'audit/assignTask',
-          recordId: dbResult._id
-        }
-      })
-      console.log('任务分配结果:', assignmentResult)
-      
-      if (assignmentResult?.result?.code === 200) {
-        console.log('任务分配成功，分配给工作人员:', assignmentResult.result.data.assignedStaffId)
+      // a. 获取所有可用的工作人员
+      const staffQueryResult = await db.collection('staff').where({
+        status: 'active' // 状态正常的工作人员
+      }).get()
+
+      if (staffQueryResult.data && staffQueryResult.data.length > 0) {
+        let staffList = staffQueryResult.data
+
+        // b. 找到待办任务最少的工作人员
+        staffList.sort((a, b) => {
+          const pendingA = (a.assigned_count || 0) - (a.completed_count || 0)
+          const pendingB = (b.assigned_count || 0) - (b.completed_count || 0)
+          return pendingA - pendingB
+        })
+        
+        const selectedStaff = staffList[0] // 排序后第一个就是任务最少的
+        assignedStaffId = selectedStaff._id
+
+        // c. 更新跑步记录，为其分配审核员
+        await db.collection('RunningRecords').doc(dbResult._id).update({
+          data: {
+            assignedStaffId: assignedStaffId,
+            assignedStaffName: selectedStaff.real_name || selectedStaff.username || '',
+            assignTime: db.serverDate() // 分配时间
+          }
+        })
+
+        // d. 为被分配的工作人员的 assigned_count + 1
+        await db.collection('staff').doc(assignedStaffId).update({
+          data: {
+            assigned_count: db.command.inc(1)
+          }
+        })
+
+        console.log(`任务分配成功，记录ID: ${dbResult._id}，分配给任务最少的: ${assignedStaffId} (${selectedStaff.real_name || selectedStaff.username})`)
       } else {
-        console.log('任务分配失败或未分配:', assignmentResult?.result?.message)
+        console.log('没有可用的工作人员，任务未分配。')
       }
     } catch (assignError) {
       // 任务分配失败不影响记录提交，仅记录日志
-      console.error('任务分配失败:', assignError)
+      console.error(`为记录 ${dbResult._id} 分配任务失败:`, assignError)
     }
-    
+
     // 5. 更新用户统计信息
     await updateUserStatistics(openid, auditResult.status, runningInfo)
-    
+
     // 返回结果
     let message = ''
-    if (auditResult.status === '0') {
+    if (auditResult.status === 0) {
       message = 'OCR基础规则审核通过，等待人工审核'
-    } else if (auditResult.status === '2') {
+    } else if (auditResult.status === 2) {
       message = auditResult.reason.includes('用户姓名和学号') ? '用户信息验证失败' : 'OCR基础规则审核不通过'
     } else {
       message = '提交成功，等待审核'
     }
-    
+
     return {
       code: 200,
       message: message,
@@ -614,7 +636,7 @@ exports.main = async (event, context) => {
         auditReason: auditResult.reason,
         ocrInfo: runningInfo,
         finalPace: runningInfo.pace || auditResult.calculatedPace,
-        assignedStaffId: assignmentResult?.result?.data?.assignedStaffId || null, // 返回分配的工作人员ID
+        assignedStaffId: assignedStaffId, // 返回分配的工作人员ID
         // 便于前端调试/展示：返回OCR文本（如需更轻量可删掉）
         ocrText: ocrText,
         // 需要时可打开：返回完整OCR结构（注意数据量可能较大）
