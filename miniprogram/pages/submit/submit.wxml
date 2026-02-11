@@ -32,7 +32,6 @@
           <text class="upload-hint">(最多{{maxImages}}张)</text>
         </view>
       </view>
-      <view wx:if="{{imageError}}" class="error-tip">{{imageErrorMsg}}</view>
     </view>
   </view>
 
@@ -44,6 +43,29 @@
         {{modeOptions[modeIndex]}}
       </view>
     </picker>
+  </view>
+
+  <!-- 步数截图（仅在"在任意场地跑"时显示） -->
+  <view class="form-item" wx:if="{{modeIndex === 1}}">
+    <text class="label">步数截图</text>
+    <view class="upload-section">
+      <!-- 已上传步数截图预览 -->
+      <view class="uploaded-images">
+        <view class="image-item" wx:for="{{stepImages}}" wx:key="index">
+          <image src="{{item}}" mode="aspectFill" class="uploaded-image"></image>
+          <view class="delete-btn" bindtap="deleteStepImage" data-index="{{index}}">
+            <text class="delete-icon">×</text>
+          </view>
+        </view>
+
+        <!-- 上传按钮 -->
+        <view class="upload-btn" wx:if="{{stepImages.length < maxStepImages}}" bindtap="chooseStepImage">
+          <view class="upload-icon">+</view>
+          <text class="upload-text">上传步数截图</text>
+          <text class="upload-hint">(最多{{maxStepImages}}张)</text>
+        </view>
+      </view>
+    </view>
   </view>
 
   <!-- 提交按钮 -->
