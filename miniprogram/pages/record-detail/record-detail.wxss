@@ -91,9 +91,9 @@
 
 .status-badge.large {
   text-align: center;
-  padding: 8px 16px;
-  font-size: 16px;
-  border-radius: 20px;
+  padding: 16rpx 32rpx;
+  font-size: 32rpx;
+  border-radius: 40rpx;
 }
 
 .status-passed.large {
@@ -115,25 +115,25 @@
 }
 
 .fail-reason {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  border-left: 4px solid #f56c6c;
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  border-left: 8rpx solid #f56c6c;
   color: #606266;
 }
 
 .appeal-info {
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 20rpx;
+  padding: 20rpx;
   background-color: #ecf5ff;
-  border-radius: 8px;
-  border-left: 4px solid #409eff;
+  border-radius: 16rpx;
+  border-left: 8rpx solid #409eff;
 }
 
 .appeal-label {
   color: #409eff;
   font-weight: bold;
-  margin-right: 5px;
+  margin-right: 10rpx;
 }
 
 .appeal-content {
@@ -143,18 +143,18 @@
 .appeal-btn {
   background-color: #ffd240;
   color: white;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 16rpx;
+  font-size: 32rpx;
   font-weight: 700;
 }
 
 /* 申诉详情样式 */
 .appeal-status-badge {
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 24rpx 40rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: 40rpx;
   text-align: center;
 }
 
@@ -176,51 +176,51 @@
 .info-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid #f0f0f0;
 }
 
 .info-label {
   color: #666;
-  font-size: 14px;
+  font-size: 28rpx;
 }
 
 .info-value {
   color: #333;
-  font-size: 14px;
+  font-size: 28rpx;
   font-weight: 500;
 }
 
 .appeal-reason-section,
 .evidence-section,
 .audit-result-section {
-  margin-top: 20px;
+  margin-top: 40rpx;
 }
 
 .section-title {
-  font-size: 15px;
+  font-size: 30rpx;
   font-weight: 600;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
   display: block;
 }
 
 .appeal-reason-content,
 .audit-result-content {
-  font-size: 16px;
+  font-size: 32rpx;
 }
 
 .evidence-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 10px;
+  gap: 20rpx;
+  margin-top: 20rpx;
 }
 
 .evidence-item {
   width: 100%;
-  height: 80px;
-  border-radius: 6px;
+  height: 160rpx;
+  border-radius: 12rpx;
   overflow: hidden;
 }
 
@@ -231,44 +231,44 @@
 
 /* 申诉历史样式 */
 .history-item {
-  padding: 15px;
+  padding: 30rpx;
   background-color: #f9f9f9;
-  border-radius: 8px;
-  margin-bottom: 12px;
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
 }
 
 .history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
 }
 
 .history-time {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #666;
 }
 
 .history-status {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
   font-weight: 500;
 }
 
 .history-reason {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #333;
   line-height: 1.4;
 }
 
 /* 修改原有的状态徽章样式 */
 .status-badge.large {
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 24rpx 40rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: 40rpx;
   text-align: center;
 }
 

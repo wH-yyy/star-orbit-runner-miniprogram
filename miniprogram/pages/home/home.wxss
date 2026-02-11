@@ -7,7 +7,7 @@ page {
 
 /* 主容器 */
 .home-container {
-  padding-bottom: 60px; /* 为底部导航栏留出空间 */
+  padding-bottom: 120rpx; /* 为底部导航栏留出空间 */
 }
 
 /* 用户信息区域 */
@@ -16,7 +16,7 @@ page {
   padding: 30rpx;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 2rpx solid #eeeeee;
 }
 
 /* 头像 */
@@ -97,7 +97,7 @@ page {
   padding: 40rpx 0;
   display: flex;
   justify-content: space-around;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 2rpx solid #eeeeee;
 }
 
 /* 统计项 */
@@ -134,7 +134,7 @@ page {
   justify-content: space-between;
   align-items: center;
   padding: 30rpx;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 2rpx solid #eeeeee;
 }
 
 /* 菜单项最后一项去除边框 */
