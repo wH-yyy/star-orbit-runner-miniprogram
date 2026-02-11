@@ -62,67 +62,101 @@ async function getAuditRecords(event) {
   try {
     let { page = 1, pageSize = 20, status, username, studentId, date, staffId } = event
     
-    const hasStatusFilter = status !== undefined && status !== '' && status !== null && status !== 'all'
-    
     // 构建查询条件
     let query = {}
     
-    // 如果指定了工作人员ID,则只查询分配给该工作人员的记录
+    // 1. 必须指定工作人员ID，只查询分配给该工作人员的记录
     if (staffId) {
       query.assignedStaffId = staffId
     }
     
-    if (hasStatusFilter) {
-      const parsedStatus = parseInt(status, 10)
-      if (!Number.isNaN(parsedStatus)) {
-        query.status = parsedStatus
+    // 2. 处理状态筛选
+    // 如果没有明确指定状态，默认查询待审核的记录
+    if (status !== undefined && status !== null && status !== '' && status !== 'all') {
+      // 状态映射
+      const statusMap = {
+        '待审核': 0,
+        '通过': 1,
+        '不通过': 2,
+        '申诉中': 3
+      }
+      
+      let numericStatus
+      if (!isNaN(parseInt(status, 10))) {
+        numericStatus = parseInt(status, 10)
+      } else if (statusMap.hasOwnProperty(status)) {
+        numericStatus = statusMap[status]
+      }
+      
+      if (numericStatus !== undefined && !isNaN(numericStatus)) {
+        query.status = numericStatus
+      }
+    } else {
+      // 默认只查询待审核的记录
+      query.status = 0
+    }
+    
+    // 3. 处理学号筛选（仅当有值时）
+    if (studentId && typeof studentId === 'string' && studentId.trim() !== '') {
+      query.stu_id = db.RegExp({
+        regexp: studentId.trim(),
+        options: 'i'
+      })
+    }
+    
+    // 4. 处理日期筛选（仅当有值时）
+    if (date && typeof date === 'string' && date.trim() !== '') {
+      try {
+        const dayStart = new Date(`${date.trim()}T00:00:00+08:00`)
+        const dayEnd = new Date(`${date.trim()}T23:59:59.999+08:00`)
+        if (!isNaN(dayStart.getTime()) && !isNaN(dayEnd.getTime())) {
+          query.create_time = _.gte(dayStart).and(_.lte(dayEnd))
+        }
+      } catch (e) {
+        console.warn('日期解析失败:', date)
       }
     }
     
-    // 添加其他筛选条件
-    if (studentId) {
-      query.stu_id = db.RegExp({
-        regexp: studentId,
-        options: 'i'
-      })
-    }
-    
-    if (date) {
-      const dayStart = new Date(`${date}T00:00:00+08:00`)
-      const dayEnd = new Date(`${date}T23:59:59.999+08:00`)
-      query.create_time = _.gte(dayStart).and(_.lte(dayEnd))
-    }
-    
-    // 注意：username 需要查询 name 字段
-    if (username) {
+    // 5. 处理姓名筛选（仅当有值时，注意字段名是 name 而不是 username）
+    if (username && typeof username === 'string' && username.trim() !== '') {
       query.name = db.RegExp({
-        regexp: username,
+        regexp: username.trim(),
         options: 'i'
       })
     }
+    
+    console.log('构建的查询条件:', query)
     
     const result = await db.collection(RECORDS_COLLECTION)
       .where(query)
-      .orderBy('_id', 'desc')
+      .orderBy('create_time', 'desc')
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .get()
     
+    console.log('数据库查询结果条数:', result.data.length)
+    
     // 转换字段名以匹配前端期望的格式
-    let records = result.data.map(record => ({
-      _id: record._id,
-      username: record.name || record.userName || '',
-      studentId: record.stu_id || '',
-      distance: record.running_distance || 0,
-      duration: record.running_duration || '',
-      date: record.create_time || '',
-      time: record.running_time || '',
-      screenshot: record.imageFileID || record.screenshot || '',
-      status: record.status,
-      autoAuditResult: record.autoAuditResult || 'normal',
-      reasons: record.auditReasons || [],
-      remark: record.auditRemark || ''
-    }))
+    let records = result.data.map(record => {
+      return {
+        _id: record._id,
+        username: record.name || '',
+        studentId: record.stu_id || '',
+        distance: record.running_distance || 0,
+        duration: record.running_duration || '',
+        date: record.create_time || '',
+        running_date: record.running_date || '', // 保持原始字段用于兼容
+        screenshot: record.imageFileID || '',
+        status: record.status,
+        assignedStaffId: record.assignedStaffId || null,
+        assignedStaffName: record.assignedStaffName || '',
+        assignTime: record.assignTime || null,
+        auditReason: record.audit_reason || '',
+        auditReasons: record.auditReasons || [],
+        auditRemark: record.auditRemark || '',
+        auditTime: record.auditTime || null
+      }
+    })
     
     // 处理图片文件ID，转换为可访问的临时URL
     records = await Promise.all(records.map(async (record) => {
@@ -140,6 +174,8 @@ async function getAuditRecords(event) {
       }
       return record
     }))
+    
+    console.log('返回给前端的记录数:', records.length)
     
     return {
       code: 200,
@@ -176,17 +212,20 @@ async function getAuditRecordDetail(event) {
     let record = result.data
     let detail = {
       _id: record._id,
-      username: record.name || record.userName || '',
+      username: record.name || '',
       studentId: record.stu_id || '',
       distance: record.running_distance || 0,
       duration: record.running_duration || '',
       date: record.create_time || '',
-      time: record.running_time || '',
-      screenshot: record.imageFileID || record.screenshot || '',
+      screenshot: record.imageFileID || '',
       status: record.status,
-      autoAuditResult: record.autoAuditResult || 'normal',
-      reasons: record.auditReasons || [],
-      remark: record.auditRemark || '',
+      assignedStaffId: record.assignedStaffId || null,
+      assignedStaffName: record.assignedStaffName || '',
+      assignTime: record.assignTime || null,
+      auditReason: record.audit_reason || '',
+      auditReasons: record.auditReasons || [],
+      auditRemark: record.auditRemark || '',
+      auditTime: record.auditTime || null,
       ocrText: record.ocr_text || '',
       campus: record.campus || ''
     }
@@ -222,22 +261,44 @@ async function getAuditRecordDetail(event) {
 async function submitAudit(event) {
   try {
     const { recordId, result: auditResult, reasons = [], remark = '' } = event
-    
+    const wxContext = cloud.getWXContext()
+    const staffOpenId = wxContext.OPENID // 获取当前操作的审核员的openid
+
     if (!recordId || !auditResult) {
       return { code: 400, message: 'Missing parameters', data: null }
     }
 
     // 将审核结果转换为状态码：approved->1 通过, rejected->2 不通过
     const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
-    
+
+    // 1. 获取记录详情，特别是 assignedStaffId
+    const recordResult = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
+    if (!recordResult.data) {
+      return { code: 404, message: 'Record not found', data: null }
+    }
+    const record = recordResult.data
+    const assignedStaffId = record.assignedStaffId
+
+    // 2. 更新记录状态
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
       data: {
         status: statusCode,
         auditReasons: reasons,
         auditRemark: remark,
-        auditTime: db.serverDate()
+        auditTime: db.serverDate(),
+        auditedByStaffId: assignedStaffId // 记录审核员ID
       }
     })
+
+    // 3. 如果有分配的审核员，则为其 completed_count + 1
+    if (assignedStaffId) {
+      await db.collection(STAFF_COLLECTION).doc(assignedStaffId).update({
+        data: {
+          completed_count: _.inc(1)
+        }
+      })
+      console.log(`审核员 ${assignedStaffId} 的 completed_count 已增加`)
+    }
     
     return {
       code: 200,
@@ -269,7 +330,7 @@ async function updateAuditResult(event) {
         status: statusCode,
         auditReasons: reasons,
         auditRemark: remark + ' [Updated]',
-        updateTime: db.serverDate()
+        auditTime: db.serverDate()
       }
     })
     
