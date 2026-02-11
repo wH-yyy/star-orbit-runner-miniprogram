@@ -73,7 +73,6 @@ page {
 .stat-item {
   flex: 1;
   text-align: center;
-  padding: 20rpx;
   border-radius: 24rpx;
   position: relative;
   overflow: hidden;
@@ -275,12 +274,14 @@ page {
 .filter-btn {
   flex: 1;
   height: 80rpx;
-  line-height: 80rpx;
   border: none;
   border-radius: 16rpx;
   font-size: 28rpx;
   font-weight: 600;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .filter-reset {

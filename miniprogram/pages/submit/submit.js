@@ -1,11 +1,17 @@
 // pages/submit/submit.js
 Page({
   data: {
-    // 图片（用于预览展示：临时路径）
+    // 跑步截图（用于预览展示：临时路径）
     images: [],
     maxImages: 1,
     imageError: false,
     imageErrorMsg: '',
+
+    // 步数截图（用于预览展示：临时路径）
+    stepImages: [],
+    maxStepImages: 1,
+    stepImageError: false,
+    stepImageErrorMsg: '',
 
     // 跑步方式选择
     modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
@@ -21,9 +27,6 @@ Page({
     submitDisabled: false,
     submitTextIndex: 0,
     submitTextList: ['提交记录', '未到提交时间', '今日停跑'],
-
-    // 成功弹窗
-    showSuccess: false
   },
 
   onLoad() {
@@ -83,9 +86,7 @@ Page({
       // 只在本地展示预览，不在这里上传；上传放到提交时统一处理
       const newImages = tempFiles.map(f => f.tempFilePath)
       this.setData({
-        images: [...this.data.images, ...newImages],
-        imageError: false,
-        imageErrorMsg: ''
+        images: [...this.data.images, ...newImages]
       })
     } catch (error) {
       console.error('选择/上传图片失败:', error)
@@ -107,23 +108,54 @@ Page({
     this.setData({ images })
   },
 
-  validateForm() {
-    let ok = true
-
-    if (!this.data.images || this.data.images.length === 0) {
-      ok = false
-      this.setData({
-        imageError: true,
-        imageErrorMsg: '请上传跑步记录截图'
+  async chooseStepImage() {
+    if (this.data.submitting) return
+    if (!wx.cloud) {
+      wx.showModal({
+        title: '错误',
+        content: '云开发未初始化，请检查app.js中的wx.cloud.init',
+        showCancel: false
       })
-    } else {
-      this.setData({
-        imageError: false,
-        imageErrorMsg: ''
-      })
+      return
     }
 
-    return ok
+    try {
+      const remain = this.data.maxStepImages - this.data.stepImages.length
+      if (remain <= 0) return
+
+      const res = await wx.chooseMedia({
+        count: remain,
+        mediaType: ['image'],
+        sourceType: ['album', 'camera'],
+        sizeType: ['compressed']
+      })
+
+      const tempFiles = res.tempFiles || []
+      if (tempFiles.length === 0) return
+
+      // 只在本地展示预览，不在这里上传；上传放到提交时统一处理
+      const newImages = tempFiles.map(f => f.tempFilePath)
+      this.setData({
+        stepImages: [...this.data.stepImages, ...newImages]
+      })
+    } catch (error) {
+      console.error('选择/上传步数截图失败:', error)
+      if (error && error.errMsg && error.errMsg.includes('cancel')) return
+      wx.showToast({ title: '步数截图上传失败', icon: 'none' })
+    } finally {
+      // 这里不涉及上传，不需要 loading 状态恢复
+    }
+  },
+
+  deleteStepImage(e) {
+    if (this.data.submitting) return
+    const index = Number(e.currentTarget.dataset.index)
+    if (Number.isNaN(index)) return
+
+    const stepImages = [...this.data.stepImages]
+    stepImages.splice(index, 1)
+
+    this.setData({ stepImages })
   },
 
   // 获取当前位置
@@ -207,7 +239,13 @@ Page({
 
   async submitForm() {
     if (this.data.submitting) return
-    if (!this.validateForm()) return
+    if (!this.data.images || this.data.images.length === 0) {
+      wx.showToast({
+        icon: 'error',
+        title: '请上传截图'
+      })
+      return
+    }
 
     if (!wx.cloud) {
       wx.showModal({
@@ -250,9 +288,11 @@ Page({
       // 2. 前端视角：上传成功即视为提交成功
       this.setData({
         images: [],
-        imageError: false,
-        imageErrorMsg: '',
-        showSuccess: true
+      })
+
+      wx.showToast({
+        icon: 'success',
+        title: '提交成功'
       })
 
       // 3. 在后台触发 OCR + 审核，不阻塞用户（传递位置信息）
@@ -284,11 +324,4 @@ Page({
       })
     }
   },
-
-  onSuccessClose() {
-    this.setData({ showSuccess: false })
-    wx.navigateBack({ delta: 1 })
-  },
-
-  preventTouchMove() {}
 })

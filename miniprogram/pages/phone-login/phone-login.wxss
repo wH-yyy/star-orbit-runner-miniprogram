@@ -109,13 +109,6 @@
   letter-spacing: 2rpx;
 }
 
-.welcome-text .sub-text {
-  display: block;
-  font-size: 28rpx;
-  color: #666666;
-  line-height: 40rpx;
-}
-
 .phone-display {
   width: 100%;
   padding: 24rpx;
@@ -185,31 +178,6 @@
   transform: none;
   cursor: not-allowed;
   text-shadow: none;
-}
-
-.other-login {
-  font-size: 28rpx;
-  color: #666666;
-  text-align: center;
-  animation: fadeIn 0.8s ease 0.6s forwards;
-  opacity: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.other-login .link {
-  color: #667eea;
-  font-weight: 600;
-  text-decoration: underline;
-  text-decoration-color: #667eea;
-  text-decoration-thickness: 2rpx;
-  transition: all 0.3s ease;
-}
-
-.other-login .link:hover {
-  color: #764ba2;
 }
 
 .agreement {

@@ -2,13 +2,12 @@
 <view class="container">
   <view class="login-box">
     <view class="logo">
-      <text class="title">星轨Runner</text>
+      <text class="title">星轨Runner（logo）</text>
     </view>
     
     <view class="form">
       <view class="welcome-text">
         <text class="main-text">欢迎使用星轨Runner</text>
-        <text class="sub-text">手机号一键登录，快速便捷</text>
       </view>
       
       <!-- 手机号显示区域 -->
@@ -25,13 +24,7 @@
       >
         {{loginText}}
       </button>
-      
-      <!-- 验证码登录入口 -->
-      <view class="other-login">
-        <text>其他登录方式：</text>
-        <navigator url="/pages/login/login" class="link">账号密码登录</navigator>
-      </view>
-      
+            
       <!-- 用户协议 -->
       <view class="agreement">
         <view class="checkbox-item" bindtap="toggleAgreement">

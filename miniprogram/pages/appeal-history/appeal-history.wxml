@@ -39,13 +39,13 @@
       
       <!-- 申诉列表项 -->
       <view class="list-row" 
-            wx:for="{{appealList}}" 
+            wx:for="{{appealList}}"
             wx:key="_id"
-            bindtap="viewAppealDetail" 
-            data-id="{{item._id}}">
+            bindtap="viewRecordDetail" 
+            data-index="{{index}}">
         <view class="list-col list-col-time">
           <view class="date">{{item.formattedDate}}</view>
-          <view class="time">{{item.formattedTimeOnly}}</view>
+          <view class="time">{{item.formattedTime}}</view>
         </view>
         <view class="list-col list-col-status">
           <view class="status-text {{item.statusClass}}">

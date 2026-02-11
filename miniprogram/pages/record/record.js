@@ -56,11 +56,14 @@ Page({
 
   loadUserInfo() {
     const userInfo = getApp().globalData.userInfo
+    const totalDuration_hour = userInfo.totalDuration.hour < 10 ? "0" + userInfo.totalDuration.hour : userInfo.totalDuration.hour
+    const totalDuration_minute = userInfo.totalDuration.minute < 10 ? "0" + userInfo.totalDuration.minute : userInfo.totalDuration.minute
+    const totalDuration_second = userInfo.totalDuration.second < 10 ? "0" + userInfo.totalDuration.second : userInfo.totalDuration.second
     this.setData({
       userInfo: {
         ...userInfo,
         totalDistance: userInfo.totalDistance.toFixed(2),
-        totalDuration: userInfo.totalDuration.toFixed(2)
+        totalDuration: totalDuration_hour + ":" + totalDuration_minute + ":" + totalDuration_second
       }
     })
   },
@@ -87,10 +90,6 @@ Page({
       .then(res => {
         // 处理数据
         const processedData = res.data.map(item => {
-          if (item.status !== undefined) {
-            item.status = parseInt(item.status);
-          }
-
           // 转换创建时间格式为24小时制，日期和时间分行显示
           if (item.create_time) {
             const createTime = new Date(item.create_time);
@@ -197,8 +196,7 @@ Page({
     
     // 应用状态筛选
     if (this.data.filterStatus !== '') {
-      const status = parseInt(this.data.filterStatus);
-      filteredRecords = filteredRecords.filter(record => record.status === status);
+      filteredRecords = filteredRecords.filter(record => record.status === this.data.filterStatus);
     }
     
     // 应用日期筛选
