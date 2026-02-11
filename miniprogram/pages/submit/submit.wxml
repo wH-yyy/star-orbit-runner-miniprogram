@@ -46,19 +46,8 @@
     </picker>
   </view>
 
-
-
   <!-- 提交按钮 -->
   <button class="submit-btn" type="primary" bindtap="submitForm" disabled="{{submitDisabled}}">
     {{submitTextList[submitTextIndex]}}
   </button>
-
-  <!-- 成功提示 -->
-  <view wx:if="{{showSuccess}}" class="success-modal" catchtouchmove="preventTouchMove">
-    <view class="success-content">
-      <view class="success-icon">✓</view>
-      <text class="success-title">上传成功</text>
-      <button class="success-btn" bindtap="onSuccessClose">确定</button>
-    </view>
-  </view>
 </view>

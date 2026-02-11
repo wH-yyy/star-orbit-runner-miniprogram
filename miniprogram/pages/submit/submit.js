@@ -21,9 +21,6 @@ Page({
     submitDisabled: false,
     submitTextIndex: 0,
     submitTextList: ['提交记录', '未到提交时间', '今日停跑'],
-
-    // 成功弹窗
-    showSuccess: false
   },
 
   onLoad() {
@@ -251,8 +248,12 @@ Page({
       this.setData({
         images: [],
         imageError: false,
-        imageErrorMsg: '',
-        showSuccess: true
+        imageErrorMsg: ''
+      })
+
+      wx.showToast({
+        icon: 'success',
+        title: '提交成功'
       })
 
       // 3. 在后台触发 OCR + 审核，不阻塞用户（传递位置信息）
@@ -284,11 +285,4 @@ Page({
       })
     }
   },
-
-  onSuccessClose() {
-    this.setData({ showSuccess: false })
-    wx.navigateBack({ delta: 1 })
-  },
-
-  preventTouchMove() {}
 })
