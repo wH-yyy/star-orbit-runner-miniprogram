@@ -83,6 +83,27 @@ exports.main = async (event, context) => {
         message: '该申诉已处理，不可重复处理'
       }
     }
+
+    // 检查权限：验证工作人员是否有权处理该申诉
+    if (appeal.runningRecordId) {
+      // 获取对应的跑步记录
+      const runningRecordResult = await db.collection('RunningRecords')
+        .doc(appeal.runningRecordId)
+        .get()
+      
+      if (runningRecordResult.data) {
+        const runningRecord = runningRecordResult.data
+        
+        // 验证工作人员是否有权限处理
+        if (runningRecord.assignedStaffId !== staffId) {
+          return {
+            code: 403,
+            data: null,
+            message: '您无权处理此申诉，该申诉由其他工作人员负责'
+          }
+        }
+      }
+    }
     
     const now = new Date()
     const auditTime = now.toISOString()
