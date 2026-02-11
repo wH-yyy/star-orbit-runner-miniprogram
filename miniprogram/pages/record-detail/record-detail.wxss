@@ -293,21 +293,22 @@
 }
 
 .data-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 28rpx;
-  margin: 20rpx 0 0 0;
+  display: flex;
+  flex-wrap: wrap; /* 允许换行 */
+  gap: 16rpx; /* 项目之间的间距 */
 }
 
 .data-item {
-  background: #ffffff;
+  flex: 1 0 calc(50% - 10rpx);
+  min-width: 240rpx; /* 最小宽度，确保不会太窄 */
+  max-width: 320rpx; /* 最大宽度，确保不会太宽 */
+  background: #f6f6f6;
   border-radius: 24rpx;
-  padding: 40rpx 28rpx;
-  box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.1);
+  padding: 24rpx 20rpx;
   text-align: center;
-  border: 1rpx solid rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box; /* 确保padding包含在宽度内 */
 }
 
 .data-item::before {
