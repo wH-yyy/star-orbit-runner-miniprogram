@@ -299,6 +299,57 @@ async function submitAudit(event) {
       })
       console.log(`审核员 ${assignedStaffId} 的 completed_count 已增加`)
     }
+
+    // 4. 审核通过后更新用户统计信息
+    if (statusCode === 1 && record.openid) {
+      let incHour = 0
+      let incMinute = 0
+      let incSecond = 0
+
+      if (typeof record.running_duration === 'string' && record.running_duration.includes(':')) {
+        const parts = record.running_duration.split(':').map(Number)
+        if (parts.length === 3) {
+          incHour = parts[0] || 0
+          incMinute = parts[1] || 0
+          incSecond = parts[2] || 0
+        } else if (parts.length === 2) {
+          incMinute = parts[0] || 0
+          incSecond = parts[1] || 0
+        }
+      }
+
+      const distanceInc = typeof record.running_distance === 'number'
+        ? record.running_distance
+        : parseFloat(record.running_distance || 0)
+
+      const userResult = await db.collection(USERS_COLLECTION).where({ openid: record.openid }).get()
+      if (userResult.data && userResult.data.length > 0) {
+        const userDoc = userResult.data[0]
+        const currentDuration = userDoc.totalDuration || { hour: 0, minute: 0, second: 0 }
+
+        let totalSeconds = (currentDuration.hour || 0) * 3600
+          + (currentDuration.minute || 0) * 60
+          + (currentDuration.second || 0)
+          + (incHour * 3600 + incMinute * 60 + incSecond)
+
+        const newHour = Math.floor(totalSeconds / 3600)
+        totalSeconds = totalSeconds % 3600
+        const newMinute = Math.floor(totalSeconds / 60)
+        const newSecond = Math.floor(totalSeconds % 60)
+
+        await db.collection(USERS_COLLECTION).doc(userDoc._id).update({
+          data: {
+            totalCount: _.inc(1),
+            totalDistance: _.inc(distanceInc || 0),
+            totalDuration: {
+              hour: newHour,
+              minute: newMinute,
+              second: newSecond
+            }
+          }
+        })
+      }
+    }
     
     return {
       code: 200,
