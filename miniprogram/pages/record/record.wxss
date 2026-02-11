@@ -415,9 +415,9 @@ page {
 
 .status-text {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 8rpx 16rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
   font-weight: 500;
 }
 
@@ -460,7 +460,7 @@ page {
 }
 
 /* 响应式设计 */
-@media (max-width: 375px) {
+@media (max-width: 375rpx) {
   .record-container {
     padding: 16rpx;
   }
@@ -470,6 +470,7 @@ page {
   .record-card {
     padding: 24rpx;
     margin-bottom: 16rpx;
+    border-radius: 24rpx;
   }
   
   .card-header {
@@ -497,7 +498,15 @@ page {
     font-size: 40rpx;
   }
   
-  .stat-label {
+  .avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 40rpx;
+    margin-right: 16rpx;
+  }
+  
+  .filter-toggle {
+    padding: 8rpx 16rpx;
     font-size: 24rpx;
   }
   
@@ -506,43 +515,66 @@ page {
     padding: 6rpx 16rpx;
   }
   
-  .filter-toggle {
-    font-size: 24rpx;
-    padding: 8rpx 16rpx;
-  }
-  
-  .filter-arrow {
-    font-size: 20rpx;
-  }
-  
-  .filter-label {
-    font-size: 26rpx;
-  }
-  
   .date-picker {
-    height: 70rpx;
-    line-height: 70rpx;
+    height: 72rpx;
+    line-height: 72rpx;
     font-size: 26rpx;
-  }
-  
-  .date-separator {
-    font-size: 26rpx;
-  }
-  
-  .status-option {
-    font-size: 24rpx;
-    padding: 14rpx 0;
   }
   
   .filter-btn {
-    height: 70rpx;
-    line-height: 70rpx;
+    height: 72rpx;
     font-size: 26rpx;
   }
   
   .list-row {
     padding: 20rpx 16rpx;
   }
+  
+  .date {
+    font-size: 28rpx;
+  }
+  
+  .time {
+    font-size: 24rpx;
+  }
+}
+
+/* 大屏设备适配 */
+@media (min-width: 750rpx) {
+  .record-container {
+    max-width: 750rpx;
+    margin: 0 auto;
+  }
+  
+  .user-card,
+  .stats-card,
+  .record-card {
+    border-radius: 40rpx;
+  }
+  
+  .avatar {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 60rpx;
+  }
+  
+  .name {
+    font-size: 40rpx;
+  }
+  
+  .stu-id {
+    font-size: 30rpx;
+  }
+  
+  .stat-value {
+    font-size: 56rpx;
+  }
+  
+  .stat-label {
+    font-size: 28rpx;
+  }
+}
+  
   
   .date {
     font-size: 24rpx;
@@ -565,4 +597,3 @@ page {
   .list-col-arrow {
     width: 50rpx;
   }
-}
