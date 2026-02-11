@@ -2,7 +2,7 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 40rpx 30rpx;
+  padding: 5vh 6vw;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -10,24 +10,25 @@
 }
 
 .title {
-  font-size: 44rpx;
+  font-size: clamp(36rpx, 5.5vw, 52rpx);
   font-weight: 700;
   color: #333333;
-  letter-spacing: 2rpx;
+  letter-spacing: 0.06vw;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 40rpx;
+  margin-bottom: 3.5vh;
   text-align: center;
   width: 100%;
   animation: fadeIn 0.6s ease forwards;
+  line-height: 1.4;
 }
 
 .form-item {
   width: 100%;
-  max-width: 600rpx;
-  margin-bottom: 40rpx;
+  max-width: 92vw;
+  margin-bottom: 4.5vh;
   animation: fadeIn 0.6s ease forwards;
   opacity: 0;
 }
@@ -47,7 +48,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20rpx);
+    transform: translateY(2vh);
   }
   to {
     opacity: 1;
@@ -57,54 +58,57 @@
 
 .label {
   display: block;
-  font-size: 32rpx;
+  font-size: clamp(30rpx, 3.5vw, 38rpx);
   font-weight: 600;
   color: #444444;
-  margin-bottom: 16rpx;
-  letter-spacing: 1rpx;
+  margin-bottom: 1.5vh;
+  letter-spacing: 0.04vw;
+  line-height: 1.5;
 }
 
 .input {
   width: 100%;
-  height: 96rpx;
-  border: 3rpx solid #e0e0e0;
-  border-radius: 24rpx;
-  padding: 0 30rpx;
+  height: clamp(90rpx, 9vh, 110rpx);
+  border: 0.25vw solid #e0e0e0;
+  border-radius: 2.2vw;
+  padding: 0 3vw;
   box-sizing: border-box;
-  font-size: 32rpx;
+  font-size: clamp(30rpx, 3.5vw, 38rpx);
   color: #333333;
   background: rgba(255, 255, 255, 0.9);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0.15vw 0.7vw rgba(0, 0, 0, 0.06);
+  line-height: 1.5;
 }
 
 .input:focus {
   border-color: #667eea;
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.2), inset 0 0 0 3rpx rgba(102, 126, 234, 0.1);
-  transform: translateY(-2rpx);
+  box-shadow: 0 0.6vw 2vw rgba(102, 126, 234, 0.2), inset 0 0 0 0.2vw rgba(102, 126, 234, 0.1);
+  transform: translateY(-0.1vw);
   background: rgba(255, 255, 255, 0.95);
 }
 
 .schedule-container {
   width: 100%;
-  border: 3rpx solid #e0e0e0;
-  border-radius: 24rpx;
+  border: 0.25vw solid #e0e0e0;
+  border-radius: 2.2vw;
   box-sizing: border-box;
-  font-size: 32rpx;
+  font-size: clamp(30rpx, 3.5vw, 38rpx);
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0.15vw 0.7vw rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  letter-spacing: 2rpx;
+  letter-spacing: 0.04vw;
   font-weight: 500;
   cursor: default;
   user-select: none;
   background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(245,247,250,0.9) 100%);
   color: #667eea;
-  min-height: 200rpx;
-  padding: 30rpx 0;
+  min-height: clamp(130rpx, 13vh, 160rpx);
+  padding: 2.5vh 0;
+  line-height: 1.5;
 }
 
 .academic-term,
@@ -116,33 +120,36 @@
 }
 
 .academic-term {
-  font-size: 32rpx;
+  font-size: clamp(28rpx, 3.3vw, 34rpx);
   font-weight: 500;
   color: #6976eb;
+  line-height: 1.5;
 }
 
 .date-range {
-  font-size: 32rpx;
+  font-size: clamp(30rpx, 3.5vw, 38rpx);
   font-weight: 600;
   color: #5a67d8;
+  line-height: 1.5;
 }
 
 .time-range {
-  font-size: 34rpx;
+  font-size: clamp(32rpx, 3.7vw, 40rpx);
   font-weight: 600;
   color: #5a67d8;
+  line-height: 1.5;
 }
 
 .picker {
   width: 100%;
-  height: 96rpx;
-  border: 3rpx solid #e0e0e0;
-  border-radius: 24rpx;
-  padding: 0 30rpx;
+  height: clamp(90rpx, 9vh, 110rpx);
+  border: 0.25vw solid #e0e0e0;
+  border-radius: 2.2vw;
+  padding: 0 3vw;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.9);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0.15vw 0.7vw rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -150,27 +157,28 @@
 
 .picker:hover {
   border-color: #667eea;
-  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.15);
-  transform: translateY(-2rpx);
+  box-shadow: 0 0.3vw 1.2vw rgba(102, 126, 234, 0.15);
+  transform: translateY(-0.1vw);
 }
 
 .picker-content {
-  font-size: 32rpx;
+  font-size: clamp(30rpx, 3.5vw, 38rpx);
   color: #333333;
   display: flex;
   align-items: center;
   width: 100%;
+  line-height: 1.5;
 }
 
 .picker-content::before {
   content: '';
-  width: 20rpx;
-  height: 20rpx;
-  border-right: 3rpx solid #999999;
-  border-bottom: 3rpx solid #999999;
+  width: 1.8vw;
+  height: 1.8vw;
+  border-right: 0.25vw solid #999999;
+  border-bottom: 0.25vw solid #999999;
   transform: rotate(45deg);
   transition: all 0.3s ease;
-  margin-right: 20rpx;
+  margin-right: 1.8vw;
 }
 
 .picker:hover .picker-content::before {
@@ -196,23 +204,23 @@
 
 /* 图片上传样式 */
 .upload-section {
-  margin-top: 16rpx;
+  margin-top: 1.5vh;
 }
 
 .uploaded-images {
   display: flex;
   flex-wrap: wrap;
-  gap: 24rpx;
-  margin-bottom: 16rpx;
+  gap: 3vw;
+  margin-bottom: 2vh;
 }
 
 .image-item {
   position: relative;
-  width: 200rpx;
-  height: 200rpx;
-  border-radius: 16rpx;
+  width: clamp(180rpx, 20vw, 220rpx);
+  height: clamp(180rpx, 20vw, 220rpx);
+  border-radius: 1.8vw;
   overflow: hidden;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.4vw 1.2vw rgba(0, 0, 0, 0.12);
   animation: scaleIn 0.3s ease forwards;
 }
 
@@ -235,10 +243,10 @@
 
 .delete-btn {
   position: absolute;
-  top: 8rpx;
-  right: 8rpx;
-  width: 48rpx;
-  height: 48rpx;
+  top: 0.8vw;
+  right: 0.8vw;
+  width: clamp(36rpx, 4vw, 44rpx);
+  height: clamp(36rpx, 4vw, 44rpx);
   background: rgba(245, 108, 108, 0.9);
   border-radius: 50%;
   display: flex;
@@ -246,28 +254,28 @@
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2rpx 8rpx rgba(245, 108, 108, 0.3);
+  box-shadow: 0 0.2vw 0.8vw rgba(245, 108, 108, 0.35);
 }
 
 .delete-btn:hover {
   background: rgba(245, 108, 108, 1);
   transform: scale(1.1);
-  box-shadow: 0 4rpx 16rpx rgba(245, 108, 108, 0.4);
+  box-shadow: 0 0.4vw 1.4vw rgba(245, 108, 108, 0.5);
 }
 
 .delete-icon {
   color: #ffffff;
-  font-size: 40rpx;
+  font-size: clamp(26rpx, 2.9vw, 32rpx);
   font-weight: 700;
   line-height: 1;
-  margin-top: -4rpx;
+  margin-top: -0.4vw;
 }
 
 .upload-btn {
-  width: 200rpx;
-  height: 200rpx;
-  border: 3rpx dashed #cccccc;
-  border-radius: 16rpx;
+  width: clamp(180rpx, 20vw, 220rpx);
+  height: clamp(180rpx, 20vw, 220rpx);
+  border: 0.3vw dashed #cccccc;
+  border-radius: 1.8vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -279,15 +287,15 @@
 
 .upload-btn:hover {
   border-color: #667eea;
-  background: rgba(102, 126, 234, 0.08);
-  transform: translateY(-4rpx);
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.15);
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-0.4vw);
+  box-shadow: 0 0.8vw 2.2vw rgba(102, 126, 234, 0.2);
 }
 
 .upload-icon {
-  font-size: 64rpx;
+  font-size: clamp(52rpx, 5.8vw, 64rpx);
   color: #999999;
-  margin-bottom: 8rpx;
+  margin-bottom: 0.8vw;
   transition: all 0.3s ease;
 }
 
@@ -297,29 +305,31 @@
 }
 
 .upload-text {
-  font-size: 28rpx;
+  font-size: clamp(26rpx, 2.9vw, 32rpx);
   color: #666666;
-  margin-bottom: 4rpx;
+  margin-bottom: 0.4vw;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .upload-hint {
-  font-size: 22rpx;
+  font-size: clamp(22rpx, 2.4vw, 28rpx);
   color: #999999;
+  line-height: 1.4;
 }
 
 /* 提交按钮 */
 .submit-btn {
   width: 100%;
-  max-width: 600rpx;
-  height: 112rpx;
-  font-size: 38rpx;
+  max-width: 92vw;
+  height: clamp(96rpx, 10vh, 120rpx);
+  font-size: clamp(34rpx, 3.8vw, 44rpx);
   font-weight: 700;
-  border-radius: 28rpx;
-  margin: 20rpx 0;
+  border-radius: 2.4vw;
+  margin: 2vh 0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
-  box-shadow: 0 20rpx 60rpx rgba(102, 126, 234, 0.45), 0 10rpx 30rpx rgba(102, 126, 234, 0.35), inset 0 2rpx 4rpx rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1.8vw 5vw rgba(102, 126, 234, 0.5), 0 1vw 2.5vw rgba(102, 126, 234, 0.4), inset 0 0.15vw 0.4vw rgba(255, 255, 255, 0.25);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
@@ -330,14 +340,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  letter-spacing: 2rpx;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.06vw;
+  text-shadow: 0 0.15vw 0.4vw rgba(0, 0, 0, 0.15);
+  line-height: 1.4;
 }
 
 @keyframes buttonSlideIn {
   from {
     opacity: 0;
-    transform: translateY(30rpx) scale(0.95);
+    transform: translateY(3vh) scale(0.95);
   }
   to {
     opacity: 1;
@@ -372,18 +383,18 @@
 
 /* 步数截图特定样式 */
 .step-image-section {
-  margin-top: 16rpx;
+  margin-top: 1.5vh;
 }
 
 .step-image-item {
   position: relative;
-  width: 200rpx;
-  height: 200rpx;
-  border-radius: 16rpx;
+  width: clamp(160rpx, 18vw, 200rpx);
+  height: clamp(160rpx, 18vw, 200rpx);
+  border-radius: 1.5vw;
   overflow: hidden;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.3vw 0.9vw rgba(0, 0, 0, 0.1);
   animation: scaleIn 0.3s ease forwards;
-  border: 2rpx solid #4CAF50;
+  border: 0.15vw solid #4CAF50;
 }
 
 .step-image-item .uploaded-image {
@@ -394,10 +405,10 @@
 
 .step-image-item .delete-btn {
   position: absolute;
-  top: 8rpx;
-  right: 8rpx;
-  width: 48rpx;
-  height: 48rpx;
+  top: 0.8vw;
+  right: 0.8vw;
+  width: 4.8vw;
+  height: 4.8vw;
   background: rgba(245, 108, 108, 0.9);
   border-radius: 50%;
   display: flex;
@@ -405,20 +416,20 @@
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2rpx 8rpx rgba(245, 108, 108, 0.3);
+  box-shadow: 0 0.2vw 0.8vw rgba(245, 108, 108, 0.3);
 }
 
 .step-image-item .delete-btn:hover {
   background: rgba(245, 108, 108, 1);
   transform: scale(1.1);
-  box-shadow: 0 4rpx 16rpx rgba(245, 108, 108, 0.4);
+  box-shadow: 0 0.4vw 1.6vw rgba(245, 108, 108, 0.4);
 }
 
 .step-upload-btn {
-  width: 200rpx;
-  height: 200rpx;
-  border: 3rpx dashed #4CAF50;
-  border-radius: 16rpx;
+  width: 20vw;
+  height: 20vw;
+  border: 0.3vw dashed #4CAF50;
+  border-radius: 1.7vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -431,14 +442,14 @@
 .step-upload-btn:hover {
   border-color: #388E3C;
   background: rgba(76, 175, 80, 0.1);
-  transform: translateY(-4rpx);
-  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.15);
+  transform: translateY(-0.4vw);
+  box-shadow: 0 0.8vw 2.4vw rgba(76, 175, 80, 0.15);
 }
 
 .step-upload-btn .upload-icon {
-  font-size: 64rpx;
+  font-size: 6.4vw;
   color: #4CAF50;
-  margin-bottom: 8rpx;
+  margin-bottom: 0.8vw;
   transition: all 0.3s ease;
 }
 
@@ -448,14 +459,14 @@
 }
 
 .step-upload-btn .upload-text {
-  font-size: 28rpx;
+  font-size: 2.8vw;
   color: #4CAF50;
-  margin-bottom: 4rpx;
+  margin-bottom: 0.4vw;
   font-weight: 500;
 }
 
 .step-upload-btn .upload-hint {
-  font-size: 22rpx;
+  font-size: 2.2vw;
   color: #81C784;
 }
 
@@ -476,27 +487,27 @@
 
 .success-content {
   background: #ffffff;
-  border-radius: 24rpx;
-  padding: 60rpx 40rpx;
+  border-radius: 2.5vw;
+  padding: 6vh 4vw;
   text-align: center;
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2vw 6vw rgba(0, 0, 0, 0.3);
   animation: scaleIn 0.3s ease forwards;
   max-width: 80vw;
 }
 
 .success-icon {
-  width: 120rpx;
-  height: 120rpx;
+  width: 12vw;
+  height: 12vw;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto 32rpx;
+  margin: 0 auto 3.2vh;
   color: #ffffff;
-  font-size: 80rpx;
+  font-size: 8vw;
   font-weight: 700;
-  box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.3);
+  box-shadow: 0 1vw 3vw rgba(102, 126, 234, 0.3);
   animation: bounce 0.6s ease forwards;
 }
 
@@ -505,34 +516,34 @@
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-20rpx);
+    transform: translateY(-2vh);
   }
   60% {
-    transform: translateY(-10rpx);
+    transform: translateY(-1vh);
   }
 }
 
 .success-title {
-  font-size: 40rpx;
+  font-size: 4.2vw;
   font-weight: 700;
   color: #333333;
-  margin-bottom: 16rpx;
+  margin-bottom: 1.6vh;
 }
 
 .success-btn {
-  width: 200rpx;
-  height: 80rpx;
+  width: 20vw;
+  height: 8vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
   border: none;
-  border-radius: 40rpx;
-  font-size: 32rpx;
+  border-radius: 4vw;
+  font-size: 3.5vw;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+  box-shadow: 0 0.8vw 2.4vw rgba(102, 126, 234, 0.3);
 }
 
 .success-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.4);
+  box-shadow: 0 1.2vw 3.6vw rgba(102, 126, 234, 0.4);
 }
