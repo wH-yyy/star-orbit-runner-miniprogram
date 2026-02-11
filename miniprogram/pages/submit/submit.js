@@ -80,9 +80,7 @@ Page({
       // 只在本地展示预览，不在这里上传；上传放到提交时统一处理
       const newImages = tempFiles.map(f => f.tempFilePath)
       this.setData({
-        images: [...this.data.images, ...newImages],
-        imageError: false,
-        imageErrorMsg: ''
+        images: [...this.data.images, ...newImages]
       })
     } catch (error) {
       console.error('选择/上传图片失败:', error)
@@ -102,25 +100,6 @@ Page({
     images.splice(index, 1)
 
     this.setData({ images })
-  },
-
-  validateForm() {
-    let ok = true
-
-    if (!this.data.images || this.data.images.length === 0) {
-      ok = false
-      this.setData({
-        imageError: true,
-        imageErrorMsg: '请上传跑步记录截图'
-      })
-    } else {
-      this.setData({
-        imageError: false,
-        imageErrorMsg: ''
-      })
-    }
-
-    return ok
   },
 
   // 获取当前位置
@@ -204,7 +183,13 @@ Page({
 
   async submitForm() {
     if (this.data.submitting) return
-    if (!this.validateForm()) return
+    if (!this.data.images || this.data.images.length === 0) {
+      wx.showToast({
+        icon: 'error',
+        title: '请上传截图'
+      })
+      return
+    }
 
     if (!wx.cloud) {
       wx.showModal({
@@ -247,8 +232,6 @@ Page({
       // 2. 前端视角：上传成功即视为提交成功
       this.setData({
         images: [],
-        imageError: false,
-        imageErrorMsg: ''
       })
 
       wx.showToast({
