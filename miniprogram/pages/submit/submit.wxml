@@ -32,7 +32,6 @@
           <text class="upload-hint">(最多{{maxImages}}张)</text>
         </view>
       </view>
-      <view wx:if="{{imageError}}" class="error-tip">{{imageErrorMsg}}</view>
     </view>
   </view>
 

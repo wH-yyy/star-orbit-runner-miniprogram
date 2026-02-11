@@ -9,29 +9,87 @@ Page({
   },
 
   onLoad(options) {
-    const index = options.index
+    const { index, recordId } = options;
     if (index) {
-      const pages = getCurrentPages()
-      const prevPage = pages[pages.length - 2]
-      if (prevPage && prevPage.data) {
-        const record = prevPage.data.displayedRecords[index]
-        this.setData({ 
-          record,
-          loading: false
-        })
-      }
-      this.loadAppealDetail(this.data.record._id)
+      this.loadFromRecordPage(index);
+    } else if (recordId) {
+      this.loadFromCloud(recordId);
     } else {
-      wx.showToast({
-        title: '加载失败：没有记录索引',
-        icon: 'none'
-      });
-      setTimeout(() => {
-        wx.navigateBack({
-          delta: 1
-        });
-      }, 1500);
+      this.showErrorAndBack('参数错误，无法加载记录');
     }
+  },
+  
+  loadFromRecordPage(index) {
+    const pages = getCurrentPages();
+    const prevPage = pages[pages.length - 2];
+    
+    if (prevPage && prevPage.data && prevPage.data.displayedRecords) {
+      const record = prevPage.data.displayedRecords[index];
+      this.setData({ 
+        record,
+        loading: false
+      });
+      this.loadAppealDetail(record._id);
+    } else {
+      this.showErrorAndBack('无法获取记录信息');
+    }
+  },
+  
+  loadFromCloud(recordId) {
+    wx.showLoading({ title: '加载中...' });
+    
+    // 从云数据库查询记录
+    const db = wx.cloud.database();
+    db.collection('RunningRecords').doc(recordId).get({
+      success: (res) => {
+        wx.hideLoading();
+        let record = res.data;
+        
+        // 处理create_time字段，转换为日期和时间分开显示
+        if (record.create_time) {
+          const createTime = new Date(record.create_time);
+          
+          // 获取日期部分 (YYYY-MM-DD)
+          const year = createTime.getFullYear();
+          const month = String(createTime.getMonth() + 1).padStart(2, '0');
+          const day = String(createTime.getDate()).padStart(2, '0');
+          const dateStr = `${year}-${month}-${day}`;
+          
+          // 获取时间部分 (HH:mm:ss) 24小时制
+          const hours = String(createTime.getHours()).padStart(2, '0');
+          const minutes = String(createTime.getMinutes()).padStart(2, '0');
+          const seconds = String(createTime.getSeconds()).padStart(2, '0');
+          const timeStr = `${hours}:${minutes}:${seconds}`;
+          
+          // 保存日期和时间到不同的字段
+          record.create_date = dateStr;
+          record.create_time_24 = timeStr;
+        }
+        
+        this.setData({
+          record: record,
+          loading: false
+        });
+        
+        // 加载申诉详情
+        this.loadAppealDetail(recordId);
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.error('加载记录失败', err);
+        this.showErrorAndBack('云端数据获取失败')
+      }
+    });
+  },
+  
+  showErrorAndBack(message) {
+    wx.showToast({
+      title: message,
+      icon: 'none'
+    });
+    setTimeout(() => {
+      wx.navigateBack();
+    }, 1500);
   },
 
   loadAppealDetail(recordId) {

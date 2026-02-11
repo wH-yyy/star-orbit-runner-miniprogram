@@ -31,6 +31,26 @@ exports.main = async (event, context) => {
     
     const appeal = appealResult.data
     
+    // 检查权限（如果传入了staffId）
+    if (event.staffId && appeal.runningRecordId) {
+      try {
+        const runningRecordResult = await db.collection('RunningRecords')
+          .doc(appeal.runningRecordId)
+          .get()
+        
+        if (runningRecordResult.data && runningRecordResult.data.assignedStaffId !== event.staffId) {
+          return {
+            code: 403,
+            data: null,
+            message: '您无权查看此申诉详情'
+          }
+        }
+      } catch (error) {
+        console.error('权限检查失败:', error)
+        // 这里可以选择继续返回数据，或者返回错误
+      }
+    }
+
     // 获取对应的跑步记录
     let runningRecord = null
     if (appeal.runningRecordId) {
