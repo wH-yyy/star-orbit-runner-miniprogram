@@ -13,7 +13,6 @@ Page({
     if (index) {
       this.loadFromRecordPage(index);
     } else if (recordId) {
-      console.log(recordId)
       this.loadFromCloud(recordId);
     } else {
       this.showErrorAndBack('参数错误，无法加载记录');
