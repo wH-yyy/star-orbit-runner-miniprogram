@@ -90,6 +90,17 @@ exports.main = async (event, context) => {
       .orderBy('createTime', 'desc')
       .get()
     
+    const formatDuration = (duration) => {
+      if (!duration || typeof duration !== 'object') {
+        return '00:00:00';
+      }
+      const hour = duration.hour || 0;
+      const minute = duration.minute || 0;
+      const second = duration.second || 0;
+      const pad = (num) => num.toString().padStart(2, '0');
+      return `${pad(hour)}:${pad(minute)}:${pad(second)}`;
+    };
+
     // 处理数据，转换状态显示
     const data = res.data.map(user => {
       // 根据数字状态获取显示文本
@@ -107,7 +118,7 @@ exports.main = async (event, context) => {
         createTime: user.createTime ? 
           new Date(user.createTime).toISOString().split('T')[0] : '',
         totalDistance: user.totalDistance || 0,
-        totalDuration: user.totalDuration || 0,
+        totalDuration: formatDuration(user.totalDuration),
         totalCount: user.totalCount || 0,
         violationCount: user.violationCount || 0
       }
