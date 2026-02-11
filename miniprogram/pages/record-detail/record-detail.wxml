@@ -18,26 +18,15 @@
       </view>
     </view>
 
-    <!-- 第二部分：审核状态 -->
-    <view class="detail-section">
+    <!-- 第二部分：打卡图片 -->
+    <view wx:if="{{record.imageFileID}}" class="detail-section">
       <view class="section-header">
-        <text class="section-title">审核状态</text>
+        <text class="section-title">打卡图片</text>
       </view>
       <view class="section-content">
-        <view
-          class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 0 ? 'status-pending' : record.status === 2 ? 'status-failed' : 'status-appeal'}}">
-          {{record.status === 1 ? '已通过' : record.status === 0 ? '待审核' : record.status === 2 ? '不通过' : '申诉中'}}
-        </view>
-
-        <!-- 不通过原因 -->
-        <view wx:if="{{record.status === 2 && record.audit_reason}}" class="fail-reason">
-          {{record.audit_reason}}
-        </view>
-
-        <!-- 申诉状态说明 -->
-        <view wx:if="{{record.status === 3}}" class="appeal-info">
-          <text class="appeal-label">申诉说明：</text>
-          <text class="appeal-content">已提交申诉，请等待管理员审核</text>
+        <view class="images-container">
+          <image src="{{record.imageFileID}}" class="detail-image" mode="aspectFill" bindtap="previewImage"
+            data-index="0"></image>
         </view>
       </view>
     </view>
@@ -69,22 +58,33 @@
       </view>
     </view>
 
-    <!-- 第四部分：打卡图片 -->
-    <view wx:if="{{record.imageFileID}}" class="detail-section">
+    <!-- 第四部分：审核状态 -->
+    <view class="detail-section">
       <view class="section-header">
-        <text class="section-title">打卡图片</text>
+        <text class="section-title">审核状态</text>
       </view>
       <view class="section-content">
-        <view class="images-container">
-          <image src="{{record.imageFileID}}" class="detail-image" mode="aspectFill" bindtap="previewImage"
-            data-index="0"></image>
+        <view
+          class="status-badge large {{record.status === 1 ? 'status-passed' : record.status === 0 ? 'status-pending' : record.status === 2 ? 'status-failed' : 'status-appeal'}}">
+          {{record.status === 1 ? '已通过' : record.status === 0 ? '待审核' : record.status === 2 ? '不通过' : '申诉中'}}
+        </view>
+
+        <!-- 不通过原因 -->
+        <view wx:if="{{record.status === 2 && record.audit_reason}}" class="fail-reason">
+          {{record.audit_reason}}
+        </view>
+
+        <!-- 申诉状态说明 -->
+        <view wx:if="{{record.status === 3}}" class="appeal-info">
+          <text class="appeal-label">申诉说明：</text>
+          <text class="appeal-content">已提交申诉，请等待管理员审核</text>
         </view>
       </view>
-    </view>
 
-    <!-- 申诉按钮，仅不通过记录（状态2）显示，申诉中（状态3）不显示 -->
-    <view wx:if="{{record.status === 2}}" class="appeal-section">
-      <button class="appeal-btn" bindtap="showAppealModal">提交申诉</button>
+      <!-- 申诉按钮，仅不通过记录显示 -->
+      <view wx:if="{{record.status === 2}}" class="appeal-section">
+        <button class="appeal-btn" bindtap="showAppealModal">提交申诉</button>
+      </view>
     </view>
   </view>
 
