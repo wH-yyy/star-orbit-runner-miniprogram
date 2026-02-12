@@ -518,32 +518,30 @@ async function assignTaskToStaff(event) {
       return { code: 500, message: 'No active staff available', data: null }
     }
     
-    // 获取每个工作人员当前的待审核任务数量
+    // 获取每个工作人员当前的已分配任务数量（使用 assigned_count 字段）
     const staffList = staffResult.data
-    const staffWorkload = await Promise.all(
-      staffList.map(async (staff) => {
-        const count = await db.collection(RECORDS_COLLECTION)
-          .where({
-            assignedStaffId: staff._id,
-            status: 0 // 只统计待审核的任务
-          })
-          .count()
-        return {
-          staffId: staff._id,
-          workload: count.total || 0
-        }
-      })
-    )
+    const staffWorkload = staffList.map(staff => ({
+      staffId: staff._id,
+      workload: staff.assigned_count || 0
+    }))
     
-    // 选择任务最少的工作人员
+    // 选择已分配任务数最少的工作人员
     staffWorkload.sort((a, b) => a.workload - b.workload)
     const selectedStaffId = staffWorkload[0].staffId
+    const selectedStaff = staffList.find(s => s._id === selectedStaffId)
     
     // 分配任务
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
       data: {
         assignedStaffId: selectedStaffId,
         assignTime: db.serverDate()
+      }
+    })
+    
+    // 更新工作人员的已分配任务数
+    await db.collection(STAFF_COLLECTION).doc(selectedStaffId).update({
+      data: {
+        assigned_count: _.inc(1)
       }
     })
     
