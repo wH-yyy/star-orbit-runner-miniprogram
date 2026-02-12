@@ -74,10 +74,10 @@ Page({
             app.globalData.userInfo = userInfo
             if (result.data.existingStatus) {
               wx.switchTab({
-                url: '/pages/home/home'
+                url: '/pages/submit/submit'
               })
             } else {
-              wx.navigateTo({
+              wx.redirectTo({
                 url: '/pages/finish-info/finish-info'
               })
             }
