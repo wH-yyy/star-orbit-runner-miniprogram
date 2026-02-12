@@ -55,7 +55,7 @@
       </view>
       <view class="rule-item">
         <view class="rule-badge rule-participation">运动奖</view>
-        <text class="rule-desc">参与率 ＜ 60%</text>
+        <text class="rule-desc">参与率＜ 60%</text>
       </view>
     </view>
   </view>
