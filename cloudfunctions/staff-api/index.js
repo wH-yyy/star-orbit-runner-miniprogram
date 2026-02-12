@@ -71,7 +71,7 @@ async function getAuditRecords(event) {
     }
     
     // 2. 处理状态筛选
-    // 如果没有明确指定状态，默认查询待审核的记录
+    // 当 status 为 'all' 或空时，不加状态筛选条件
     if (status !== undefined && status !== null && status !== '' && status !== 'all') {
       // 状态映射
       const statusMap = {
@@ -91,9 +91,6 @@ async function getAuditRecords(event) {
       if (numericStatus !== undefined && !isNaN(numericStatus)) {
         query.status = numericStatus
       }
-    } else {
-      // 默认只查询待审核的记录
-      query.status = 0
     }
     
     // 3. 处理学号筛选（仅当有值时）
