@@ -30,6 +30,15 @@ Page({
   },
 
   onLoad() {
+    if (!getApp().globalData.userInfo.stu_id) {
+      wx.showToast({
+        icon: 'error',
+        title: '请完善个人信息',
+      })
+      wx.reLaunch({
+        url: '/pages/finish-info/finish-info',
+      })
+    }
     // this.checkSubmissionAvailability()
   },
 
