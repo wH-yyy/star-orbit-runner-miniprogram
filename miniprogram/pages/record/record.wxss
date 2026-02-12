@@ -206,6 +206,7 @@ page {
 .filter-label {
   font-size: 28rpx;
   color: #333;
+  margin-top: 16rpx;
   margin-bottom: 16rpx;
   font-weight: 600;
 }
