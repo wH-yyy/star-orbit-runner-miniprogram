@@ -113,7 +113,7 @@ Page({
   processAppealData(appealData) {
     let statusText = '申诉中';
     let statusClass = 'status-pending';
-    
+  
     if (appealData.status === 1) {
       statusText = '申诉被接受';
       statusClass = 'status-success';
@@ -121,35 +121,48 @@ Page({
       statusText = '申诉被驳回';
       statusClass = 'status-failed';
     }
-    
-    // 处理时间显示
-    const createTime = appealData.createTime ? new Date(appealData.createTime) : new Date();
-    const formattedCreateTime = createTime.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    
-    const auditTime = appealData.auditTime ? new Date(appealData.auditTime) : null;
-    const formattedAuditTime = auditTime ? auditTime.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }) : '';
-    
-    // 处理后的申诉数据
+  
+    let formattedCreateTime = '';
+    if (appealData.createTime) {
+      const date = new Date(appealData.createTime);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      formattedCreateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } else {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds().padStart(2, '0'));
+      formattedCreateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+  
+    let formattedAuditTime = '';
+    if (appealData.auditTime) {
+      const date = new Date(appealData.auditTime);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      formattedAuditTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+  
     const processedAppeal = {
       ...appealData,
-      statusText: statusText,
-      statusClass: statusClass,
-      formattedCreateTime: formattedCreateTime,
-      formattedAuditTime: formattedAuditTime
+      statusText,
+      statusClass,
+      formattedCreateTime,
+      formattedAuditTime
     };
-    
+  
     this.setData({
       appeal: processedAppeal
     });

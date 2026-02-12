@@ -20,7 +20,8 @@ exports.main = async (event, context) => {
     const result = await db.collection('staff')
       .where({
         username: username,
-        status: 'active' // 只查找激活状态的账号
+        // status: 'active' // 只查找激活状态的账号
+        status: 0 // 只查找激活状态的账号
       })
       .get()
     
