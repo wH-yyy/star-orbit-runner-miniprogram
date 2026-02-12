@@ -44,8 +44,8 @@
             bindtap="viewRecordDetail" 
             data-index="{{index}}">
         <view class="list-col list-col-time">
-          <view class="date">{{item.formattedDate}}</view>
-          <view class="time">{{item.formattedTime}}</view>
+          <view class="date">{{item.createDate}}</view>
+          <view class="time">{{item.createTime}}</view>
         </view>
         <view class="list-col list-col-status">
           <view class="status-text {{item.statusClass}}">
