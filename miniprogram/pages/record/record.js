@@ -196,7 +196,8 @@ Page({
     
     // 应用状态筛选
     if (this.data.filterStatus !== '') {
-      filteredRecords = filteredRecords.filter(record => record.status === this.data.filterStatus);
+      const status = parseInt(this.data.filterStatus);
+      filteredRecords = filteredRecords.filter(record => record.status === status);
     }
     
     // 应用日期筛选

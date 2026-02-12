@@ -62,6 +62,7 @@
 
 /* 头部样式 - 添加动画效果 */
 .header {
+  margin-top: 200rpx;
   margin-bottom: 40rpx;
   text-align: center;
   width: 80%;
