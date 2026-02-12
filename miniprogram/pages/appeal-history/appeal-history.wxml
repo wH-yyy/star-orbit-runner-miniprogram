@@ -1,12 +1,5 @@
 <!--pages/appeal-history/appeal-history.wxml-->
 <view class="appeal-container">
-  <!-- 顶部导航 -->
-  <view class="nav-bar">
-    <view class="nav-title">
-      <text class="title">申诉历史</text>
-    </view>
-  </view>
-  
   <!-- 加载状态 -->
   <view wx:if="{{loading}}" class="loading-container">
     <view class="loading-spinner"></view>

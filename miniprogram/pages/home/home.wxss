@@ -59,7 +59,7 @@ page {
 /* 用户名 */
 .user-name {
   font-size: 36rpx;
-  font-weight: bold;
+  font-weight: 800;
   color: #333333;
   margin-right: 20rpx;
 }
