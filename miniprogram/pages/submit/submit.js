@@ -33,11 +33,13 @@ Page({
     if (!getApp().globalData.userInfo.stu_id) {
       wx.showToast({
         icon: 'error',
-        title: '请完善个人信息',
+        title: '请先完善个人信息',
       })
-      wx.reLaunch({
-        url: '/pages/finish-info/finish-info',
-      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/finish-info/finish-info',
+        })
+      }, 1500)
     }
     // this.checkSubmissionAvailability()
   },

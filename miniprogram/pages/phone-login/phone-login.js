@@ -59,8 +59,7 @@ Page({
           // 先显示成功提示
           wx.showToast({
             title: '登录成功',
-            icon: 'success',
-            duration: 1500
+            icon: 'success'
           })
           
           // 延迟跳转，让用户看到提示
