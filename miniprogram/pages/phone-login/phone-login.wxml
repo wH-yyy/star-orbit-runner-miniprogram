@@ -2,7 +2,7 @@
 <view class="container">
   <view class="login-box">
     <view class="logo">
-      <text class="title">星轨Runner（logo）</text>
+      <image src="/images/runner-logo.svg" mode=""></image>
     </view>
     
     <view class="form">
