@@ -1,4 +1,9 @@
 /* pages/record-detail/record-detail.wxss */
+page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
 .container {
   min-height: 100vh;
   padding: 20rpx;
@@ -42,323 +47,372 @@
   animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.detail-section {
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 32rpx;
-  padding: 40rpx;
-  margin-bottom: 24rpx;
+/* ========== 卡片样式 ========== */
+.header-card,
+.data-card,
+.result-card,
+.appeal-detail-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(30rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
 }
 
-.section-header {
-  margin-bottom: 24rpx;
-  padding-bottom: 16rpx;
-  border-bottom: 2rpx solid rgba(102, 126, 234, 0.1);
-  position: relative;
-}
-
-.section-header::after {
-  content: '';
-  position: absolute;
-  bottom: -2rpx;
-  left: 0;
-  width: 80rpx;
-  height: 2rpx;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  border-radius: 1rpx;
-}
-
-.section-title {
-  font-size: 32rpx;
+.card-title {
+  font-size: 30rpx;
   font-weight: 700;
   color: #333333;
+  margin-bottom: 20rpx;
+  display: block;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: 1rpx;
 }
 
-.section-content {
-  padding: 0 8rpx;
-}
-
-.create-time {
-  font-size: 32rpx;
-  color: #333333;
-  font-weight: 600;
-  text-align: center;
-}
-
-.status-badge.large {
-  text-align: center;
-  padding: 16rpx 32rpx;
-  font-size: 32rpx;
-  border-radius: 40rpx;
-}
-
-.status-passed.large {
-  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
-  box-shadow: 0 12rpx 40rpx rgba(82, 196, 26, 0.45);
-  color: white;
-}
-
-.status-failed.large {
-  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
-  box-shadow: 0 12rpx 40rpx rgba(255, 77, 79, 0.45);
-  color: white;
-}
-
-.status-pending.large {
-  background: linear-gradient(135deg, #fa8c16 0%, #ffa940 100%);
-  box-shadow: 0 12rpx 40rpx rgba(250, 140, 22, 0.45);
-  color: white;
-}
-
-.fail-reason {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  border-radius: 16rpx;
-  border-left: 8rpx solid #f56c6c;
-  color: #606266;
-}
-
-.appeal-info {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  background-color: #ecf5ff;
-  border-radius: 16rpx;
-  border-left: 8rpx solid #409eff;
-}
-
-.appeal-label {
-  color: #409eff;
-  font-weight: bold;
-  margin-right: 10rpx;
-}
-
-.appeal-content {
-  color: #606266;
-}
-
-.appeal-btn {
-  background-color: #ffd240;
-  color: white;
-  border-radius: 16rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-}
-
-/* 申诉详情样式 */
-.appeal-status-badge {
-  padding: 24rpx 40rpx;
-  border-radius: 16rpx;
-  font-size: 32rpx;
-  font-weight: 500;
-  margin-bottom: 40rpx;
-  text-align: center;
-}
-
-.status-success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.status-failed {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.status-pending {
-  background-color: #fff3e0;
-  color: #ef6c00;
-}
-
-.info-item {
+/* ========== 头部卡片 - 时间和状态 ========== */
+.time-status-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 24rpx 0;
-  border-bottom: 2rpx solid #f0f0f0;
 }
 
-.info-label {
-  color: #666;
-  font-size: 28rpx;
+.time-info {
+  flex: 1;
 }
 
-.info-value {
-  color: #333;
-  font-size: 28rpx;
-  font-weight: 500;
+.time-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
 }
 
-.appeal-reason-section,
-.evidence-section,
-.audit-result-section {
-  margin-top: 40rpx;
-}
-
-.section-title {
-  font-size: 30rpx;
+.time-value {
+  display: block;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 16rpx;
+  color: #333333;
+}
+
+.status-indicator {
+  padding: 12rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-indicator.status-passed {
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.15) 0%, rgba(115, 209, 61, 0.15) 100%);
+  border: 1rpx solid rgba(82, 196, 26, 0.3);
+}
+
+.status-indicator.status-pending {
+  background: linear-gradient(135deg, rgba(250, 140, 22, 0.15) 0%, rgba(255, 169, 64, 0.15) 100%);
+  border: 1rpx solid rgba(250, 140, 22, 0.3);
+}
+
+.status-indicator.status-failed {
+  background: linear-gradient(135deg, rgba(255, 77, 79, 0.15) 0%, rgba(255, 120, 117, 0.15) 100%);
+  border: 1rpx solid rgba(255, 77, 79, 0.3);
+}
+
+.status-indicator.status-appeal {
+  background: linear-gradient(135deg, rgba(64, 158, 255, 0.15) 0%, rgba(102, 126, 234, 0.15) 100%);
+  border: 1rpx solid rgba(102, 126, 234, 0.3);
+}
+
+.status-text {
   display: block;
 }
 
-.appeal-reason-content,
-.audit-result-content {
+.status-indicator.status-passed .status-text {
+  color: #52c41a;
+}
+
+.status-indicator.status-pending .status-text {
+  color: #fa8c16;
+}
+
+.status-indicator.status-failed .status-text {
+  color: #ff4d4f;
+}
+
+.status-indicator.status-appeal .status-text {
+  color: #667eea;
+}
+
+/* ========== 打卡图片 ========== */
+.detail-image {
+  width: 360rpx;
+  height: 640rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ========== 数据卡片 ========== */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12rpx;
+  width: 100%;
+}
+
+.data-item {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-radius: 14rpx;
+  padding: 16rpx 12rpx;
+  text-align: center;
+  border: 1rpx solid rgba(102, 126, 234, 0.1);
+  min-width: 0;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.data-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 10rpx;
+  font-weight: 500;
+}
+
+.data-value {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #667eea;
+  line-height: 1;
+}
+
+/* ========== 结果卡片 ========== */
+.result-card {
+  margin-top: 8rpx;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.result-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
   font-size: 32rpx;
+  font-weight: 700;
+  margin-right: 12rpx;
+  color: white;
+}
+
+.fail-card .result-icon {
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+}
+
+.appeal-card .result-icon {
+  background: linear-gradient(135deg, #409eff 0%, #667eea 100%);
+}
+
+.result-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.result-content {
+  display: block;
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.6;
+  margin: 12rpx 0;
+  padding-left: 52rpx;
+}
+
+.result-reason {
+  display: block;
+  line-height: 1.6;
+}
+
+.appeal-button-wrapper {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.appeal-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  padding: 16rpx 48rpx;
+  display: inline-block;
+}
+
+/* ========== 申诉详情卡片 ========== */
+.appeal-detail-card {
+  margin-top: 8rpx;
+}
+
+.appeal-status-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.appeal-status-label {
+  font-size: 24rpx;
+  color: #999999;
+  margin-right: 12rpx;
+  font-weight: 500;
+}
+
+.appeal-status {
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.appeal-status.status-success {
+  background: rgba(46, 125, 50, 0.1);
+  border: 1rpx solid rgba(46, 125, 50, 0.3);
+}
+
+.appeal-status.status-success text {
+  color: #2e7d32;
+}
+
+.appeal-status.status-failed {
+  background: rgba(198, 40, 40, 0.1);
+  border: 1rpx solid rgba(198, 40, 40, 0.3);
+}
+
+.appeal-status.status-failed text {
+  color: #c62828;
+}
+
+.appeal-status.status-pending {
+  background: rgba(239, 108, 0, 0.1);
+  border: 1rpx solid rgba(239, 108, 0, 0.3);
+}
+
+.appeal-status.status-pending text {
+  color: #ef6c00;
+}
+
+/* ========== 信息行 ========== */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.04);
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #999999;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #333333;
+  text-align: right;
+}
+
+/* ========== 小节标题 ========== */
+.section-subtitle {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+  margin-top: 20rpx;
+}
+
+/* ========== 申诉理由部分 ========== */
+.reason-section {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.reason-text {
+  display: block;
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.8;
+  word-break: break-word;
+}
+
+/* ========== 证明材料 ========== */
+.evidence-section {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
 .evidence-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
-  margin-top: 20rpx;
+  grid-template-columns: repeat(3, auto);
+  gap: 12rpx;
+  margin-top: 12rpx;
+  justify-content: center;
+  width: 100%;
 }
 
 .evidence-item {
-  width: 100%;
-  height: 160rpx;
-  border-radius: 12rpx;
+  width: 360rpx;
+  height: 640rpx;
+  border-radius: 16rpx;
   overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
 }
 
 .evidence-image {
   width: 100%;
   height: 100%;
-}
-
-/* 申诉历史样式 */
-.history-item {
-  padding: 30rpx;
-  background-color: #f9f9f9;
-  border-radius: 16rpx;
-  margin-bottom: 24rpx;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.history-time {
-  font-size: 28rpx;
-  color: #666;
-}
-
-.history-status {
-  padding: 8rpx 20rpx;
-  border-radius: 24rpx;
-  font-size: 24rpx;
-  font-weight: 500;
-}
-
-.history-reason {
-  font-size: 28rpx;
-  color: #333;
-  line-height: 1.4;
-}
-
-/* 修改原有的状态徽章样式 */
-.status-badge.large {
-  padding: 24rpx 40rpx;
-  border-radius: 16rpx;
-  font-size: 32rpx;
-  font-weight: 500;
-  margin-bottom: 40rpx;
-  text-align: center;
-}
-
-.status-passed {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.status-pending {
-  background-color: #fff3e0;
-  color: #ef6c00;
-}
-
-.status-failed {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.status-appeal {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.data-grid {
-  display: flex;
-  flex-wrap: wrap; /* 允许换行 */
-  gap: 16rpx; /* 项目之间的间距 */
-}
-
-.data-item {
-  flex: 1 0 calc(50% - 10rpx);
-  min-width: 240rpx; /* 最小宽度，确保不会太窄 */
-  max-width: 320rpx; /* 最大宽度，确保不会太宽 */
-  background: #f6f6f6;
-  border-radius: 24rpx;
-  padding: 24rpx 20rpx;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box; /* 确保padding包含在宽度内 */
-}
-
-.data-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4rpx;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-}
-
-.data-label {
-  font-size: 28rpx;
-  color: #666666;
-  font-weight: 500;
-  margin-bottom: 12rpx;
-  display: block;
-}
-
-.data-value {
-  display: block;
-  font-size: 32rpx;
-  font-weight: 800;
-  color: #667eea;
-  line-height: 1;
-}
-
-.images-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20rpx;
-}
-
-.detail-image {
-  width: 300rpx;
-  height: 300rpx;
-  border-radius: 20rpx;
-  box-shadow: 0 12rpx 36rpx rgba(0, 0, 0, 0.15);
   object-fit: cover;
 }
 
+/* ========== 审核结果 ========== */
+.audit-section {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.audit-text {
+  display: block;
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.8;
+  word-break: break-word;
+}
+
+/* ========== 模态框样式 ========== */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 999;
 }
 
@@ -553,7 +607,7 @@
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
 }
 
@@ -563,6 +617,7 @@
   opacity: 0.6;
 }
 
+/* ========== 动画 ========== */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -574,14 +629,11 @@
   }
 }
 
+/* ========== 响应式设计 ========== */
 @media (max-width: 375px) {
-  .data-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .detail-image {
-    width: 240rpx;
-    height: 240rpx;
+  .evidence-grid {
+    grid-template-columns: repeat(2, auto);
+    justify-content: center;
   }
   
   .uploaded-image-item, .upload-btn {
