@@ -62,6 +62,7 @@
 
 /* 头部样式 - 添加动画效果 */
 .header {
+  margin-top: 200rpx;
   margin-bottom: 40rpx;
   text-align: center;
   width: 80%;
@@ -260,10 +261,12 @@ radio .wx-radio-input.wx-radio-input-checked + .radio-label {
   border-color: #5cdd9d;
 }
 
-/* 提交按钮样式 - 改为正常排列在表单下面 */
 .submit-btn {
   width: 80%;
   height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #5cdd9d, #4cc68f);
   color: #ffffff;
   font-size: 34rpx;
@@ -271,13 +274,8 @@ radio .wx-radio-input.wx-radio-input-checked + .radio-label {
   border-radius: 48rpx;
   border: none;
   box-shadow: 0 12rpx 32rpx rgba(92, 221, 157, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
   letter-spacing: 2rpx;
-  overflow: hidden;
-  margin: 40rpx auto 0 auto;
-  display: block;
-  animation: fadeInUp 0.8s ease-out 1s both;
 }
 
 .submit-btn::before {

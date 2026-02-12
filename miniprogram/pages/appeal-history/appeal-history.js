@@ -27,29 +27,22 @@ Page({
   },
 
   loadAppealHistory() {
-    this.setData({
-      loading: true
-    })
-
+    this.setData({ loading: true })
+  
     const app = getApp()
     const openid = app.globalData.userInfo.openid
-
     const db = wx.cloud.database()
+  
     db.collection('Appeals')
-      .where({
-        openid: openid
-      })
+      .where({ openid })
       .orderBy('createTime', 'desc')
       .get()
       .then(res => {
         const appealData = res.data
         
-        // 处理申诉状态和时间
         const processedAppeals = appealData.map(item => {
-          // 处理状态显示
           let statusText = '正在申诉中'
           let statusClass = 'status-pending'
-          
           if (item.status === 1) {
             statusText = '申诉被接受'
             statusClass = 'status-success'
@@ -57,27 +50,31 @@ Page({
             statusText = '申诉被驳回'
             statusClass = 'status-failed'
           }
-          
-          // 处理时间显示
-          const createTime = item.createTime ? new Date(item.createTime) : new Date()          
-          // 格式化日期和时间
-          const formattedDate = createTime.toLocaleDateString('zh-CN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          })
-          
-          const formattedTime = createTime.toLocaleTimeString('zh-CN', {
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-          
+  
+          let createDate = ''
+          let createTime = ''
+          if (item.createTime) {
+            const date = new Date(item.createTime)
+            
+            // 日期：YYYY-MM-DD
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            createDate = `${year}-${month}-${day}`
+            
+            // 时间：HH:mm:ss
+            const hours = String(date.getHours()).padStart(2, '0')
+            const minutes = String(date.getMinutes()).padStart(2, '0')
+            const seconds = String(date.getSeconds()).padStart(2, '0')
+            createTime = `${hours}:${minutes}:${seconds}`
+          }
+  
           return {
             ...item,
             statusText,
             statusClass,
-            formattedTime,
-            formattedDate,
+            createDate,
+            createTime
           }
         })
         
@@ -87,13 +84,9 @@ Page({
         })
       })
       .catch(error => {
-        this.setData({
-          loading: false
-        })
-        wx.showToast({
-          title: '加载申诉历史失败',
-          icon: 'none'
-        })
+        console.error('加载申诉历史失败:', error)
+        this.setData({ loading: false })
+        wx.showToast({ title: '加载申诉历史失败', icon: 'none' })
       })
   },
 
