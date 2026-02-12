@@ -69,10 +69,13 @@ exports.main = async (event, context) => {
       username: username,
       password_hash: passwordHash,
       real_name: '', 
-      status: 'active',
+      // status: 'active',
+      status: 0,
       campus: campus,
       created_at: currentTime,
-      updated_at: currentTime
+      updated_at: currentTime,
+      assigned_count: 0,
+      completed_count: 0
     }
 
     // 插入数据库
@@ -92,7 +95,9 @@ exports.main = async (event, context) => {
         real_name: staffData.real_name,
         status: staffData.status,
         campus: staffData.campus,
-        created_at: staffData.created_at
+        created_at: staffData.created_at,
+        assigned_count: staffData.assigned_count,
+        completed_count: staffData.completed_count
       }
     }
   } catch (error) {
