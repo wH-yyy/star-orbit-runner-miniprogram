@@ -1,3 +1,4 @@
 {
-  "usingComponents": {}
+  "navigationBarTitleText": "申诉历史",
+  "enablePullDownRefresh": true
 }

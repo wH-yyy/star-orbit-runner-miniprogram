@@ -71,14 +71,6 @@ Page({
 
   async chooseImage() {
     if (this.data.submitting) return
-    if (!wx.cloud) {
-      wx.showModal({
-        title: '错误',
-        content: '云开发未初始化，请检查app.js中的wx.cloud.init',
-        showCancel: false
-      })
-      return
-    }
 
     try {
       const remain = this.data.maxImages - this.data.images.length
@@ -121,15 +113,6 @@ Page({
 
   async chooseStepImage() {
     if (this.data.submitting) return
-    if (!wx.cloud) {
-      wx.showModal({
-        title: '错误',
-        content: '云开发未初始化，请检查app.js中的wx.cloud.init',
-        showCancel: false
-      })
-      return
-    }
-
     try {
       const remain = this.data.maxStepImages - this.data.stepImages.length
       if (remain <= 0) return
@@ -207,8 +190,6 @@ Page({
 
   // 实际获取位置的方法
   _getLocation(resolve, reject) {
-    console.log('开始获取位置坐标...')
-    
     wx.getLocation({
       type: 'wgs84', // 使用WGS84坐标系统
       success: (res) => {
@@ -223,12 +204,9 @@ Page({
           locationError: false,
           locationErrorMsg: ''
         })
-        
-        console.log('获取位置成功:', locationData)
         resolve(locationData)
       },
       fail: (err) => {
-        console.error('获取位置失败:', err)
         this.setData({
           locationError: true,
           locationErrorMsg: '获取位置失败，请检查位置权限或网络连接'
@@ -238,31 +216,18 @@ Page({
     })
   },
 
-  // 显示位置获取提示
-  showLocationPrompt() {
-    wx.showModal({
-      title: '位置信息',
-      content: '提交跑步记录需要获取您的位置信息，用于记录跑步地点',
-      confirmText: '确定',
-      showCancel: false
-    })
-  },
-
   async submitForm() {
     if (this.data.submitting) return
     if (!this.data.images || this.data.images.length === 0) {
       wx.showToast({
         icon: 'error',
-        title: '请上传截图'
+        title: '请上传跑步截图'
       })
       return
-    }
-
-    if (!wx.cloud) {
-      wx.showModal({
-        title: '错误',
-        content: '云开发未初始化，请检查app.js中的wx.cloud.init',
-        showCancel: false
+    } else if (this.data.modeIndex === 1 && (!this.data.stepImages || this.data.stepImages.length === 0)) {
+      wx.showToast({
+        icon: 'error',
+        title: '请上传步数截图'
       })
       return
     }
@@ -273,16 +238,10 @@ Page({
       this.setData({
         submitting: true,
         submitDisabled: true,
-        submitText: '获取位置中...'
       })
       
-      // 0. 获取当前位置信息
-      wx.showLoading({ title: '获取位置中...', mask: true })
       const location = await this.getCurrentLocation()
       
-      this.setData({
-        submitText: '上传中...'
-      })
       wx.showLoading({ title: '上传中...', mask: true })
 
       // 1. 上传首张截图到云存储
@@ -299,6 +258,7 @@ Page({
       // 2. 前端视角：上传成功即视为提交成功
       this.setData({
         images: [],
+        stepImages: []
       })
 
       wx.showToast({
@@ -330,8 +290,7 @@ Page({
     } finally {
       this.setData({
         submitting: false,
-        submitDisabled: false,
-        submitText: '提交审核'
+        submitDisabled: false
       })
     }
   },

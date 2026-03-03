@@ -64,8 +64,8 @@
 }
 
 .logo image {
-  width: 160rpx;
-  height: 160rpx;
+  width: 250rpx;
+  height: 250rpx;
   border-radius: 80rpx;
   margin-bottom: 32rpx;
   border: 8rpx solid rgba(255, 255, 255, 0.8);

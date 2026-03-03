@@ -1,6 +1,7 @@
 /* pages/record/record.wxss */
 page {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
@@ -205,6 +206,7 @@ page {
 .filter-label {
   font-size: 28rpx;
   color: #333;
+  margin-top: 16rpx;
   margin-bottom: 16rpx;
   font-weight: 600;
 }
@@ -213,19 +215,32 @@ page {
 .date-filter {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  justify-content: space-between;  /* 让子元素分别贴左和贴右 */
+  position: relative;             /* 为绝对定位的“至”提供参照 */
 }
 
 .date-picker {
   flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  text-align: center;
+  width: 260rpx;
+  height: 120%;
+  line-height: 240%;
+  padding: 0 30rpx;            /* 保留内边距 */
   background-color: #f8f9fa;
   border-radius: 16rpx;
   color: #999;
   font-size: 28rpx;
   transition: all 0.3s ease;
+  box-sizing: border-box;
+  white-space: nowrap;         /* 防止日期文字换行 */
+  display: flex;            /* 改为flex，便于内部文字对齐 */
+  align-items: center;
+  justify-content: center;    /* 水平居中（关键） */
+  text-align: center;        /* 备选，兼容非 flex 情况 */
+}
+.date-picker:first-child,
+.date-picker:last-child {
+  text-align: center;
+  justify-content: center;
 }
 
 .date-selected {
@@ -236,18 +251,27 @@ page {
 }
 
 .date-separator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   color: #999;
   font-size: 28rpx;
+  background: rgba(255,255,255,0.9); /* 半透白背景，防止压住日期文字 */
+  padding: 0 20rpx;          /* 左右内边距，更明显 */
+  z-index: 2;               /* 确保浮在上层 */
+  border-radius: 20rpx;     /* 可选，更柔和 */
 }
 
 /* 状态筛选样式 */
 .status-filter {
   display: flex;
   gap: 16rpx;
+  min-height: 80rpx;          /* 与 .date-picker 高度匹配 */
 }
 
 .status-option {
   flex: 1;
+  height: 100%;
   padding: 16rpx 0;
   background-color: #f8f9fa;
   border-radius: 16rpx;

@@ -21,7 +21,9 @@ exports.main = async (event, context) => {
         real_name: staff.real_name,
         status: staff.status,
         campus: staff.campus,
-        created_at: staff.created_at
+        created_at: staff.created_at,
+        completed_count: staff.completed_count || 0,
+        assigned_count: staff.assigned_count || 0
       }))
     }
   } catch (error) {

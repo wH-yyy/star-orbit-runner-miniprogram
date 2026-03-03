@@ -15,11 +15,11 @@
     <!-- 进度展示 -->
     <view class="progress-section">
       <view class="progress-info">
-        <text class="progress-text">参与进度</text>
+        <text class="progress-text">参与率</text>
         <text class="progress-percent">{{participationRate}}%</text>
       </view>
       <view class="progress-bar">
-        <view class="progress-fill" style="width: {{participationRate}}%"></view>
+        <view class="progress-fill" style="width: {{participationRate + '%'}}"></view>
       </view>
     </view>
     
@@ -55,7 +55,7 @@
       </view>
       <view class="rule-item">
         <view class="rule-badge rule-participation">运动奖</view>
-        <text class="rule-desc">参与率 ＜ 60%</text>
+        <text class="rule-desc">参与率＜ 60%</text>
       </view>
     </view>
   </view>
