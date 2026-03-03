@@ -25,12 +25,11 @@ Page({
     
     if (prevPage && prevPage.data && prevPage.data.displayedRecords) {
       const record = prevPage.data.displayedRecords[index];
-      if (record && record._id) {
-        // 从数据库重新获取完整数据，确保数据完整性
-        this.loadFromCloud(record._id);
-      } else {
-        this.showErrorAndBack('无法获取记录信息');
-      }
+      this.setData({ 
+        record,
+        loading: false
+      });
+      this.loadAppealDetail(record._id);
     } else {
       this.showErrorAndBack('无法获取记录信息');
     }
@@ -65,19 +64,6 @@ Page({
           // 保存日期和时间到不同的字段
           record.create_date = dateStr;
           record.create_time_24 = timeStr;
-        }
-        
-        // 修复imageFileID路径，确保是正确的云存储路径格式
-        if (record.imageFileID) {
-          // 移除可能的本地路径前缀
-          if (record.imageFileID.startsWith('/pages/record-detail/')) {
-            record.imageFileID = record.imageFileID.replace('/pages/record-detail/', '');
-          }
-          // 确保是正确的云存储路径格式
-          if (!record.imageFileID.startsWith('cloud://')) {
-            // 如果不是云存储路径格式，可能需要重新处理
-            console.warn('imageFileID格式不正确:', record.imageFileID);
-          }
         }
         
         this.setData({
