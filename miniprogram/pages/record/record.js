@@ -69,7 +69,7 @@ Page({
   },
 
   /**
-   * 加载所有跑步记录（一次性加载全部）
+   * 加载所有跑步记录（使用分页查询获取全部记录）
    */
   loadAllRecords() {
     this.setData({
@@ -78,18 +78,35 @@ Page({
 
     const app = getApp()
     const openid = app.globalData.userInfo.openid
-
-    // 从数据库获取所有跑步记录
     const db = wx.cloud.database()
-    db.collection('RunningRecords')
-      .where({
-        openid: openid
-      })
-      .orderBy('create_time', 'desc')
-      .get()
-      .then(res => {
+    const records = []
+
+    // 递归获取所有记录
+    const getRecords = (skip = 0, limit = 100) => {
+      return db.collection('RunningRecords')
+        .where({
+          openid: openid
+        })
+        .orderBy('create_time', 'desc')
+        .skip(skip)
+        .limit(limit)
+        .get()
+        .then(res => {
+          if (res.data.length > 0) {
+            records.push(...res.data)
+            // 如果还有更多记录，继续获取
+            if (res.data.length === limit) {
+              return getRecords(skip + limit, limit)
+            }
+          }
+          return records
+        })
+    }
+
+    getRecords()
+      .then(allRecords => {
         // 处理数据
-        const processedData = res.data.map(item => {
+        const processedData = allRecords.map(item => {
           // 转换创建时间格式为24小时制，日期和时间分行显示
           if (item.create_time) {
             const createTime = new Date(item.create_time);
