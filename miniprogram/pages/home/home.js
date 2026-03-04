@@ -44,7 +44,7 @@ Page({
           wx.clearStorageSync()
           const app = getApp()
           if (app.globalData) {
-            app.globalData.userInfo = null
+            app.globalData.userInfo = {}
             app.globalData.hasLogin = false
           }
           wx.showToast({

@@ -61,33 +61,31 @@ Page({
             avatar: result.data.gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
           }
           app.globalData.userInfo = userInfo
-          wx.setStorageSync('userInfo', userInfo)
+          wx.setStorageSync('openid', userInfo.openid)
           wx.showToast({
-            title: '个人信息已完善',
+            title: '信息已完善',
             icon: 'success'
           })
           wx.reLaunch({
             url: '/pages/submit/submit'
           })
           break
-        case 201:
-          wx.showToast({
-            title: `0条数据更新，错误码:${result.code}`,
-            icon: 'error'
-          })
-          break
+
         case -1:
-          wx.showToast({
-            title: `数据库更新失败，错误码:${result.code}`,
-            icon: 'error'
+        case 201:
+          wx.showModal({
+            title: '系统错误',
+            content: `错误码:41${result.code}，请联系管理员处理`,
+            showCancel: false
           })
           break
       }
     } catch (error) {
       console.log(error)
-      wx.showToast({
-        title: '上传失败，请检查网络后重试',
-        icon: 'error'
+      wx.showModal({
+        title: '上传失败',
+        content: '错误码41102,请检查网络后重试',
+        showCancel: false
       })
     }
   },
@@ -113,7 +111,7 @@ Page({
       const stuIdRegex = /^\d{10}$/;
       if (!stuIdRegex.test(formData.stu_id)) {
         wx.showToast({
-          title: '学号须为10为数字',
+          title: '学号格式错误',
           icon: 'none'
         })
         return false
