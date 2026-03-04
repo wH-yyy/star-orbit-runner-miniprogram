@@ -10,7 +10,7 @@
 
 .app-name {
   color: white;
-  font-size: 36rpx;
+  font-size: 50rpx;
   margin-bottom: 80rpx;
   font-weight: bold;
 }

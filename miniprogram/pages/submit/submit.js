@@ -24,8 +24,8 @@ Page({
 
     // 提交状态
     submitting: false,
-    submitDisabled: false,
-    submitTextIndex: 0,
+    submitDisabled: true,
+    submitTextIndex: 1,
     submitTextList: ['提交', '未到提交时间', '今日停跑'],
   },
 
