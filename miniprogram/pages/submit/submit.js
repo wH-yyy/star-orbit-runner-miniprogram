@@ -89,11 +89,11 @@ Page({
       return
     }
 
-    // // 检查时间段（晚上8点到10点05分）
+    // // 检查时间段（晚上8点到10点30分）
     // const now = new Date()
     // const currentMinutes = now.getHours() * 60 + now.getMinutes()
     // const startMinutes = 20 * 60
-    // const endMinutes = 22 * 60 + 5
+    // const endMinutes = 22 * 60 + 30
 
     // if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
     //   this.setData({
