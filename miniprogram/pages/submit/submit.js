@@ -26,7 +26,7 @@ Page({
     submitting: false,
     submitDisabled: true,
     submitTextIndex: 1,
-    submitTextList: ['提交', '未到提交时间', '今日停跑'],
+    submitTextList: ['提交', '未到提交时间', '今日停跑', '已被禁跑'],
   },
 
   onLoad() {
@@ -50,7 +50,17 @@ Page({
 
   // 检查提交可用性
   async checkSubmissionAvailability() {
-    // 检查当日是否停跑
+    // 1. 检查是否被禁跑
+    const app = getApp()
+    if (app.globalData.userInfo.status === 1) {
+      this.setData({
+        submitDisabled: true,
+        submitTextIndex: 3
+      })
+      return
+    }
+
+    // 2. 检查当日是否停跑
     try {
       // 获取今天的日期字符串（格式 YYYY-MM-DD）
       const today = new Date()
@@ -58,7 +68,6 @@ Page({
       const month = String(today.getMonth() + 1).padStart(2, '0')
       const day = String(today.getDate()).padStart(2, '0')
       const todayStr = `${year}-${month}-${day}`
-
       // 查询云数据库 rest_days 集合中是否有今天
       const db = wx.cloud.database()
       const restDaysCollection = db.collection('rest_days')
@@ -72,11 +81,6 @@ Page({
           submitTextIndex: 2
         })
         return
-      } else {
-        this.setData({
-          submitDisabled: false,
-          submitTextIndex: 0
-        })
       }
     } catch (err) {
       console.error('检查停跑日失败:', err)
@@ -86,10 +90,9 @@ Page({
         showCancel: false,
         confirmText: '确定'
       })
-      return
     }
 
-    // // 检查时间段（晚上8点到10点30分）
+    // // 3. 检查时间段（晚上8点到10点30分）
     // const now = new Date()
     // const currentMinutes = now.getHours() * 60 + now.getMinutes()
     // const startMinutes = 20 * 60
@@ -100,12 +103,13 @@ Page({
     //     submitDisabled: true,
     //     submitTextIndex: 1
     //   })
-    // } else {
-    //   this.setData({
-    //     submitDisabled: false,
-    //     submitTextIndex: 0
-    //   })
+    //   return
     // }
+
+    this.setData({
+      submitDisabled: false,
+      submitTextIndex: 0
+    })
   },
 
   onModeChange(e) {

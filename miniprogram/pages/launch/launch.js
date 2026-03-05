@@ -8,15 +8,15 @@ Page({
         const result = await this.fetchUserInfo(app.globalData.userInfo.openid)
         if (result) {
           const status = result.status
-          if (status === 0) {
-            wx.switchTab({
-              url: '/pages/submit/submit'
-            })
-          } else {
+          if (status === 2) {
             wx.showModal({
               title: '账号异常',
               content: '账号被封禁，请联系管理员处理',
               showCancel: false
+            })
+          } else {
+            wx.switchTab({
+              url: '/pages/submit/submit'
             })
           }
         }
