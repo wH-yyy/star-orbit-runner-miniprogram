@@ -24,9 +24,9 @@ Page({
 
     // 提交状态
     submitting: false,
-    submitDisabled: false,
-    submitTextIndex: 0,
-    submitTextList: ['提交记录', '未到提交时间', '今日停跑'],
+    submitDisabled: true,
+    submitTextIndex: 1,
+    submitTextList: ['提交', '未到提交时间', '今日停跑', '已被禁跑'],
   },
 
   onLoad() {
@@ -41,26 +41,75 @@ Page({
         })
       }, 1500)
     }
-    // this.checkSubmissionAvailability()
+    this.checkSubmissionAvailability()
   },
 
   onShow() {
-    // this.checkSubmissionAvailability()
+    this.checkSubmissionAvailability()
   },
 
-  checkSubmissionAvailability() {
-    // TODO: 检查今天是否停跑
-    // 检查现在的时间是不是晚上8点到10点之间
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const startMinutes = 20 * 60;
-    const endMinutes = 22 * 60 + 5;
-    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
+  // 检查提交可用性
+  async checkSubmissionAvailability() {
+    // 1. 检查是否被禁跑
+    const app = getApp()
+    if (app.globalData.userInfo.status === 1) {
       this.setData({
         submitDisabled: true,
-        submitTextIndex: 1
+        submitTextIndex: 3
+      })
+      return
+    }
+
+    // 2. 检查当日是否停跑
+    try {
+      // 获取今天的日期字符串（格式 YYYY-MM-DD）
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      const todayStr = `${year}-${month}-${day}`
+      // 查询云数据库 rest_days 集合中是否有今天
+      const db = wx.cloud.database()
+      const restDaysCollection = db.collection('rest_days')
+      const res = await restDaysCollection.where({
+        date: todayStr
+      }).get()
+
+      if (res.data.length > 0) {
+        this.setData({
+          submitDisabled: true,
+          submitTextIndex: 2
+        })
+        return
+      }
+    } catch (err) {
+      console.error('检查停跑日失败:', err)
+      wx.showModal({
+        title: '提示',
+        content: '停跑检查失败,已按无停跑处理。若问题持续出现,请联系管理员。',
+        showCancel: false,
+        confirmText: '确定'
       })
     }
+
+    // // 3. 检查时间段（晚上8点到10点30分）
+    // const now = new Date()
+    // const currentMinutes = now.getHours() * 60 + now.getMinutes()
+    // const startMinutes = 20 * 60
+    // const endMinutes = 22 * 60 + 30
+
+    // if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
+    //   this.setData({
+    //     submitDisabled: true,
+    //     submitTextIndex: 1
+    //   })
+    //   return
+    // }
+
+    this.setData({
+      submitDisabled: false,
+      submitTextIndex: 0
+    })
   },
 
   onModeChange(e) {
@@ -94,7 +143,10 @@ Page({
     } catch (error) {
       console.error('选择/上传图片失败:', error)
       if (error && error.errMsg && error.errMsg.includes('cancel')) return
-      wx.showToast({ title: '图片上传失败', icon: 'none' })
+      wx.showToast({
+        title: '图片上传失败',
+        icon: 'none'
+      })
     } finally {
       // 这里不涉及上传，不需要 loading 状态恢复
     }
@@ -108,7 +160,9 @@ Page({
     const images = [...this.data.images]
     images.splice(index, 1)
 
-    this.setData({ images })
+    this.setData({
+      images
+    })
   },
 
   async chooseStepImage() {
@@ -135,7 +189,10 @@ Page({
     } catch (error) {
       console.error('选择/上传步数截图失败:', error)
       if (error && error.errMsg && error.errMsg.includes('cancel')) return
-      wx.showToast({ title: '步数截图上传失败', icon: 'none' })
+      wx.showToast({
+        title: '步数截图上传失败',
+        icon: 'none'
+      })
     } finally {
       // 这里不涉及上传，不需要 loading 状态恢复
     }
@@ -149,14 +206,16 @@ Page({
     const stepImages = [...this.data.stepImages]
     stepImages.splice(index, 1)
 
-    this.setData({ stepImages })
+    this.setData({
+      stepImages
+    })
   },
 
   // 获取当前位置
   getCurrentLocation() {
     return new Promise((resolve, reject) => {
       console.log('开始获取当前位置...')
-      
+
       // 检查位置权限
       wx.getSetting({
         success: (settingRes) => {
@@ -198,7 +257,7 @@ Page({
           longitude: res.longitude,
           accuracy: res.accuracy || 0
         }
-        
+
         this.setData({
           currentLocation: locationData,
           locationError: false,
@@ -239,10 +298,13 @@ Page({
         submitting: true,
         submitDisabled: true,
       })
-      
+
       const location = await this.getCurrentLocation()
-      
-      wx.showLoading({ title: '上传中...', mask: true })
+
+      wx.showLoading({
+        title: '上传中...',
+        mask: true
+      })
 
       // 1. 上传首张截图到云存储
       const tempFilePath = this.data.images[0]
@@ -270,9 +332,9 @@ Page({
       wx.cloud
         .callFunction({
           name: 'uploadRunningRecord',
-          data: { 
-            fileID, 
-            mode, 
+          data: {
+            fileID,
+            mode,
             ocrProvider: 'auto',
             coordinates: location // 传递位置坐标信息
           }
@@ -286,12 +348,15 @@ Page({
     } catch (error) {
       console.error('提交失败:', error)
       wx.hideLoading()
-      wx.showToast({ title: '网络错误，请稍后重试', icon: 'none' })
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none'
+      })
     } finally {
       this.setData({
         submitting: false,
         submitDisabled: false
       })
     }
-  },
+  }
 })

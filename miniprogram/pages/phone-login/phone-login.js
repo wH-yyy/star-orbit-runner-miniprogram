@@ -15,13 +15,12 @@ Page({
   showAgreements() {
     wx.showModal({
       title: '服务协议及隐私政策',
-      content: '这里是用户服务协议和隐私政策的具体内容，详细说明了用户在使用本服务时的权利和义务，以及我们如何收集、使用和保护用户的个人信息...',
+      content: '这里是用户服务协议和隐私政策的具体内容，详细说明了用户在使用本服务时的权利和义务，以及我们如何收集、使用和保护用户的个人信息',
       showCancel: true,
       cancelText: '关闭',
       confirmText: '我已阅读',
       success: (res) => {
         if (res.confirm) {
-          // 用户确认阅读后，可以自动勾选协议
           this.setData({
             agreementChecked: true
           })
@@ -38,68 +37,80 @@ Page({
       })
       return
     }
-    
+
     // 显示加载状态
     wx.showLoading({
-      title: '登录中...',
+      title: '登录中',
       mask: true
     })
-    
+
     // 调用云函数
     wx.cloud.callFunction({
-      name: 'login-phone',
-      data: null
-    })
-    .then(res => {
-      const result = res.result
-      wx.hideLoading()
-      
-      switch(result.code) {
-        case 200:
-          // 先显示成功提示
-          wx.showToast({
-            title: '登录成功',
-            icon: 'success'
-          })
-          
-          // 延迟跳转，让用户看到提示
-          setTimeout(() => {
-            const userInfo = {
-              ...result.data.userInfo,
-              avatar: result.data.userInfo.gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
-            }
-            wx.setStorageSync('userInfo', userInfo)
-            const app = getApp()
-            app.globalData.userInfo = userInfo
+        name: 'login-phone',
+        data: null
+      })
+      .then(res => {
+        const result = res.result
+        wx.hideLoading()
+
+        switch (result.code) {
+          case 200:
+
+
             if (result.data.existingStatus) {
-              wx.switchTab({
-                url: '/pages/submit/submit'
-              })
+              // 已存在账号（针对退出登录后再登录）
+              const userInfo = {
+                ...result.data.userInfo,
+                avatar: result.data.userInfo.gender === '男' ? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
+              }
+              wx.setStorageSync('openid', userInfo.openid)
+              const app = getApp()
+              app.globalData.userInfo = userInfo
+
+              if (userInfo.status === 2) {
+                wx.showModal({
+                  title: '账号异常',
+                  content: '账号被封禁，请联系管理员处理',
+                  showCancel: false
+                })
+                this.setData({
+                  loginDisabled: true
+                })
+              } else {
+                wx.showToast({
+                  title: '登录成功',
+                  icon: 'success'
+                })
+                setTimeout(() => {
+                  wx.switchTab({
+                    url: '/pages/submit/submit'
+                  })
+                }, 1500)
+              }
             } else {
+              // 新用户
               wx.redirectTo({
                 url: '/pages/finish-info/finish-info'
               })
             }
-          }, 1500)
-          break;
-          
-        case -1:
-          wx.showToast({
-            title: '登录失败，请重试',
-            icon: 'error',
-            duration: 2000
-          })
-          break;
-      }
-    })
-    .catch(error => {
-      wx.hideLoading()
-      wx.showToast({
-        title: '网络异常，请检查网络',
-        icon: 'error',
-        duration: 2000
+            break;
+
+          case -1:
+            wx.showModal({
+              title: '登录失败',
+              content: '错误码40101,请联系管理员处理',
+              showCancel: false
+            })
+            break;
+        }
+      }).catch(error => {
+        console.error('登录失败:', error)
+        wx.hideLoading()
+        wx.showModal({
+          title: '登录失败',
+          content: '错误码40102,请检查网络后重试',
+          showCancel: false
+        })
       })
-      console.error('登录失败:', error)
-    })
   }
 })

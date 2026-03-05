@@ -23,8 +23,6 @@
     "selectedColor": "#07c160",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
-    "fontSize": "24rpx",
-    "height": "100rpx",
     "list": [
       {
         "pagePath": "pages/record/record",
