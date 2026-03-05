@@ -1,0 +1,13 @@
+{
+  "triggers": [
+    {
+      "name": "daily-ban-update",
+      "type": "timer",
+      "config": "0 56 16 * * * *"
+    }
+  ],
+  "permissions": {
+    "openapi": [
+    ]
+  }
+}
