@@ -358,5 +358,5 @@ Page({
         submitDisabled: false
       })
     }
-  },
+  }
 })
