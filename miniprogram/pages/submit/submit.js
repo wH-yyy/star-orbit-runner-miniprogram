@@ -16,6 +16,7 @@ Page({
     // 跑步方式选择
     modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
     modeIndex: 0,
+    dropdownOpen: false,
 
     // 位置信息
     currentLocation: null,
@@ -110,6 +111,22 @@ Page({
       submitDisabled: false,
       submitTextIndex: 0
     })
+  },
+
+  toggleDropdown() {
+    this.setData({
+      dropdownOpen: !this.data.dropdownOpen
+    })
+  },
+
+  selectMode(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    if (!Number.isNaN(index)) {
+      this.setData({
+        modeIndex: index,
+        dropdownOpen: false
+      })
+    }
   },
 
   onModeChange(e) {
