@@ -13,54 +13,72 @@
   <!-- 跑步方式 -->
   <view class="form-item">
     <text class="label">跑步方式</text>
-    <picker class="picker" bindchange="onModeChange" value="{{modeIndex}}" range="{{modeOptions}}">
-      <view class="picker-content">
-        {{modeOptions[modeIndex]}}
+    <view class="dropdown-container">
+      <view class="dropdown-select" bindtap="toggleDropdown">
+        <text class="dropdown-selected">{{modeOptions[modeIndex]}}</text>
+        <view class="dropdown-arrow {{dropdownOpen ? 'open' : ''}}">▼</view>
       </view>
-    </picker>
-  </view>
-
-  <!-- 跑步记录截图 -->
-  <view class="form-item">
-    <text class="label">跑步记录截图</text>
-    <view class="upload-section">
-      <!-- 已上传图片预览 -->
-      <view class="uploaded-images">
-        <view class="image-item" wx:for="{{images}}" wx:key="index">
-          <image src="{{item}}" mode="aspectFill" class="uploaded-image"></image>
-          <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">
-            <text class="delete-icon">×</text>
-          </view>
-        </view>
-
-        <!-- 上传按钮 -->
-        <view class="upload-btn" wx:if="{{images.length < maxImages}}" bindtap="chooseImage">
-          <view class="upload-icon">+</view>
-          <text class="upload-text">上传截图</text>
-          <text class="upload-hint">(最多{{maxImages}}张)</text>
+      <view class="dropdown-options {{dropdownOpen ? 'show' : ''}}">
+        <view 
+          class="dropdown-option {{modeIndex === index ? 'selected' : ''}}" 
+          wx:for="{{modeOptions}}" 
+          wx:key="index"
+          bindtap="selectMode"
+          data-index="{{index}}"
+        >
+          <text class="option-text">{{item}}</text>
+          <view class="option-check" wx:if="{{modeIndex === index}}">✓</view>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 步数截图 -->
-  <view class="form-item" wx:if="{{modeIndex === 1}}">
-    <text class="label">步数截图</text>
-    <view class="upload-section">
-      <!-- 已上传步数截图预览 -->
-      <view class="uploaded-images">
-        <view class="image-item" wx:for="{{stepImages}}" wx:key="index">
-          <image src="{{item}}" mode="aspectFill" class="uploaded-image"></image>
-          <view class="delete-btn" bindtap="deleteStepImage" data-index="{{index}}">
-            <text class="delete-icon">×</text>
+  <!-- 跑步记录截图和步数截图在同一行 -->
+  <view class="form-item">
+    <view class="upload-row">
+      <!-- 跑步记录截图 -->
+      <view class="upload-column">
+        <text class="label">跑步记录截图</text>
+        <view class="upload-section">
+          <!-- 已上传图片预览 -->
+          <view class="uploaded-images">
+            <view class="image-item" wx:for="{{images}}" wx:key="index">
+              <image src="{{item}}" mode="aspectFill" class="uploaded-image"></image>
+              <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+
+            <!-- 上传按钮 -->
+            <view class="upload-btn" wx:if="{{images.length < maxImages}}" bindtap="chooseImage">
+              <view class="upload-icon">+</view>
+              <text class="upload-text">上传截图</text>
+              <text class="upload-hint">(最多{{maxImages}}张)</text>
+            </view>
           </view>
         </view>
+      </view>
 
-        <!-- 上传按钮 -->
-        <view class="upload-btn" wx:if="{{stepImages.length < maxStepImages}}" bindtap="chooseStepImage">
-          <view class="upload-icon">+</view>
-          <text class="upload-text">上传步数截图</text>
-          <text class="upload-hint">(最多{{maxStepImages}}张)</text>
+      <!-- 步数截图 -->
+      <view class="upload-column" wx:if="{{modeIndex === 1}}">
+        <text class="label">步数截图</text>
+        <view class="upload-section">
+          <!-- 已上传步数截图预览 -->
+          <view class="uploaded-images">
+            <view class="image-item" wx:for="{{stepImages}}" wx:key="index">
+              <image src="{{item}}" mode="aspectFill" class="uploaded-image"></image>
+              <view class="delete-btn" bindtap="deleteStepImage" data-index="{{index}}">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+
+            <!-- 上传按钮 -->
+            <view class="upload-btn" wx:if="{{stepImages.length < maxStepImages}}" bindtap="chooseStepImage">
+              <view class="upload-icon">+</view>
+              <text class="upload-text">上传步数截图</text>
+              <text class="upload-hint">(最多{{maxStepImages}}张)</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>
