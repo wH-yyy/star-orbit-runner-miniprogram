@@ -26,8 +26,16 @@ Page({
     // 提交状态
     submitting: false,
     submitDisabled: true,
-    submitTextIndex: 1,
-    submitTextList: ['提交', '未到提交时间', '今日停跑', '已被禁跑'],
+    submitTextIndex: 0,
+    submitTextList: ['' ,'提交', '未到提交时间', '今日停跑', '已被禁跑'],
+
+    // 禁跑状态
+    isBanned: false,
+    banRemainingDays: 0,
+
+    // 停跑状态
+    isPending: false,
+    pendIngReason: ''
   },
 
   onLoad() {
@@ -56,7 +64,9 @@ Page({
     if (app.globalData.userInfo.status === 1) {
       this.setData({
         submitDisabled: true,
-        submitTextIndex: 3
+        submitTextIndex: 3,
+        isBanned: true,
+        banRemainingDays: app.globalData.userInfo.ban_remaining_days
       })
       return
     }
@@ -79,7 +89,9 @@ Page({
       if (res.data.length > 0) {
         this.setData({
           submitDisabled: true,
-          submitTextIndex: 2
+          submitTextIndex: 2,
+          isPending: true,
+          pendIngReason: res.data[0].reason
         })
         return
       }
