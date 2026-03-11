@@ -202,13 +202,13 @@ async function getAuditRecordDetail(event) {
     if (!recordId) {
       return { code: 400, message: 'RecordId required', data: null }
     }
-    
+
     const result = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
-    
+
     if (!result.data) {
       return { code: 404, message: 'Record not found', data: null }
     }
-    
+
     let record = result.data
     let detail = {
       _id: record._id,
@@ -227,9 +227,25 @@ async function getAuditRecordDetail(event) {
       remark: record.audit_reason || '',
       auditTime: record.auditTime || null,
       ocrText: record.ocr_text || '',
-      campus: record.campus || ''
+      campus: record.campus || '',
+      running_pace: record.running_pace || '', // 配速
+      // 新增字段，默认空
+      gender: '',
+      college: '',
+      className: ''
     }
-    
+
+    // 根据 openid 查询 Users 集合
+    if (record.openid) {
+      const userRes = await db.collection(USERS_COLLECTION).where({ openid: record.openid }).get()
+      if (userRes.data && userRes.data.length > 0) {
+        const user = userRes.data[0]
+        detail.gender = user.gender || ''
+        detail.college = user.college || ''
+        detail.className = user.class_name || ''  // Users 集合中班级字段为 class_name
+      }
+    }
+
     // 处理图片文件ID，转换为可访问的临时URL
     if (detail.screenshot && detail.screenshot.startsWith('cloud://')) {
       try {
@@ -243,7 +259,7 @@ async function getAuditRecordDetail(event) {
         console.error('转换文件URL失败:', err)
       }
     }
-    
+
     return {
       code: 200,
       message: 'Success',
