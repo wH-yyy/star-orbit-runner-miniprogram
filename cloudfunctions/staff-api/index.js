@@ -37,6 +37,9 @@ exports.main = async (event, context) => {
         return await assignTaskToStaff(event)
       case 'audit/batchAssign':
         return await batchAssignTasks(event)
+      // 一键通过所有待审核记录
+      case 'audit/batchApproveByStaff':
+        return await batchApproveByStaff(event)
       default:
         return {
           code: 404,
@@ -268,13 +271,19 @@ async function submitAudit(event) {
     // 将审核结果转换为状态码：approved->1 通过, rejected->2 不通过
     const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
 
-    // 1. 获取记录详情，特别是 assignedStaffId
+    // 1. 获取记录详情，验证 assignedStaffId 是否存在
     const recordResult = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
     if (!recordResult.data) {
       return { code: 404, message: 'Record not found', data: null }
     }
     const record = recordResult.data
     const assignedStaffId = record.assignedStaffId
+
+    // 可选：验证当前工作人员是否匹配（如果需要更严格的权限控制，可放开注释）
+    // if (!assignedStaffId) {
+    //   return { code: 403, message: 'This record is not assigned to any staff', data: null }
+    // }
+    // 此处不强制验证，因为可能由管理员操作
 
     const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
 
@@ -300,53 +309,7 @@ async function submitAudit(event) {
 
     // 4. 审核通过后更新用户统计信息
     if (statusCode === 1 && record.openid) {
-      let incHour = 0
-      let incMinute = 0
-      let incSecond = 0
-
-      if (typeof record.running_duration === 'string' && record.running_duration.includes(':')) {
-        const parts = record.running_duration.split(':').map(Number)
-        if (parts.length === 3) {
-          incHour = parts[0] || 0
-          incMinute = parts[1] || 0
-          incSecond = parts[2] || 0
-        } else if (parts.length === 2) {
-          incMinute = parts[0] || 0
-          incSecond = parts[1] || 0
-        }
-      }
-
-      const distanceInc = typeof record.running_distance === 'number'
-        ? record.running_distance
-        : parseFloat(record.running_distance || 0)
-
-      const userResult = await db.collection(USERS_COLLECTION).where({ openid: record.openid }).get()
-      if (userResult.data && userResult.data.length > 0) {
-        const userDoc = userResult.data[0]
-        const currentDuration = userDoc.totalDuration || { hour: 0, minute: 0, second: 0 }
-
-        let totalSeconds = (currentDuration.hour || 0) * 3600
-          + (currentDuration.minute || 0) * 60
-          + (currentDuration.second || 0)
-          + (incHour * 3600 + incMinute * 60 + incSecond)
-
-        const newHour = Math.floor(totalSeconds / 3600)
-        totalSeconds = totalSeconds % 3600
-        const newMinute = Math.floor(totalSeconds / 60)
-        const newSecond = Math.floor(totalSeconds % 60)
-
-        await db.collection(USERS_COLLECTION).doc(userDoc._id).update({
-          data: {
-            totalCount: _.inc(1),
-            totalDistance: _.inc(distanceInc || 0),
-            totalDuration: {
-              hour: newHour,
-              minute: newMinute,
-              second: newSecond
-            }
-          }
-        })
-      }
+      await updateUserStatistics(record)
     }
     
     return {
@@ -361,7 +324,7 @@ async function submitAudit(event) {
 }
 
 /**
- * 修改审核结果（纠错功能）
+ * 修改审核结果（纠错功能） - 不更新统计，仅修改状态和理由
  */
 async function updateAuditResult(event) {
   try {
@@ -371,7 +334,6 @@ async function updateAuditResult(event) {
       return { code: 400, message: 'Missing parameters', data: null }
     }
 
-    // 将审核结果转换为状态码：approved->1 通过, rejected->2 不通过
     const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
     
     const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
@@ -650,5 +612,140 @@ async function batchAssignTasks(event = {}) {
   } catch (error) {
     console.error('batchAssignTasks error:', error)
     throw error
+  }
+}
+
+/**
+ * 一键通过当前工作人员的所有待审核记录
+ * @param {Object} event
+ * @param {string} event.staffId - 工作人员ID
+ */
+async function batchApproveByStaff(event) {
+  try {
+    const { staffId } = event
+    if (!staffId) {
+      return { code: 400, message: 'staffId is required', data: null }
+    }
+
+    // 查询分配给该工作人员且状态为待审核（0）的记录
+    const recordsResult = await db.collection(RECORDS_COLLECTION)
+      .where({
+        assignedStaffId: staffId,
+        status: 0
+      })
+      .get()
+
+    const records = recordsResult.data
+    if (!records || records.length === 0) {
+      return {
+        code: 200,
+        message: 'No pending records found',
+        data: { total: 0, successCount: 0 }
+      }
+    }
+
+    console.log(`找到 ${records.length} 条待审核记录，准备一键通过`)
+
+    let successCount = 0
+    const failedRecords = []
+
+    // 遍历更新每条记录
+    for (const record of records) {
+      try {
+        // 更新记录状态为通过（1）
+        await db.collection(RECORDS_COLLECTION).doc(record._id).update({
+          data: {
+            status: 1,
+            audit_reason: '',
+            auditTime: db.serverDate(),
+            auditedByStaffId: staffId
+          }
+        })
+
+        // 更新工作人员完成数
+        await db.collection(STAFF_COLLECTION).doc(staffId).update({
+          data: {
+            completed_count: _.inc(1)
+          }
+        })
+
+        // 更新用户统计（如果记录有 openid）
+        if (record.openid) {
+          await updateUserStatistics(record)
+        }
+
+        successCount++
+      } catch (err) {
+        console.error(`记录 ${record._id} 一键通过失败:`, err)
+        failedRecords.push({ recordId: record._id, error: err.message })
+      }
+    }
+
+    return {
+      code: 200,
+      message: `Batch approve completed: ${successCount} succeeded, ${failedRecords.length} failed`,
+      data: {
+        total: records.length,
+        successCount,
+        failedRecords: failedRecords.length > 0 ? failedRecords : undefined
+      }
+    }
+  } catch (error) {
+    console.error('batchApproveByStaff error:', error)
+    throw error
+  }
+}
+
+/**
+ * 辅助函数：更新用户统计数据
+ * @param {Object} record - 跑步记录对象
+ */
+async function updateUserStatistics(record) {
+  if (!record.openid) return
+
+  // 计算增加的时长（秒）
+  let incHour = 0, incMinute = 0, incSecond = 0
+  if (typeof record.running_duration === 'string' && record.running_duration.includes(':')) {
+    const parts = record.running_duration.split(':').map(Number)
+    if (parts.length === 3) {
+      incHour = parts[0] || 0
+      incMinute = parts[1] || 0
+      incSecond = parts[2] || 0
+    } else if (parts.length === 2) {
+      incMinute = parts[0] || 0
+      incSecond = parts[1] || 0
+    }
+  }
+
+  const distanceInc = typeof record.running_distance === 'number'
+    ? record.running_distance
+    : parseFloat(record.running_distance || 0)
+
+  const userResult = await db.collection(USERS_COLLECTION).where({ openid: record.openid }).get()
+  if (userResult.data && userResult.data.length > 0) {
+    const userDoc = userResult.data[0]
+    const currentDuration = userDoc.totalDuration || { hour: 0, minute: 0, second: 0 }
+
+    let totalSeconds = (currentDuration.hour || 0) * 3600
+      + (currentDuration.minute || 0) * 60
+      + (currentDuration.second || 0)
+      + (incHour * 3600 + incMinute * 60 + incSecond)
+
+    const newHour = Math.floor(totalSeconds / 3600)
+    totalSeconds = totalSeconds % 3600
+    const newMinute = Math.floor(totalSeconds / 60)
+    const newSecond = Math.floor(totalSeconds % 60)
+
+    await db.collection(USERS_COLLECTION).doc(userDoc._id).update({
+      data: {
+        totalCount: _.inc(1),
+        totalDistance: _.inc(distanceInc || 0),
+        totalDuration: {
+          hour: newHour,
+          minute: newMinute,
+          second: newSecond
+        }
+      }
+    })
   }
 }
