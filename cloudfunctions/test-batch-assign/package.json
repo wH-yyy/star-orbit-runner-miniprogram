@@ -1,9 +1,0 @@
-{
-  "name": "test-batch-assign",
-  "version": "1.0.0",
-  "description": "测试批量分配未分配记录",
-  "main": "index.js",
-  "dependencies": {
-    "wx-server-sdk": "~2.6.3"
-  }
-}
