@@ -39,7 +39,7 @@
               <view class="checkbox-inner" wx:if="{{agreementChecked}}"></view>
             </view>
           </view>
-          <text class="agreement-text">我已阅读并同意<text class="agreement-link" bindtap="showAgreements">服务协议</text></text>
+          <text class="agreement-text">我已阅读并同意<text class="privacy-link" bindtap="openPrivacyContract">隐私政策</text></text>
         </view>
       </view>
       

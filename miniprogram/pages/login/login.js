@@ -137,19 +137,23 @@ Page({
    * 显示用户服务协议和隐私政策
    */
   showAgreements() {
-    wx.showModal({
-      title: '服务协议及隐私政策',
-      content: '这里是用户服务协议和隐私政策的具体内容，详细说明了用户在使用本服务时的权利和义务，以及我们如何收集、使用和保护用户的个人信息...',
-      showCancel: true,
-      cancelText: '关闭',
-      confirmText: '我已阅读',
-      success: (res) => {
-        if (res.confirm) {
-          // 用户确认阅读后，可以自动勾选协议
-          this.setData({
-            agreementChecked: true
-          })
-        }
+    this.openPrivacyContract()
+  },
+
+  /**
+   * 打开微信隐私协议
+   */
+  openPrivacyContract() {
+    wx.openPrivacyContract({
+      success: () => {
+        console.log('打开隐私协议成功')
+      },
+      fail: (err) => {
+        console.error('打开隐私协议失败', err)
+        wx.showToast({
+          title: '请在微信中打开隐私协议',
+          icon: 'none'
+        })
       }
     })
   },
