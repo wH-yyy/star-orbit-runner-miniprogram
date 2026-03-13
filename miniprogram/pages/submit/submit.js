@@ -335,18 +335,30 @@ Page({
         mask: true
       })
 
-      // 1. 上传首张截图到云存储
-      const tempFilePath = this.data.images[0]
-      const cloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
-      const uploadRes = await wx.cloud.uploadFile({
-        cloudPath,
-        filePath: tempFilePath
+      // 1. 上传跑步截图到云存储
+      const runningTempFilePath = this.data.images[0]
+      const runningCloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
+      const runningUploadRes = await wx.cloud.uploadFile({
+        cloudPath: runningCloudPath,
+        filePath: runningTempFilePath
       })
-      const fileID = uploadRes.fileID
+      const fileID = runningUploadRes.fileID
+
+      // 2. 如选择“任意场地跑”，同步上传步数截图到云存储
+      let stepFileID = ''
+      if (this.data.modeIndex === 1) {
+        const stepTempFilePath = this.data.stepImages[0]
+        const stepCloudPath = `step-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
+        const stepUploadRes = await wx.cloud.uploadFile({
+          cloudPath: stepCloudPath,
+          filePath: stepTempFilePath
+        })
+        stepFileID = stepUploadRes.fileID
+      }
 
       wx.hideLoading()
 
-      // 2. 前端视角：上传成功即视为提交成功
+      // 3. 前端视角：上传成功即视为提交成功
       this.setData({
         images: [],
         stepImages: []
@@ -357,21 +369,22 @@ Page({
         title: '提交成功'
       })
 
-      // 3. 在后台写入跑步记录并分配审核任务（不进行 OCR 识别）
+      // 4. 在后台写入跑步记录并分配审核任务（不进行 OCR 识别）
       wx.cloud
         .callFunction({
           name: 'uploadRunningRecordBasic',
           data: {
             fileID,
+            stepFileID,
             mode,
             coordinates: location // 传递位置坐标信息
           }
         })
         .then(res => {
-          console.log('后台OCR审核完成:', res)
+          console.log('后台记录写入完成:', res)
         })
         .catch(err => {
-          console.error('后台OCR审核失败:', err)
+          console.error('后台记录写入失败:', err)
         })
     } catch (error) {
       console.error('提交失败:', error)

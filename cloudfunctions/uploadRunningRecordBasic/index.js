@@ -12,7 +12,7 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
 
-  const { fileID, coordinates, mode } = event
+  const { fileID, stepFileID, coordinates, mode } = event
 
   // 基础参数校验
   if (!fileID) {
@@ -47,6 +47,7 @@ exports.main = async (event, context) => {
       name,
       stu_id,
       imageFileID: fileID,
+      stepImageFileID: stepFileID || '',
       mode: mode || '',
       
       status: 0, // 直接进入待审核状态
