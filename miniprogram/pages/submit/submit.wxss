@@ -261,6 +261,18 @@
   text-shadow: none;
 }
 
+.ban-tip {
+  color: #f56c6c;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.pend-reason {
+  color: #696565;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
 /* 水平排列样式 */
 .upload-row {
   display: flex;

@@ -88,4 +88,14 @@
   <button class="submit-btn" type="primary" bindtap="submitForm" disabled="{{submitDisabled}}">
     {{submitTextList[submitTextIndex]}}
   </button>
+
+  <!-- 禁跑次数提示 -->
+  <view class="ban-tip" wx:if="{{isBanned}}">
+    还需禁跑{{banRemainingDays}}次
+  </view>
+
+  <!-- 停跑原因提示 -->
+  <view class="pend-reason" wx:if="{{isPending}}">
+    ({{pendIngReason}})
+  </view>
 </view>

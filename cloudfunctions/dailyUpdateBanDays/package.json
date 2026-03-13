@@ -1,7 +1,7 @@
 {
-  "name": "temp_add_staff_fields",
+  "name": "dailyUpdateBanDays",
   "version": "1.0.0",
-  "description": "一次性脚本，为staff集合添加计数字段",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "wx-server-sdk": "~2.6.3"
+    "wx-server-sdk": "~3.0.4"
   }
 }
