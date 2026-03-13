@@ -345,14 +345,13 @@ Page({
         title: '提交成功'
       })
 
-      // 3. 在后台触发 OCR + 审核，不阻塞用户（传递位置信息）
+      // 3. 在后台写入跑步记录并分配审核任务（不进行 OCR 识别）
       wx.cloud
         .callFunction({
-          name: 'uploadRunningRecord',
+          name: 'uploadRunningRecordBasic',
           data: {
             fileID,
             mode,
-            ocrProvider: 'auto',
             coordinates: location // 传递位置坐标信息
           }
         })
