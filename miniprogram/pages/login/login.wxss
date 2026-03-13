@@ -631,6 +631,13 @@
   max-width: calc(100% - 50rpx);
 }
 
+.privacy-link {
+  display: inline;
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 .agreement-link {
   color: #667eea;
   font-weight: 600;
