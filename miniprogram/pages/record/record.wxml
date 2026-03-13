@@ -12,16 +12,20 @@
   <!-- 统计数据 -->
   <view class="stats-card">
     <view class="stat-item">
-      <view class="stat-value">{{userInfo.totalCount}}</view>
-      <view class="stat-label">成功次数</view>
+      <view class="stat-value">{{recordStats.passed}}</view>
+      <view class="stat-label">已通过</view>
     </view>
     <view class="stat-item">
-      <view class="stat-value">{{userInfo.totalDistance}}</view>
-      <view class="stat-label">总距离(km)</view>
+      <view class="stat-value">{{recordStats.pending}}</view>
+      <view class="stat-label">待审核</view>
     </view>
     <view class="stat-item">
-      <view class="stat-value">{{userInfo.totalDuration}}</view>
-      <view class="stat-label">运动时长</view>
+      <view class="stat-value">{{recordStats.failed}}</view>
+      <view class="stat-label">不通过</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{recordStats.appeal}}</view>
+      <view class="stat-label">申诉中</view>
     </view>
   </view>
 

@@ -147,13 +147,55 @@ page {
   color: #667eea;
 }
 
+/* ========== 图片容器 ========== */
+.image-container {
+  text-align: center;
+  margin-bottom: 32rpx;
+  padding: 0 20rpx;
+}
+
 /* ========== 打卡图片 ========== */
+.detail-image-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .detail-image {
-  width: 360rpx;
-  height: 640rpx;
-  border-radius: 16rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
-  object-fit: cover;
+  max-width: 100%;
+  height: auto;
+  border-radius: 20rpx;
+  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.15);
+  display: block;
+  margin: 0 auto;
+}
+
+/* ========== 步数截图 ========== */
+.step-image-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.step-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 20rpx;
+  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.15);
   display: block;
   margin: 0 auto;
 }

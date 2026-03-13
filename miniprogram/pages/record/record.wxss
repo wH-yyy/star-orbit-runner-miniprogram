@@ -60,6 +60,7 @@ page {
 /* 统计数据卡片 */
 .stats-card {
   display: flex;
+  flex-wrap: nowrap;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 32rpx;
   padding: 30rpx;
@@ -77,6 +78,16 @@ page {
   border-radius: 24rpx;
   position: relative;
   overflow: hidden;
+}
+
+/* 单行四列时适当收紧字号与间距 */
+.stats-card .stat-value {
+  font-size: 42rpx;
+  margin-bottom: 6rpx;
+}
+
+.stats-card .stat-label {
+  font-size: 24rpx;
 }
 
 .stat-value {

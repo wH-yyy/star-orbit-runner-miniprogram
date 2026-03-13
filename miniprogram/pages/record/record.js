@@ -1,6 +1,13 @@
 Page({
   data: {
     userInfo: {},
+    // 记录状态统计
+    recordStats: {
+      passed: 0,
+      pending: 0,
+      failed: 0,
+      appeal: 0
+    },
     // 所有记录（从数据库获取的全部记录）
     allRecords: [],
     // 当前显示的记录（筛选后）
@@ -56,14 +63,11 @@ Page({
 
   loadUserInfo() {
     const userInfo = getApp().globalData.userInfo
-    const totalDuration_hour = userInfo.totalDuration.hour < 10 ? "0" + userInfo.totalDuration.hour : userInfo.totalDuration.hour
-    const totalDuration_minute = userInfo.totalDuration.minute < 10 ? "0" + userInfo.totalDuration.minute : userInfo.totalDuration.minute
-    const totalDuration_second = userInfo.totalDuration.second < 10 ? "0" + userInfo.totalDuration.second : userInfo.totalDuration.second
     this.setData({
       userInfo: {
         ...userInfo,
-        totalDistance: userInfo.totalDistance.toFixed(2),
-        totalDuration: totalDuration_hour + ":" + totalDuration_minute + ":" + totalDuration_second
+        totalDistance: userInfo.totalDistance,
+        totalDuration: userInfo.totalDuration
       }
     })
   },
@@ -115,9 +119,20 @@ Page({
           return item;
         });
 
+        // 统计各状态记录数（基于全部记录）
+        const recordStats = { passed: 0, pending: 0, failed: 0, appeal: 0 }
+        processedData.forEach(r => {
+          const status = typeof r.status === 'number' ? r.status : parseInt(r.status, 10)
+          if (status === 1) recordStats.passed += 1
+          else if (status === 0) recordStats.pending += 1
+          else if (status === 2) recordStats.failed += 1
+          else if (status === 3) recordStats.appeal += 1
+        })
+
         this.setData({
           allRecords: processedData,
           displayedRecords: processedData, // 初始显示全部记录
+          recordStats,
           loading: false
         })
       })

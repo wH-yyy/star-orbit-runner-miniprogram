@@ -168,16 +168,6 @@ Page({
     });
   },
 
-  previewImage(e) {
-    const imageFileID = this.data.record.imageFileID;
-    if (imageFileID) {
-      wx.previewImage({
-        current: imageFileID,
-        urls: [imageFileID]
-      });
-    }
-  },
-
   /**
    * 预览申诉图片
    */

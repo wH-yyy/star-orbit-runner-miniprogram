@@ -22,32 +22,15 @@
     </view>
 
     <!-- 打卡图片 -->
-    <view wx:if="{{record.imageFileID}}" style="text-align: center; margin-bottom: 16rpx;">
-      <image src="{{record.imageFileID}}" class="detail-image" mode="aspectFill" bindtap="previewImage"
-        data-index="0"></image>
+    <view wx:if="{{record.imageFileID}}" class="image-container">
+      <text class="detail-image-title">跑步截图</text>
+      <image src="{{record.imageFileID}}" class="detail-image" mode="widthFix"></image>
     </view>
 
-    <!-- 跑步数据卡片 -->
-    <view class="data-card">
-      <text class="card-title">跑步数据</text>
-      <view class="data-grid">
-        <view class="data-item">
-          <text class="data-label">时间</text>
-          <text class="data-value">{{record.running_date || '--'}}</text>
-        </view>
-        <view class="data-item">
-          <text class="data-label">距离</text>
-          <text class="data-value">{{record.running_distance || '0'}} km</text>
-        </view>
-        <view class="data-item">
-          <text class="data-label">时长</text>
-          <text class="data-value">{{record.running_duration || '0'}}</text>
-        </view>
-        <view class="data-item">
-          <text class="data-label">配速</text>
-          <text class="data-value">{{record.running_pace || '0'}}</text>
-        </view>
-      </view>
+    <!-- 步数截图 -->
+    <view wx:if="{{record.stepImageFileID}}" class="image-container">
+      <text class="step-image-title">步数截图</text>
+      <image src="{{record.stepImageFileID}}" class="step-image" mode="widthFix"></image>
     </view>
 
     <!-- 审核结果区域 -->
