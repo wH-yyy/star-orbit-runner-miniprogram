@@ -26,8 +26,8 @@ Page({
     // 提交状态
     submitting: false,
     submitDisabled: true,
-    submitTextIndex: 0,
-    submitTextList: ['' ,'提交', '未到提交时间', '今日停跑', '已被禁跑'],
+    submitTextIndex: 4,
+    submitTextList: ['提交', '未到提交时间', '今日停跑', '已被禁跑', ''],
 
     // 禁跑状态
     isBanned: false,
