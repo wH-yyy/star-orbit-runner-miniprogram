@@ -4,14 +4,10 @@ Page({
     // 跑步截图（用于预览展示：临时路径）
     images: [],
     maxImages: 1,
-    imageError: false,
-    imageErrorMsg: '',
 
     // 步数截图（用于预览展示：临时路径）
     stepImages: [],
     maxStepImages: 1,
-    stepImageError: false,
-    stepImageErrorMsg: '',
 
     // 跑步方式选择
     modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
