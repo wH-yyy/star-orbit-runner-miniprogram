@@ -32,23 +32,15 @@ exports.main = async (event) => {
   }
 
   try {
-    const todayStr = getTodayDateStr()
-    const countRes = await db.collection('RunningRecords')
-      .where({ openid, run_date: todayStr })
-      .count()
-    if (countRes.total > 0) {
-      return { code: 400, message: '今日已提交过记录，请勿重复提交', data: null }
-    }
-
     // 保存截图与基础信息
     const recordData = {
       openid,
-      
+      status: 0,
       imageFileID: fileID,
       stepImageFileID: stepFileID || '',
       mode: mode || '',
       audit_reason: '',
-      run_date: todayStr,
+      run_date: getTodayDateStr(),
       create_time: db.serverDate(),
       // 任务分派字段预置
       assignedStaffId: null,
