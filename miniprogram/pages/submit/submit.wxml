@@ -52,7 +52,7 @@
             <!-- 上传按钮 -->
             <view class="upload-btn" wx:if="{{images.length < maxImages}}" bindtap="chooseImage">
               <view class="upload-icon">+</view>
-              <text class="upload-text">上传截图</text>
+              <text class="upload-text">选择截图</text>
               <text class="upload-hint">(最多{{maxImages}}张)</text>
             </view>
           </view>
@@ -75,7 +75,7 @@
             <!-- 上传按钮 -->
             <view class="upload-btn" wx:if="{{stepImages.length < maxStepImages}}" bindtap="chooseStepImage">
               <view class="upload-icon">+</view>
-              <text class="upload-text">上传步数截图</text>
+              <text class="upload-text">选择截图</text>
               <text class="upload-hint">(最多{{maxStepImages}}张)</text>
             </view>
           </view>

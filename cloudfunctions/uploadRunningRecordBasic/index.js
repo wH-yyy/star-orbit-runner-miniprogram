@@ -7,8 +7,16 @@ cloud.init({
 
 const db = cloud.database()
 
+// 获取北京时间 YYYY-MM-DD 字符串
+function getTodayDateStr() {
+  const now = new Date()
+  const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000
+  const beijingTime = new Date(utc + 8 * 60 * 60 * 1000)
+  return `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')}`
+}
+
 // 保存跑步记录截图及位置信息，并分配审核任务
-exports.main = async (event, context) => {
+exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
 
@@ -24,36 +32,24 @@ exports.main = async (event, context) => {
   }
 
   try {
-    // 从 Users 集合中获取用户基础信息（若存在）
-    let name = ''
-    let stu_id = ''
-    try {
-      const userResult = await db.collection('Users').where({
-        openid
-      }).get()
-
-      if (userResult.data && userResult.data.length > 0) {
-        const userDoc = userResult.data[0]
-        name = userDoc.name || ''
-        stu_id = userDoc.stu_id || ''
-      }
-    } catch (e) {
-      // 获取用户信息失败不阻塞提交流程，仅记录日志
-      console.error('获取用户信息失败:', e)
+    const todayStr = getTodayDateStr()
+    const countRes = await db.collection('RunningRecords')
+      .where({ openid, run_date: todayStr })
+      .count()
+    if (countRes.total > 0) {
+      return { code: 400, message: '今日已提交过记录，请勿重复提交', data: null }
     }
 
     // 保存截图与基础信息
     const recordData = {
-      name,
-      stu_id,
+      openid,
+      
       imageFileID: fileID,
       stepImageFileID: stepFileID || '',
       mode: mode || '',
-      
-      status: 0, // 直接进入待审核状态
       audit_reason: '',
+      run_date: todayStr,
       create_time: db.serverDate(),
-      openid,
       // 任务分派字段预置
       assignedStaffId: null,
       assignedStaffName: '',
@@ -129,7 +125,7 @@ exports.main = async (event, context) => {
       }
     }
   } catch (error) {
-    console.error('上传跑步记录（无OCR）失败:', error)
+    console.error('上传跑步记录失败:', error)
     return {
       code: 500,
       message: `服务器内部错误: ${error.message}`,
@@ -137,4 +133,3 @@ exports.main = async (event, context) => {
     }
   }
 }
-

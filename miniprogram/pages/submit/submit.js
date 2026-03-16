@@ -1,11 +1,11 @@
 // pages/submit/submit.js
 Page({
   data: {
-    // 跑步截图（用于预览展示：临时路径）
+    // 跑步截图（临时路径）
     images: [],
     maxImages: 1,
 
-    // 步数截图（用于预览展示：临时路径）
+    // 步数截图（临时路径）
     stepImages: [],
     maxStepImages: 1,
 
@@ -16,8 +16,6 @@ Page({
 
     // 位置信息
     currentLocation: null,
-    locationError: false,
-    locationErrorMsg: '',
 
     // 提交状态
     submitting: false,
@@ -55,8 +53,8 @@ Page({
 
   // 检查提交可用性
   async checkSubmissionAvailability() {
-    // 1. 检查是否被禁跑
     const app = getApp()
+    // 禁跑检查
     if (app.globalData.userInfo.status === 1) {
       this.setData({
         submitDisabled: true,
@@ -67,15 +65,14 @@ Page({
       return
     }
 
-    // 2. 检查当日是否停跑
+    // 停跑日检查
     try {
-      // 获取今天的日期字符串（格式 YYYY-MM-DD）
       const today = new Date()
       const year = today.getFullYear()
       const month = String(today.getMonth() + 1).padStart(2, '0')
       const day = String(today.getDate()).padStart(2, '0')
       const todayStr = `${year}-${month}-${day}`
-      // 查询云数据库 rest_days 集合中是否有今天
+
       const db = wx.cloud.database()
       const restDaysCollection = db.collection('rest_days')
       const res = await restDaysCollection.where({
@@ -95,23 +92,24 @@ Page({
       console.error('检查停跑日失败:', err)
       wx.showModal({
         title: '提示',
-        content: '停跑检查失败,已按无停跑处理。若问题持续出现,请联系管理员。',
+        content: '停跑检查失败，暂不可提交，请稍后重试。',
         showCancel: false,
         confirmText: '确定'
       })
+      this.setData({
+        submitDisabled: true,
+        submitTextIndex: 2
+      })
+      return
     }
 
-    // // 3. 检查时间段（晚上8点到10点30分）
+    // 时间段检查
     // const now = new Date()
     // const currentMinutes = now.getHours() * 60 + now.getMinutes()
     // const startMinutes = 20 * 60
     // const endMinutes = 22 * 60 + 30
-
     // if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
-    //   this.setData({
-    //     submitDisabled: true,
-    //     submitTextIndex: 1
-    //   })
+    //   this.setData({ submitDisabled: true, submitTextIndex: 1 })
     //   return
     // }
 
@@ -160,20 +158,17 @@ Page({
       const tempFiles = res.tempFiles || []
       if (tempFiles.length === 0) return
 
-      // 只在本地展示预览，不在这里上传；上传放到提交时统一处理
       const newImages = tempFiles.map(f => f.tempFilePath)
       this.setData({
         images: [...this.data.images, ...newImages]
       })
     } catch (error) {
-      console.error('选择/上传图片失败:', error)
+      console.error('选择图片失败:', error)
       if (error && error.errMsg && error.errMsg.includes('cancel')) return
       wx.showToast({
-        title: '图片上传失败',
+        title: '选择图片失败',
         icon: 'none'
       })
-    } finally {
-      // 这里不涉及上传，不需要 loading 状态恢复
     }
   },
 
@@ -184,7 +179,6 @@ Page({
 
     const images = [...this.data.images]
     images.splice(index, 1)
-
     this.setData({
       images
     })
@@ -192,6 +186,7 @@ Page({
 
   async chooseStepImage() {
     if (this.data.submitting) return
+
     try {
       const remain = this.data.maxStepImages - this.data.stepImages.length
       if (remain <= 0) return
@@ -206,20 +201,17 @@ Page({
       const tempFiles = res.tempFiles || []
       if (tempFiles.length === 0) return
 
-      // 只在本地展示预览，不在这里上传；上传放到提交时统一处理
       const newImages = tempFiles.map(f => f.tempFilePath)
       this.setData({
         stepImages: [...this.data.stepImages, ...newImages]
       })
     } catch (error) {
-      console.error('选择/上传步数截图失败:', error)
+      console.error('选择步数截图失败:', error)
       if (error && error.errMsg && error.errMsg.includes('cancel')) return
       wx.showToast({
-        title: '步数截图上传失败',
+        title: '选择步数截图失败',
         icon: 'none'
       })
-    } finally {
-      // 这里不涉及上传，不需要 loading 状态恢复
     }
   },
 
@@ -230,7 +222,6 @@ Page({
 
     const stepImages = [...this.data.stepImages]
     stepImages.splice(index, 1)
-
     this.setData({
       stepImages
     })
@@ -239,50 +230,32 @@ Page({
   // 获取当前位置
   getCurrentLocation() {
     return new Promise((resolve, reject) => {
-      console.log('开始获取当前位置...')
-
-      // 检查位置权限
       wx.getSetting({
         success: (settingRes) => {
           if (!settingRes.authSetting['scope.userLocation']) {
-            // 未授权，请求授权
-            console.log('位置权限未授权，请求授权...')
             wx.authorize({
               scope: 'scope.userLocation',
-              success: (authRes) => {
-                if (authRes.errMsg === 'authorize:ok') {
-                  this._getLocation(resolve, reject)
-                } else {
-                  reject(new Error('位置权限未授权'))
-                }
-              },
-              fail: (err) => {
-                reject(new Error('位置权限授权失败'))
-              }
+              success: () => this._getLocation(resolve, reject),
+              fail: () => reject(new Error('位置权限未授权'))
             })
           } else {
-            // 已授权，直接获取位置
             this._getLocation(resolve, reject)
           }
         },
-        fail: (err) => {
-          reject(new Error('获取权限设置失败'))
-        }
+        fail: () => reject(new Error('获取权限设置失败'))
       })
     })
   },
 
-  // 实际获取位置的方法
   _getLocation(resolve, reject) {
     wx.getLocation({
-      type: 'wgs84', // 使用WGS84坐标系统
+      type: 'wgs84',
       success: (res) => {
         const locationData = {
           latitude: res.latitude,
           longitude: res.longitude,
           accuracy: res.accuracy || 0
         }
-
         this.setData({
           currentLocation: locationData,
           locationError: false,
@@ -300,15 +273,19 @@ Page({
     })
   },
 
+  // 提交表单
   async submitForm() {
     if (this.data.submitting) return
+
+    // 前端基础校验
     if (!this.data.images || this.data.images.length === 0) {
       wx.showToast({
         icon: 'error',
         title: '请上传跑步截图'
       })
       return
-    } else if (this.data.modeIndex === 1 && (!this.data.stepImages || this.data.stepImages.length === 0)) {
+    }
+    if (this.data.modeIndex === 1 && (!this.data.stepImages || this.data.stepImages.length === 0)) {
       wx.showToast({
         icon: 'error',
         title: '请上传步数截图'
@@ -316,77 +293,101 @@ Page({
       return
     }
 
-    const mode = this.data.modeOptions[this.data.modeIndex] || ''
-
     try {
       this.setData({
         submitting: true,
-        submitDisabled: true,
+        submitDisabled: true
       })
 
-      const location = await this.getCurrentLocation()
+      // 1. 获取地理位置
+      let location = null
+      try {
+        location = await this.getCurrentLocation()
+      } catch (locErr) {
+        wx.showToast({
+          title: locErr.message || '位置获取失败',
+          icon: 'none'
+        })
+        this.setData({
+          submitting: false,
+          submitDisabled: false
+        })
+        return
+      }
 
       wx.showLoading({
         title: '上传中...',
         mask: true
       })
 
-      // 1. 上传跑步截图到云存储
-      const runningTempFilePath = this.data.images[0]
+      // 2. 上传跑步截图
+      const runningTempPath = this.data.images[0]
       const runningCloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
       const runningUploadRes = await wx.cloud.uploadFile({
         cloudPath: runningCloudPath,
-        filePath: runningTempFilePath
+        filePath: runningTempPath
       })
       const fileID = runningUploadRes.fileID
 
-      // 2. 如选择“任意场地跑”，同步上传步数截图到云存储
+      // 3. 若选择“任意场地跑”，上传步数截图
       let stepFileID = ''
       if (this.data.modeIndex === 1) {
-        const stepTempFilePath = this.data.stepImages[0]
+        const stepTempPath = this.data.stepImages[0]
         const stepCloudPath = `step-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
         const stepUploadRes = await wx.cloud.uploadFile({
           cloudPath: stepCloudPath,
-          filePath: stepTempFilePath
+          filePath: stepTempPath
         })
         stepFileID = stepUploadRes.fileID
       }
 
+      // 4. 调用云函数写入记录
+      const mode = this.data.modeOptions[this.data.modeIndex]
+      const res = await wx.cloud.callFunction({
+        name: 'uploadRunningRecordBasic',
+        data: {
+          fileID,
+          stepFileID,
+          mode,
+          coordinates: location
+        }
+      })
+
       wx.hideLoading()
-
-      // 3. 前端视角：上传成功即视为提交成功
-      this.setData({
-        images: [],
-        stepImages: []
-      })
-
-      wx.showToast({
-        icon: 'success',
-        title: '提交成功'
-      })
-
-      // 4. 在后台写入跑步记录并分配审核任务（不进行 OCR 识别）
-      wx.cloud
-        .callFunction({
-          name: 'uploadRunningRecordBasic',
-          data: {
-            fileID,
-            stepFileID,
-            mode,
-            coordinates: location // 传递位置坐标信息
-          }
-        })
-        .then(res => {
-          console.log('后台记录写入完成:', res)
-        })
-        .catch(err => {
-          console.error('后台记录写入失败:', err)
-        })
+      
+      // 5. 处理云函数返回结果
+      switch (res.result.code) {
+        case 200:
+          // 提交成功，清空表单
+          this.setData({
+            images: [],
+            stepImages: [],
+            currentLocation: null
+          });
+          wx.showToast({
+            icon: 'success',
+            title: '提交成功'
+          });
+          break;
+        case 400:
+          wx.showToast({
+            title: '请勿重复提交',
+            icon: 'error'
+          });
+          break;
+        case 500:
+          wx.showModal({
+            title: '提交失败',
+            content: '错误码：500',
+            showCancel: false
+          });
+          break;
+      }
     } catch (error) {
-      console.error('提交失败:', error)
+      console.error('提交过程异常:', error)
       wx.hideLoading()
       wx.showToast({
-        title: '网络错误，请稍后重试',
+        title: error.message || '网络错误，请稍后重试',
         icon: 'none'
       })
     } finally {
