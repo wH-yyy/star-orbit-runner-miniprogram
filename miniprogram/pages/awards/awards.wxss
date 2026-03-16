@@ -355,23 +355,3 @@
 .container {
   padding-bottom: env(safe-area-inset-bottom);
 }
-
-/* 暗色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .main-card,
-  .rules-card {
-    background: rgba(30, 30, 30, 0.9);
-    color: #ffffff;
-  }
-  
-  .progress-text,
-  .stat-label,
-  .rules-title,
-  .rule-desc {
-    color: #ffffff;
-  }
-  
-  .stat-number {
-    color: #667eea;
-  }
-}
