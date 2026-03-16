@@ -229,7 +229,8 @@ async function getAuditRecordDetail(event) {
       ocrText: record.ocr_text || '',
       campus: record.campus || '',
       running_pace: record.running_pace || '', // 配速
-      // 新增字段，默认空
+      mode: record.mode || '',
+      stepImageFileID: record.stepImageFileID || '',
       gender: '',
       college: '',
       className: ''
@@ -257,6 +258,20 @@ async function getAuditRecordDetail(event) {
         }
       } catch (err) {
         console.error('转换文件URL失败:', err)
+      }
+    }
+
+    // 对 stepImageFileID 的处理
+    if (detail.stepImageFileID && detail.stepImageFileID.startsWith('cloud://')) {
+      try {
+        const fileList = await cloud.getTempFileURL({
+          fileList: [detail.stepImageFileID]
+        })
+        if (fileList.fileList && fileList.fileList[0]) {
+          detail.stepImageFileID = fileList.fileList[0].tempFileURL
+        }
+      } catch (err) {
+        console.error('转换步数截图URL失败:', err)
       }
     }
 
@@ -301,7 +316,12 @@ async function submitAudit(event) {
     // }
     // 此处不强制验证，因为可能由管理员操作
 
-    const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
+    // 处理“其他原因”：如果包含，则移除它，后续只使用备注
+    let finalReasons = [...(reasons || [])]
+    if (finalReasons.includes('其他原因')) {
+      finalReasons = finalReasons.filter(r => r !== '其他原因')
+    }
+    const combinedReason = [...finalReasons, remark].filter(item => item && String(item).trim() !== '').join(';')
 
     // 2. 更新记录状态
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
@@ -352,7 +372,11 @@ async function updateAuditResult(event) {
 
     const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
     
-    const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
+    let finalReasons = [...(reasons || [])]
+    if (finalReasons.includes('其他原因')) {
+      finalReasons = finalReasons.filter(r => r !== '其他原因')
+    }
+    const combinedReason = [...finalReasons, remark].filter(item => item && String(item).trim() !== '').join(';')
 
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
       data: {
@@ -409,7 +433,11 @@ async function batchAudit(event) {
         // 将审核结果转换为状态码
         const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
         
-        const combinedReason = [...(reasons || []), remark].filter(item => item && String(item).trim() !== '').join(';')
+        let finalReasons = [...(reasons || [])]
+        if (finalReasons.includes('其他原因')) {
+          finalReasons = finalReasons.filter(r => r !== '其他原因')
+        }
+        const combinedReason = [...finalReasons, remark].filter(item => item && String(item).trim() !== '').join(';')
 
         await db.collection(RECORDS_COLLECTION).doc(recordId).update({
           data: {
