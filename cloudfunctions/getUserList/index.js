@@ -117,8 +117,6 @@ exports.main = async (event, context) => {
         statusText: statusText,     // 添加文本字段用于显示
         createTime: user.createTime ? 
           new Date(user.createTime).toISOString().split('T')[0] : '',
-        totalDistance: user.totalDistance || 0,
-        totalDuration: formatDuration(user.totalDuration),
         totalCount: user.totalCount || 0,
         violationCount: user.violationCount || 0
       }
