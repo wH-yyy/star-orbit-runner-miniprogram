@@ -232,28 +232,40 @@ Page({
   // 提交表单
   async submitForm() {
     if (this.data.submitting) return
-  
+
     // 基础校验
     if (!this.data.images || this.data.images.length === 0) {
-      wx.showToast({ icon: 'error', title: '请上传跑步截图' })
+      wx.showToast({
+        icon: 'error',
+        title: '请上传跑步截图'
+      })
       return
     }
     if (this.data.modeIndex === 1 && (!this.data.stepImages || this.data.stepImages.length === 0)) {
-      wx.showToast({ icon: 'error', title: '请上传步数截图' })
+      wx.showToast({
+        icon: 'error',
+        title: '请上传步数截图'
+      })
       return
     }
-  
+
     let uploadedFileIDs = []
     try {
-      wx.showLoading({ title: '提交中', mask: true })
-      this.setData({ submitting: true, submitDisabled: true })
+      wx.showLoading({
+        title: '提交中',
+        mask: true
+      })
+      this.setData({
+        submitting: true,
+        submitDisabled: true
+      })
 
       // 1. 前置检查（调用 checkSubmission 云函数）
       const checkRes = await wx.cloud.callFunction({
         name: 'checkSubmission',
         data: {}
       })
-  
+
       if (checkRes.result.code !== 200) {
         // 检查不通过，提示原因并终止
         wx.hideLoading()
@@ -262,21 +274,30 @@ Page({
           content: checkRes.result.message,
           showCancel: false
         })
-        this.setData({ submitting: false, submitDisabled: false })
+        this.setData({
+          submitting: false,
+          submitDisabled: false
+        })
         return
       }
-  
+
       // 2. 获取地理位置（若失败则终止）
       let location = null
       try {
         location = await this.getCurrentLocation()
       } catch (locErr) {
         wx.hideLoading()
-        wx.showToast({ title: locErr.message || '位置获取失败', icon: 'none' })
-        this.setData({ submitting: false, submitDisabled: false })
+        wx.showToast({
+          title: locErr.message || '位置获取失败',
+          icon: 'none'
+        })
+        this.setData({
+          submitting: false,
+          submitDisabled: false
+        })
         return
       }
-  
+
       // 3. 上传跑步截图
       const runningTempPath = this.data.images[0]
       const runningCloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
@@ -286,7 +307,7 @@ Page({
       })
       const fileID = runningUploadRes.fileID
       uploadedFileIDs.push(fileID)
-  
+
       // 4. 若选择“任意场地跑”，上传步数截图
       let stepFileID = ''
       if (this.data.modeIndex === 1) {
@@ -299,7 +320,7 @@ Page({
         stepFileID = stepUploadRes.fileID
         uploadedFileIDs.push(stepFileID)
       }
-  
+
       // 5. 调用正式提交的云函数
       const mode = this.data.modeOptions[this.data.modeIndex]
       const res = await wx.cloud.callFunction({
@@ -311,9 +332,9 @@ Page({
           coordinates: location
         }
       })
-  
+
       wx.hideLoading()
-  
+
       // 6. 处理云函数返回结果
       switch (res.result.code) {
         case 200:
@@ -323,7 +344,10 @@ Page({
             stepImages: [],
             currentLocation: null
           })
-          wx.showToast({ icon: 'success', title: '提交成功' })
+          wx.showToast({
+            icon: 'success',
+            title: '提交成功'
+          })
           break
         case 500:
         default:
@@ -335,27 +359,30 @@ Page({
               fail: (delErr) => console.error('删除失败', delErr)
             })
           }
-          if (res.result.code === 500) {
-            wx.showModal({
-              title: '提交失败',
-              content: '服务器内部错误，请稍后重试',
-              showCancel: false
-            })
-          }
+          wx.showModal({
+            title: '提交失败',
+            content: `错误码${res.result.code}，请稍后重试`,
+            showCancel: false
+          })
       }
     } catch (error) {
       console.error('提交过程异常:', error)
       wx.hideLoading()
       // 若有已上传文件，尝试删除（防止异常后残留）
       if (uploadedFileIDs && uploadedFileIDs.length) {
-        wx.cloud.deleteFile({ fileList: uploadedFileIDs })
+        wx.cloud.deleteFile({
+          fileList: uploadedFileIDs
+        })
       }
       wx.showToast({
         title: error.message || '网络错误，请稍后重试',
         icon: 'none'
       })
     } finally {
-      this.setData({ submitting: false, submitDisabled: false })
+      this.setData({
+        submitting: false,
+        submitDisabled: false
+      })
     }
   }
 })

@@ -32,9 +32,22 @@ exports.main = async (event) => {
   }
 
   try {
-    // 保存截图与基础信息
+    const userRes = await db.collection('Users').where({ openid }).get()
+    if (userRes.data.length === 0) {
+      return {
+        code: 404,
+        message: '用户不存在，请先完善个人信息',
+        data: null
+      }
+    }
+    const userInfo = userRes.data[0]
+    const name = userInfo.name || ''
+    const stu_id = userInfo.stu_id || ''
+
     const recordData = {
       openid,
+      name,
+      stu_id,
       status: 0,
       imageFileID: fileID,
       stepImageFileID: stepFileID || '',
@@ -42,7 +55,6 @@ exports.main = async (event) => {
       audit_reason: '',
       run_date: getTodayDateStr(),
       create_time: db.serverDate(),
-      // 任务分派字段预置
       assignedStaffId: null,
       assignedStaffName: '',
       assignTime: null,
@@ -55,12 +67,10 @@ exports.main = async (event) => {
       })
     }
 
-    // 写入跑步记录
     const dbResult = await db.collection('RunningRecords').add({
       data: recordData
     })
 
-    // 自动分配审核任务
     let assignedStaffId = null
     try {
       const staffQueryResult = await db.collection('staff').where({
@@ -95,10 +105,6 @@ exports.main = async (event) => {
             assigned_count: db.command.inc(1)
           }
         })
-
-        console.log(
-          `任务分配成功，记录ID: ${dbResult._id}，分配给任务最少的: ${assignedStaffId} (${selectedStaff.real_name || selectedStaff.username})`
-        )
       } else {
         console.log('没有可用的工作人员，任务未分配。')
       }
@@ -106,8 +112,6 @@ exports.main = async (event) => {
       // 分配失败不影响记录提交，仅记录日志
       console.error(`为记录 ${dbResult._id} 分配任务失败:`, assignError)
     }
-
-    // 返回结果给前端
     return {
       code: 200,
       message: '提交成功，等待审核',
