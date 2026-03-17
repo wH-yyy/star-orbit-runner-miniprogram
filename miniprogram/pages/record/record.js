@@ -64,11 +64,7 @@ Page({
   loadUserInfo() {
     const userInfo = getApp().globalData.userInfo
     this.setData({
-      userInfo: {
-        ...userInfo,
-        totalDistance: userInfo.totalDistance,
-        totalDuration: userInfo.totalDuration
-      }
+      userInfo
     })
   },
 

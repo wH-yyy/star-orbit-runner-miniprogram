@@ -157,7 +157,6 @@ exports.main = async (event, context) => {
       
       // 4. 如果申诉通过，更新用户数据
       if (result === 1 && runningRecord) {
-        // 4.1 根据学号查找用户
         const userQuery = await transaction.collection('Users')
           .where({
             stu_id: appeal.stu_id
@@ -166,30 +165,15 @@ exports.main = async (event, context) => {
         
         if (userQuery.data.length > 0) {
           const user = userQuery.data[0]
-          
-          // 4.2 解析本次跑步的时长
-          const durationObj = parseDuration(runningRecord.running_duration)
-          
-          // 4.3 获取当前用户的 totalDuration，若不存在则初始化为 {hour:0,minute:0,second:0}
-          const currentDuration = user.totalDuration || { hour: 0, minute: 0, second: 0 }
-          
-          // 4.4 计算新的总时长
-          const newDuration = addDuration(currentDuration, durationObj)
-          
-          // 4.5 准备更新数据
           const updateData = {
-            totalDistance: _.inc(parseFloat(runningRecord.running_distance) || 0),
             totalCount: _.inc(1),
-            totalDuration: newDuration,  // 直接设置新对象
             updateTime: now
           }
           
-          // 4.6 执行更新
           await transaction.collection('Users').doc(user._id).update({
             data: updateData
           })
           
-          console.log(`用户数据更新成功: stu_id=${appeal.stu_id}, 增加距离=${runningRecord.running_distance}km, 增加时长=${runningRecord.running_duration}, 新总时长=${JSON.stringify(newDuration)}`)
         } else {
           console.warn(`用户记录不存在: stu_id=${appeal.stu_id}`)
         }
@@ -197,9 +181,6 @@ exports.main = async (event, context) => {
       
       // 提交事务
       await transaction.commit()
-      
-      console.log(`申诉处理成功: appealId=${appealId}, result=${result}`)
-      
       return {
         code: 200,
         data: {

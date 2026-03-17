@@ -34,12 +34,6 @@ exports.main = async (event, context) => {
         status: 0,
         stu_id: Math.floor(Math.random() * 9000000000 + 1000000000).toString(),
         totalCount: 0,
-        totalDistance: 0,
-        totalDuration: {
-          hour: 0,
-          minute: 0,
-          second: 0
-        },
         updateTime: db.serverDate(),
         violationCount: 0
       }
