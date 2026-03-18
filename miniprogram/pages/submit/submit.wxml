@@ -4,9 +4,10 @@
   <view class="form-item">
     <text class="label">活动时间</text>
     <view class="schedule-container">
-      <view class="academic-term">2025~2026学年第二学期</view>
-      <view class="date-range">3月21日~4月31日</view>
-      <view class="time-range">20:00~22:05</view>
+      <view class="academic-term">{{activityInfo.semester}}</view>
+      <view class="date-range" wx:if="{{activityInfo.startDate && activityInfo.endDate}}">{{activityInfo.startDate}}~{{activityInfo.endDate}}</view>
+      <view class="date-range" wx:else>暂无活动日期</view>
+      <view class="time-range">{{activityInfo.timeRange}}</view>
     </view>
   </view>
 

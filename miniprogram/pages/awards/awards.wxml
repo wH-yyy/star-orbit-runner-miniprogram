@@ -32,7 +32,7 @@
       <view class="stat-divider"></view>
       <view class="stat-item">
         <text class="stat-number">{{totalActivities}}</text>
-        <text class="stat-label">总活动次数</text>
+        <text class="stat-label">当前活动次数</text>
       </view>
     </view>
   </view>

@@ -7,6 +7,19 @@ Page({
       if (app.globalData.hasLogin) {
         const result = await this.fetchUserInfo(app.globalData.userInfo.openid)
         if (result) {
+          if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+            wx.showToast({
+              icon: 'error',
+              title: '请完善个人信息',
+            })
+            setTimeout(() => {
+              wx.reLaunch({
+                url: '/pages/finish-info/finish-info',
+              })
+            }, 1000)
+            return
+          }
+          
           const status = result.status
           if (status === 2) {
             wx.showModal({
@@ -40,7 +53,6 @@ Page({
         .get()
 
       if (res.data.length > 0) {
-        // const userInfo = res.data[0]
         const userInfo = {
           ...res.data[0],
           avatar: res.data[0].gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
@@ -49,7 +61,7 @@ Page({
         app.globalData.userInfo = userInfo
         return userInfo
       } else {
-        // 用户不存在（可能已被管理员删除），清除登录状态并跳转登录页
+        // 用户不存在，清除登录状态并跳转登录页
         app.globalData.userInfo = {}
         app.globalData.hasLogin = false
         wx.clearStorageSync()

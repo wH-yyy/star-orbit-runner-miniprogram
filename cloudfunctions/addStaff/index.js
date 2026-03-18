@@ -6,10 +6,8 @@ cloud.init({
 const db = cloud.database()
 
 // 云函数入口函数
-exports.main = async (event, context) => {
+exports.main = async (event) => {
   const { username, password, campus } = event
-  
-  console.log('收到添加工作人员请求:', { username, password: password?.length, campus })
   
   // 参数校验
   if (!username || !password || !campus) {
@@ -68,8 +66,6 @@ exports.main = async (event, context) => {
     const staffData = {
       username: username,
       password_hash: passwordHash,
-      real_name: '', 
-      // status: 'active',
       status: 0,
       campus: campus,
       created_at: currentTime,
@@ -92,7 +88,6 @@ exports.main = async (event, context) => {
       data: {
         _id: result._id,
         username: staffData.username,
-        real_name: staffData.real_name,
         status: staffData.status,
         campus: staffData.campus,
         created_at: staffData.created_at,

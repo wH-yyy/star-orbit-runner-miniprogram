@@ -29,11 +29,19 @@ Page({
 
     // 停跑状态
     isPending: false,
-    pendIngReason: ''
+    pendIngReason: '',
+
+    // 活动信息
+    activityInfo: {
+      semester: '',
+      startDate: '',
+      endDate: '',
+      timeRange: '20:00~22:05'
+    }
   },
 
   onLoad() {
-    if (!getApp().globalData.userInfo.stu_id) {
+    if (!getApp().globalData.userInfo.campus || !getApp().globalData.userInfo.class_name || !getApp().globalData.userInfo.college || !getApp().globalData.userInfo.gender || !getApp().globalData.userInfo.name) {
       wx.showToast({
         icon: 'error',
         title: '请先完善个人信息',
@@ -44,16 +52,87 @@ Page({
         })
       }, 1500)
     }
+    this.loadActivityInfo()
     this.checkSubmissionAvailability()
   },
 
   onShow() {
+    this.loadActivityInfo()
     this.checkSubmissionAvailability()
+  },
+
+  // 加载活动信息
+  async loadActivityInfo() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getCurrentActivity'
+      })
+      
+      if (res.result.code === 200) {
+        const activityInfo = res.result.data
+        // 格式化日期显示
+        const startDate = this.formatDateDisplay(activityInfo.start_date)
+        const endDate = this.formatDateDisplay(activityInfo.end_date)
+        
+        this.setData({
+          activityInfo: {
+            semester: activityInfo.semester,
+            startDate: startDate,
+            endDate: endDate,
+            timeRange: '20:00~22:05'
+          }
+        })
+      } else {
+        console.error('获取活动信息失败:', res.result.message)
+        // 如果获取失败，使用默认值
+        this.setData({
+          activityInfo: {
+            semester: '当前无活动',
+            startDate: '',
+            endDate: '',
+            timeRange: '20:00~22:05'
+          }
+        })
+      }
+    } catch (error) {
+      console.error('加载活动信息失败:', error)
+      // 如果发生错误，使用默认值
+      this.setData({
+        activityInfo: {
+          semester: '加载失败',
+          startDate: '',
+          endDate: '',
+          timeRange: '20:00~22:05'
+        }
+      })
+    }
+  },
+
+  // 格式化日期显示（YYYY-MM-DD 转换为 M月D日）
+  formatDateDisplay(dateStr) {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    return `${month}月${day}日`
   },
 
   // 检查提交可用性
   async checkSubmissionAvailability() {
     const app = getApp()
+    // 完善个人信息检查
+    if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+      wx.showToast({
+        icon: 'error',
+        title: '请完善个人信息',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/finish-info/finish-info',
+        })
+      }, 1500)
+    }
+
     // 禁跑检查
     if (app.globalData.userInfo.status === 1) {
       this.setData({
@@ -232,28 +311,62 @@ Page({
   // 提交表单
   async submitForm() {
     if (this.data.submitting) return
-  
+
     // 基础校验
     if (!this.data.images || this.data.images.length === 0) {
-      wx.showToast({ icon: 'error', title: '请上传跑步截图' })
+      wx.showToast({
+        icon: 'error',
+        title: '请上传跑步截图'
+      })
       return
     }
     if (this.data.modeIndex === 1 && (!this.data.stepImages || this.data.stepImages.length === 0)) {
-      wx.showToast({ icon: 'error', title: '请上传步数截图' })
+      wx.showToast({
+        icon: 'error',
+        title: '请上传步数截图'
+      })
       return
     }
-  
+
     let uploadedFileIDs = []
     try {
-      wx.showLoading({ title: '提交中', mask: true })
-      this.setData({ submitting: true, submitDisabled: true })
+      wx.showLoading({
+        title: '提交中',
+        mask: true
+      })
+      this.setData({
+        submitting: true,
+        submitDisabled: true
+      })
 
-      // 1. 前置检查（调用 checkSubmission 云函数）
+      // 1. 获取地理位置（若失败则终止）
+      let location = null
+      try {
+        location = await this.getCurrentLocation()
+      } catch (locErr) {
+        wx.hideLoading()
+        wx.showToast({
+          title: locErr.message || '位置获取失败',
+          icon: 'none'
+        })
+        this.setData({
+          submitting: false,
+          submitDisabled: false
+        })
+        return
+      }
+
+      // 2. 前置检查（调用 checkSubmission 云函数，传递定位信息）
       const checkRes = await wx.cloud.callFunction({
         name: 'checkSubmission',
-        data: {}
+        data: {
+          coordinates: {
+            latitude: location.latitude,
+            longitude: location.longitude
+          }
+        }
       })
-  
+
       if (checkRes.result.code !== 200) {
         // 检查不通过，提示原因并终止
         wx.hideLoading()
@@ -262,21 +375,13 @@ Page({
           content: checkRes.result.message,
           showCancel: false
         })
-        this.setData({ submitting: false, submitDisabled: false })
+        this.setData({
+          submitting: false,
+          submitDisabled: false
+        })
         return
       }
-  
-      // 2. 获取地理位置（若失败则终止）
-      let location = null
-      try {
-        location = await this.getCurrentLocation()
-      } catch (locErr) {
-        wx.hideLoading()
-        wx.showToast({ title: locErr.message || '位置获取失败', icon: 'none' })
-        this.setData({ submitting: false, submitDisabled: false })
-        return
-      }
-  
+
       // 3. 上传跑步截图
       const runningTempPath = this.data.images[0]
       const runningCloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
@@ -286,7 +391,7 @@ Page({
       })
       const fileID = runningUploadRes.fileID
       uploadedFileIDs.push(fileID)
-  
+
       // 4. 若选择“任意场地跑”，上传步数截图
       let stepFileID = ''
       if (this.data.modeIndex === 1) {
@@ -299,11 +404,11 @@ Page({
         stepFileID = stepUploadRes.fileID
         uploadedFileIDs.push(stepFileID)
       }
-  
+
       // 5. 调用正式提交的云函数
       const mode = this.data.modeOptions[this.data.modeIndex]
       const res = await wx.cloud.callFunction({
-        name: 'uploadRunningRecordBasic',
+        name: 'uploadRunningRecord',
         data: {
           fileID,
           stepFileID,
@@ -311,9 +416,9 @@ Page({
           coordinates: location
         }
       })
-  
+
       wx.hideLoading()
-  
+
       // 6. 处理云函数返回结果
       switch (res.result.code) {
         case 200:
@@ -323,7 +428,10 @@ Page({
             stepImages: [],
             currentLocation: null
           })
-          wx.showToast({ icon: 'success', title: '提交成功' })
+          wx.showToast({
+            icon: 'success',
+            title: '提交成功'
+          })
           break
         case 500:
         default:
@@ -335,27 +443,30 @@ Page({
               fail: (delErr) => console.error('删除失败', delErr)
             })
           }
-          if (res.result.code === 500) {
-            wx.showModal({
-              title: '提交失败',
-              content: '服务器内部错误，请稍后重试',
-              showCancel: false
-            })
-          }
+          wx.showModal({
+            title: '提交失败',
+            content: `错误码${res.result.code}，请稍后重试`,
+            showCancel: false
+          })
       }
     } catch (error) {
       console.error('提交过程异常:', error)
       wx.hideLoading()
       // 若有已上传文件，尝试删除（防止异常后残留）
       if (uploadedFileIDs && uploadedFileIDs.length) {
-        wx.cloud.deleteFile({ fileList: uploadedFileIDs })
+        wx.cloud.deleteFile({
+          fileList: uploadedFileIDs
+        })
       }
       wx.showToast({
         title: error.message || '网络错误，请稍后重试',
         icon: 'none'
       })
     } finally {
-      this.setData({ submitting: false, submitDisabled: false })
+      this.setData({
+        submitting: false,
+        submitDisabled: false
+      })
     }
   }
 })

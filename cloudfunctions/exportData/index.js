@@ -4,6 +4,57 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const XLSX = require('xlsx')
 
+// 获取当前活动的总有效天数
+async function getCurrentActivityTotalDays() {
+  try {
+    // 获取当前激活的活动配置
+    const activityRes = await db.collection('activity_config')
+      .where({
+        status: 1
+      })
+      .get()
+
+    if (!activityRes.data || activityRes.data.length === 0) {
+      console.log('当前没有激活的活动配置')
+      return 0
+    }
+
+    const currentActivity = activityRes.data[0]
+    const now = new Date()
+    
+    // 计算从活动开始日期到当前日期的总有效天数（排除停跑日）
+    const startDate = currentActivity.start_date
+    const endDate = now.toISOString().split('T')[0] // 使用当前日期作为结束日期
+    
+    // 获取所有停跑日
+    const restDaysRes = await db.collection('rest_days').get()
+    const restDays = restDaysRes.data ? restDaysRes.data.map(day => day.date) : []
+    
+    let totalDays = 0
+    const currentDate = new Date(startDate)
+    const end = new Date(endDate)
+    
+    // 遍历每一天，排除停跑日
+    while (currentDate <= end) {
+      const dateStr = currentDate.toISOString().split('T')[0]
+      
+      // 如果不是停跑日，则计入有效天数
+      if (!restDays.includes(dateStr)) {
+        totalDays++
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+    
+    console.log(`活动总有效天数：${totalDays}（从${startDate}到${endDate}）`)
+    return totalDays
+
+  } catch (error) {
+    console.error('获取活动总天数失败:', error)
+    return 0
+  }
+}
+
 exports.main = async (event, context) => {
   try {
     // 获取前端传递的选项
@@ -36,7 +87,10 @@ exports.main = async (event, context) => {
 
 // 导出获奖名单
 async function exportAwardList(users) {
-  const TOTAL = 1
+  // 获取当前活动的总有效天数
+  const totalDays = await getCurrentActivityTotalDays()
+  const TOTAL = totalDays > 0 ? totalDays : 1 // 如果没有活动，默认使用1
+  
   // 2. 数据处理和过滤
   const processedUsers = users
     .map(user => {
@@ -54,7 +108,8 @@ async function exportAwardList(users) {
       return {
         ...user,
         completionRate,
-        award
+        award,
+        totalActivities: TOTAL // 记录总活动次数
       }
     })
     // 过滤掉完成率小于60%的用户

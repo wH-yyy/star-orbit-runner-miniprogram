@@ -116,9 +116,7 @@ exports.main = async (event, context) => {
           
           // 更新用户统计数据
           const updateData = {
-            totalCount: (user.totalCount || 0) + 1,
-            totalDistance: (user.totalDistance || 0) + (runningRecord.running_distance || 0),
-            totalDuration: (user.totalDuration || 0) + convertDurationToMinutes(runningRecord.running_duration || '0:00')
+            totalCount: (user.totalCount || 0) + 1
           }
           
           await db.collection('Users').doc(user._id).update({
