@@ -41,7 +41,7 @@ Page({
   },
 
   onLoad() {
-    if (!getApp().globalData.userInfo.stu_id) {
+    if (!getApp().globalData.userInfo.campus || !getApp().globalData.userInfo.class_name || !getApp().globalData.userInfo.college || !getApp().globalData.userInfo.gender || !getApp().globalData.userInfo.name) {
       wx.showToast({
         icon: 'error',
         title: '请先完善个人信息',
