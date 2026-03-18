@@ -29,7 +29,15 @@ Page({
 
     // 停跑状态
     isPending: false,
-    pendIngReason: ''
+    pendIngReason: '',
+
+    // 活动信息
+    activityInfo: {
+      semester: '',
+      startDate: '',
+      endDate: '',
+      timeRange: '20:00~22:05'
+    }
   },
 
   onLoad() {
@@ -44,11 +52,69 @@ Page({
         })
       }, 1500)
     }
+    this.loadActivityInfo()
     this.checkSubmissionAvailability()
   },
 
   onShow() {
+    this.loadActivityInfo()
     this.checkSubmissionAvailability()
+  },
+
+  // 加载活动信息
+  async loadActivityInfo() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getCurrentActivity'
+      })
+      
+      if (res.result.code === 200) {
+        const activityInfo = res.result.data
+        // 格式化日期显示
+        const startDate = this.formatDateDisplay(activityInfo.start_date)
+        const endDate = this.formatDateDisplay(activityInfo.end_date)
+        
+        this.setData({
+          activityInfo: {
+            semester: activityInfo.semester,
+            startDate: startDate,
+            endDate: endDate,
+            timeRange: '20:00~22:05'
+          }
+        })
+      } else {
+        console.error('获取活动信息失败:', res.result.message)
+        // 如果获取失败，使用默认值
+        this.setData({
+          activityInfo: {
+            semester: '当前无活动',
+            startDate: '',
+            endDate: '',
+            timeRange: '20:00~22:05'
+          }
+        })
+      }
+    } catch (error) {
+      console.error('加载活动信息失败:', error)
+      // 如果发生错误，使用默认值
+      this.setData({
+        activityInfo: {
+          semester: '加载失败',
+          startDate: '',
+          endDate: '',
+          timeRange: '20:00~22:05'
+        }
+      })
+    }
+  },
+
+  // 格式化日期显示（YYYY-MM-DD 转换为 M月D日）
+  formatDateDisplay(dateStr) {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    return `${month}月${day}日`
   },
 
   // 检查提交可用性

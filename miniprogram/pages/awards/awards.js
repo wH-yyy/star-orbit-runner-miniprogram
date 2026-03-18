@@ -1,23 +1,57 @@
 // pages/awards/awards.js
 Page({
   data: {
-    totalActivities: 60, // 总活动次数（固定为60次）
+    totalActivities: 0, // 总活动次数（动态获取）
     userParticipations: 0, // 用户参与次数
     participationRate: 0, // 参与比例
     userAwardList: ['一等奖', '二等奖', '三等奖', '运动奖'], // 用户奖项
-    userAwardIndex: 0
+    userAwardIndex: 0,
+    activityInfo: null // 活动信息
   },
 
   onLoad() {
     this.setData({
       userParticipations: getApp().globalData.userInfo.totalCount || 0
     })
+    this.loadActivityInfo();
     this.calculateAward();
   },
 
   onPullDownRefresh() {
     this.loadUserParticipations();
+    this.loadActivityInfo();
     wx.stopPullDownRefresh();
+  },
+
+  // 加载活动信息
+  async loadActivityInfo() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getCurrentActivity'
+      })
+      
+      if (res.result.code === 200) {
+        const activityInfo = res.result.data
+        this.setData({
+          totalActivities: activityInfo.totalDays || 0,
+          activityInfo: activityInfo
+        })
+        // 重新计算奖项
+        this.calculateAward()
+      } else {
+        console.error('获取活动信息失败:', res.result.message)
+        wx.showToast({
+          title: '获取活动信息失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('加载活动信息失败:', error)
+      wx.showToast({
+        title: '加载活动信息失败',
+        icon: 'none'
+      })
+    }
   },
 
   async loadUserParticipations() {

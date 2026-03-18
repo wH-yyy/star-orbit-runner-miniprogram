@@ -1,0 +1,9 @@
+{
+  "name": "manage-activity-config",
+  "version": "1.0.0",
+  "description": "管理活动配置云函数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -11,6 +11,57 @@ function getTodayDateStr() {
   return `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')}`
 }
 
+// 检查活动状态
+async function checkActivityStatus(todayStr) {
+  try {
+    // 获取当前激活的活动配置
+    const activityRes = await db.collection('activity_config')
+      .where({
+        status: 1
+      })
+      .get()
+
+    if (!activityRes.data || activityRes.data.length === 0) {
+      return {
+        canSubmit: false,
+        message: '当前没有激活的活动配置'
+      }
+    }
+
+    const currentActivity = activityRes.data[0]
+    const today = new Date(todayStr)
+    const startDate = new Date(currentActivity.start_date)
+    const endDate = new Date(currentActivity.end_date)
+    
+    // 检查活动是否在有效期内
+    if (today < startDate) {
+      return {
+        canSubmit: false,
+        message: `活动尚未开始`
+      }
+    }
+    
+    if (today > endDate) {
+      return {
+        canSubmit: false,
+        message: `活动已结束`
+      }
+    }
+
+    return {
+      canSubmit: true,
+      message: '活动状态正常'
+    }
+
+  } catch (error) {
+    console.error('检查活动状态失败:', error)
+    return {
+      canSubmit: false,
+      message: '活动状态检查失败'
+    }
+  }
+}
+
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
@@ -30,8 +81,17 @@ exports.main = async (event) => {
     }
   }
 
-  // 停跑日检查
+  // 活动状态检查
   const todayStr = getTodayDateStr()
+  const activityCheck = await checkActivityStatus(todayStr)
+  if (!activityCheck.canSubmit) {
+    return {
+      code: 405,
+      message: activityCheck.message
+    }
+  }
+
+  // 停跑日检查
   const restRes = await db.collection('rest_days').where({ run_date: todayStr }).get()
   if (restRes.data.length > 0) {
     return {

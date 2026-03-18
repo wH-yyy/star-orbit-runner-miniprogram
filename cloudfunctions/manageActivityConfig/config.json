@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "openapi": [],
+    "database": {
+      "read": ["activity_config"],
+      "write": ["activity_config"]
+    }
+  }
+}
