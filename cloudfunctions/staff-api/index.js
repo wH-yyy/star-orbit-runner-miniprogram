@@ -124,6 +124,10 @@ async function getAuditRecords(event) {
         options: 'i'
       })
     }
+
+    // 获取总记录数
+    const countResult = await db.collection(RECORDS_COLLECTION).where(query).count()
+    const total = countResult.total
     
     console.log('构建的查询条件:', query)
     
@@ -182,7 +186,7 @@ async function getAuditRecords(event) {
       message: 'Success',
       data: {
         records: records,
-        total: records.length,
+        total: total,
         page,
         pageSize
       }
