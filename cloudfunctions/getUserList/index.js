@@ -8,13 +8,15 @@ const _ = db.command
 
 exports.main = async (event) => {
   const {
-    page = 1,
-      pageSize = 10,
-      searchKeyword = '',
-      searchFields = ['name', 'stu_id', 'class_name'],
-      campus = [],
-      college = [],
-      status = []
+    page = 1, 
+    pageSize = 10,
+    searchKeyword = '',
+    searchFields = ['name', 'stu_id', 'class_name'],
+    campus = [],
+    college = [],
+    status = [],
+    sortBy = 'createTime',
+    sortOrder = 'desc'
   } = event
 
   try {
@@ -87,7 +89,7 @@ exports.main = async (event) => {
       .where(query)
       .skip(skip)
       .limit(pageSize)
-      .orderBy('createTime', 'desc')
+      .orderBy(sortBy, sortOrder)
       .get()
 
     return {

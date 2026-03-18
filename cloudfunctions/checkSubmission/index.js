@@ -92,7 +92,7 @@ exports.main = async (event) => {
   }
 
   // 停跑日检查
-  const restRes = await db.collection('rest_days').where({ run_date: todayStr }).get()
+  const restRes = await db.collection('rest_days').where({ date: todayStr }).get()
   if (restRes.data.length > 0) {
     return {
       code: 402,

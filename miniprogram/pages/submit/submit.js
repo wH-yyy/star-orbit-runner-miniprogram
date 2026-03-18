@@ -120,6 +120,19 @@ Page({
   // 检查提交可用性
   async checkSubmissionAvailability() {
     const app = getApp()
+    // 完善个人信息检查
+    if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+      wx.showToast({
+        icon: 'error',
+        title: '请完善个人信息',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/finish-info/finish-info',
+        })
+      }, 1500)
+    }
+
     // 禁跑检查
     if (app.globalData.userInfo.status === 1) {
       this.setData({

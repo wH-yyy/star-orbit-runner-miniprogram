@@ -66,9 +66,11 @@ Page({
             title: '信息已完善',
             icon: 'success'
           })
-          wx.reLaunch({
-            url: '/pages/submit/submit'
-          })
+          setTimeout(() => {
+            wx.reLaunch({
+              url: '/pages/submit/submit'
+            })
+          }, 1000)
           break
 
         case -1:
