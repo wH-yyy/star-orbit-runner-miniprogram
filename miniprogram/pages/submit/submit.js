@@ -339,10 +339,32 @@ Page({
         submitDisabled: true
       })
 
-      // 1. 前置检查（调用 checkSubmission 云函数）
+      // 1. 获取地理位置（若失败则终止）
+      let location = null
+      try {
+        location = await this.getCurrentLocation()
+      } catch (locErr) {
+        wx.hideLoading()
+        wx.showToast({
+          title: locErr.message || '位置获取失败',
+          icon: 'none'
+        })
+        this.setData({
+          submitting: false,
+          submitDisabled: false
+        })
+        return
+      }
+
+      // 2. 前置检查（调用 checkSubmission 云函数，传递定位信息）
       const checkRes = await wx.cloud.callFunction({
         name: 'checkSubmission',
-        data: {}
+        data: {
+          coordinates: {
+            latitude: location.latitude,
+            longitude: location.longitude
+          }
+        }
       })
 
       if (checkRes.result.code !== 200) {
@@ -352,23 +374,6 @@ Page({
           title: '提交失败',
           content: checkRes.result.message,
           showCancel: false
-        })
-        this.setData({
-          submitting: false,
-          submitDisabled: false
-        })
-        return
-      }
-
-      // 2. 获取地理位置（若失败则终止）
-      let location = null
-      try {
-        location = await this.getCurrentLocation()
-      } catch (locErr) {
-        wx.hideLoading()
-        wx.showToast({
-          title: locErr.message || '位置获取失败',
-          icon: 'none'
         })
         this.setData({
           submitting: false,
@@ -403,7 +408,7 @@ Page({
       // 5. 调用正式提交的云函数
       const mode = this.data.modeOptions[this.data.modeIndex]
       const res = await wx.cloud.callFunction({
-        name: 'uploadRunningRecordBasic',
+        name: 'uploadRunningRecord',
         data: {
           fileID,
           stepFileID,
