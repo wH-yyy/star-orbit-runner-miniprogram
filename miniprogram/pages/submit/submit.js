@@ -36,11 +36,23 @@ Page({
       semester: '',
       startDate: '',
       endDate: '',
-      timeRange: '20:00~22:05'
+      startTime: 20,
+      endTime: 22.5,
+      timeRange: '20:00~22:30'
     }
   },
 
-  onLoad() {
+  getTimeRange() {
+    const { startTime, endTime } = this.data.activityInfo;
+    const format = (num) => {
+      const hour = Math.floor(num);
+      const minute = Math.round((num - hour) * 60);
+      return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    };
+    return `${format(startTime)}~${format(endTime)}`;
+  },
+
+  async onLoad() {
     if (!getApp().globalData.userInfo.campus || !getApp().globalData.userInfo.class_name || !getApp().globalData.userInfo.college || !getApp().globalData.userInfo.gender || !getApp().globalData.userInfo.name) {
       wx.showToast({
         icon: 'error',
@@ -52,12 +64,12 @@ Page({
         })
       }, 1500)
     }
-    this.loadActivityInfo()
+    await this.loadActivityInfo()
     this.checkSubmissionAvailability()
   },
 
-  onShow() {
-    this.loadActivityInfo()
+  async onShow() {
+    await this.loadActivityInfo()
     this.checkSubmissionAvailability()
   },
 
@@ -79,7 +91,9 @@ Page({
             semester: activityInfo.semester,
             startDate: startDate,
             endDate: endDate,
-            timeRange: '20:00~22:05'
+            startTime: activityInfo.start_time,
+            endTime: activityInfo.end_time,
+            timeRange: this.getTimeRange()
           }
         })
       } else {
@@ -90,7 +104,9 @@ Page({
             semester: '当前无活动',
             startDate: '',
             endDate: '',
-            timeRange: '20:00~22:05'
+            startTime: 20,
+            endTime: 22.5,
+            timeRange: '20:00~22:30'
           }
         })
       }
@@ -102,7 +118,9 @@ Page({
           semester: '加载失败',
           startDate: '',
           endDate: '',
-          timeRange: '20:00~22:05'
+          startTime: 20,
+          endTime: 22.5,
+          timeRange: '20:00~22:30'
         }
       })
     }
@@ -145,14 +163,17 @@ Page({
     }
 
     // 时间段检查
-    // const now = new Date()
-    // const currentMinutes = now.getHours() * 60 + now.getMinutes()
-    // const startMinutes = 20 * 60
-    // const endMinutes = 22 * 60 + 30
-    // if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
-    //   this.setData({ submitDisabled: true, submitTextIndex: 1 })
-    //   return
-    // }
+    const now = new Date()
+    const currentMinutes = now.getHours() * 60 + now.getMinutes()
+    const startMinutes = this.data.activityInfo.startTime * 60
+    const endMinutes = this.data.activityInfo.endTime * 60
+    console.log(startMinutes)
+    console.log(endMinutes)
+    console.log(currentMinutes)
+    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
+      this.setData({ submitDisabled: true, submitTextIndex: 1 })
+      return
+    }
 
     this.setData({
       submitDisabled: false,

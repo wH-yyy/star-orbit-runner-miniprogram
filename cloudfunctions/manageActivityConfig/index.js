@@ -79,7 +79,9 @@ exports.main = async (event, context) => {
         semester: data.semester,
         start_date: data.start_date,
         end_date: data.end_date,
-        status: 0, // 默认非激活状态（0=非激活，1=激活）
+        start_time: data.start_time || 20,
+        end_time: data.end_time || 22.5,
+        status: 0,
         created_at: db.serverDate(),
         updated_at: db.serverDate()
       }

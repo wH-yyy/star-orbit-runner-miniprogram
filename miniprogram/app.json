@@ -2,7 +2,6 @@
   "pages": [
     "pages/launch/launch",
     "pages/phone-login/phone-login",
-    "pages/login/login",
     "pages/home/home",
     "pages/submit/submit",
     "pages/record/record",
