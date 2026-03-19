@@ -167,9 +167,6 @@ Page({
     const currentMinutes = now.getHours() * 60 + now.getMinutes()
     const startMinutes = this.data.activityInfo.startTime * 60
     const endMinutes = this.data.activityInfo.endTime * 60
-    console.log(startMinutes)
-    console.log(endMinutes)
-    console.log(currentMinutes)
     if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
       this.setData({ submitDisabled: true, submitTextIndex: 1 })
       return
