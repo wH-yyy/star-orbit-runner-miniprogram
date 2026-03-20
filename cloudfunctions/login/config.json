@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "openapi": [],
-    "database": {
-      "read": ["Users"],
-      "write": ["Users"]
-    }
-  }
-}
