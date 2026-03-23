@@ -19,7 +19,7 @@ exports.main = async (event, context) => {
     })
     if (result.stats.updated === 0) {
       return {
-        code: 201,
+        code: 400,
         message: '0条数据已更新',
         data: null
       }
@@ -36,7 +36,7 @@ exports.main = async (event, context) => {
     }
   } catch (error) {
     return {
-      code: -1,
+      code: 500,
       message: '更新数据库时出错',
       data: null
     }

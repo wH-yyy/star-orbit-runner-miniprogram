@@ -24,6 +24,15 @@ Page({
   },
 
   onLoad() {
+    this.setData({
+      userInfo: getApp().globalData.userInfo,
+    })
+    if (this.data.userInfo.openid) {
+      this.loadAllRecords()
+    }
+  },
+
+  onShow() {
     const app = getApp()
     // 登录检查
     if (!app.globalData.userInfo.openid) {
@@ -32,7 +41,7 @@ Page({
         title: '请先登录',
       })
       setTimeout(() => {
-        wx.reLaunch({
+        wx.navigateTo({
           url: '/pages/phone-login/phone-login',
         })
       }, 1000)
@@ -45,54 +54,25 @@ Page({
         title: '请完善个人信息',
       })
       setTimeout(() => {
-        wx.reLaunch({
+        wx.navigateTo({
           url: '/pages/finish-info/finish-info',
         })
       }, 1000)
       return
     }
-    this.loadUserInfo()
-    this.loadAllRecords()
+    this.setData({
+      userInfo: getApp().globalData.userInfo,
+    })
   },
 
   async onPullDownRefresh() {
     this.setData({
       loading: true
     })
-    try {
-      const app = getApp()
-      const db = wx.cloud.database()
-      const res = await db.collection('Users')
-        .doc(app.globalData.userInfo._id)
-        .get()
-      if (res.data) {
-        const userInfo = {
-          ...res.data,
-          avatar: res.data.gender === '男' ? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
-        }
-        app.globalData.userInfo = userInfo
-        wx.setStorageSync('userInfo', userInfo)
-      }
-    } catch (error) {
-      wx.showToast({
-        title: '刷新失败，请检查网络连接状态',
-        icon: 'error',
-      })
-      this.setData({
-        loading: false
-      })
-      return
+    if (this.data.userInfo.openid) {
+      this.loadAllRecords()
     }
-    this.loadUserInfo()
-    this.loadAllRecords()
     wx.stopPullDownRefresh()
-  },
-
-  loadUserInfo() {
-    const userInfo = getApp().globalData.userInfo
-    this.setData({
-      userInfo
-    })
   },
 
   /**
@@ -103,14 +83,11 @@ Page({
       loading: true
     })
 
-    const app = getApp()
-    const openid = app.globalData.userInfo.openid
-
     // 从数据库获取所有跑步记录
     const db = wx.cloud.database()
     db.collection('RunningRecords')
       .where({
-        openid: openid
+        openid: this.data.userInfo.openid
       })
       .orderBy('create_time', 'desc')
       .get()

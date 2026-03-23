@@ -61,23 +61,20 @@ Page({
             avatar: result.data.gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
           }
           app.globalData.userInfo = userInfo
-          wx.setStorageSync('openid', userInfo.openid)
           wx.showToast({
             title: '信息已完善',
             icon: 'success'
           })
           setTimeout(() => {
-            wx.reLaunch({
-              url: '/pages/submit/submit'
-            })
+            wx.navigateBack()
           }, 1000)
           break
 
-        case -1:
-        case 201:
+        case 400:
+        case 500:
           wx.showModal({
             title: '系统错误',
-            content: `错误码:41${result.code}，请联系管理员处理`,
+            content: `错误码:${result.code}，请重试或联系管理员处理`,
             showCancel: false
           })
           break
@@ -86,7 +83,7 @@ Page({
       console.log(error)
       wx.showModal({
         title: '上传失败',
-        content: '错误码41102,请检查网络后重试',
+        content: '请检查网络后重试或联系管理员处理',
         showCancel: false
       })
     }
