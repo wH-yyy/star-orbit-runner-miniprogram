@@ -42,7 +42,7 @@ Page({
       })
       setTimeout(() => {
         wx.navigateTo({
-          url: '/pages/phone-login/phone-login',
+          url: '/pages/login/login',
         })
       }, 1000)
       return

@@ -109,28 +109,6 @@
   letter-spacing: 2rpx;
 }
 
-.phone-display {
-  width: 100%;
-  padding: 24rpx;
-  background: rgba(102, 126, 234, 0.08);
-  border-radius: 20rpx;
-  text-align: center;
-  animation: fadeIn 0.8s ease 0.2s forwards;
-  opacity: 0;
-}
-
-.phone-display .label {
-  font-size: 28rpx;
-  color: #666666;
-  margin-right: 12rpx;
-}
-
-.phone-display .phone-text {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #667eea;
-}
-
 .login-btn {
   width: 100%;
   height: 120rpx;

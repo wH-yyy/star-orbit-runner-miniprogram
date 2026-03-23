@@ -54,7 +54,7 @@ Page({
 
     // 调用云函数
     wx.cloud.callFunction({
-        name: 'login-phone',
+        name: 'login-user',
       })
       .then(res => {
         const result = res.result

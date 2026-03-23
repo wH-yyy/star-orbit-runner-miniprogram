@@ -1,14 +1,16 @@
 {
   "pages": [
     "pages/launch/launch",
-    "pages/phone-login/phone-login",
+    "pages/login/login",
     "pages/home/home",
     "pages/submit/submit",
     "pages/record/record",
     "pages/awards/awards",
     "pages/record-detail/record-detail",
     "pages/appeal-history/appeal-history",
-    "pages/finish-info/finish-info"
+    "pages/finish-info/finish-info",
+    "login",
+    "pages/login"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
