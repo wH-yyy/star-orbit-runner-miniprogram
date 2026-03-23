@@ -43,7 +43,10 @@ Page({
   },
 
   getTimeRange() {
-    const { startTime, endTime } = this.data.activityInfo;
+    const {
+      startTime,
+      endTime
+    } = this.data.activityInfo;
     const format = (num) => {
       const hour = Math.floor(num);
       const minute = Math.round((num - hour) * 60);
@@ -79,13 +82,13 @@ Page({
       const res = await wx.cloud.callFunction({
         name: 'getCurrentActivity'
       })
-      
+
       if (res.result.code === 200) {
         const activityInfo = res.result.data
         // 格式化日期显示
         const startDate = this.formatDateDisplay(activityInfo.start_date)
         const endDate = this.formatDateDisplay(activityInfo.end_date)
-        
+
         this.setData({
           activityInfo: {
             semester: activityInfo.semester,
@@ -168,7 +171,10 @@ Page({
     const startMinutes = this.data.activityInfo.startTime * 60
     const endMinutes = this.data.activityInfo.endTime * 60
     if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
-      this.setData({ submitDisabled: true, submitTextIndex: 1 })
+      this.setData({
+        submitDisabled: true,
+        submitTextIndex: 1
+      })
       return
     }
 
@@ -326,7 +332,6 @@ Page({
     })
   },
 
-  // 提交表单
   async submitForm() {
     if (this.data.submitting) return
 
@@ -357,76 +362,49 @@ Page({
         submitDisabled: true
       })
 
-      // 1. 获取地理位置（若失败则终止）
-      let location = null
-      try {
-        location = await this.getCurrentLocation()
-      } catch (locErr) {
-        wx.hideLoading()
-        wx.showToast({
-          title: locErr.message || '位置获取失败',
-          icon: 'none'
-        })
-        this.setData({
-          submitting: false,
-          submitDisabled: false
-        })
-        return
-      }
-
-      // 2. 前置检查（调用 checkSubmission 云函数，传递定位信息）
-      const checkRes = await wx.cloud.callFunction({
-        name: 'checkSubmission',
-        data: {
-          coordinates: {
-            latitude: location.latitude,
-            longitude: location.longitude
-          }
-        }
-      })
-
-      if (checkRes.result.code !== 200) {
-        // 检查不通过，提示原因并终止
-        wx.hideLoading()
-        wx.showModal({
-          title: '提交失败',
-          content: checkRes.result.message,
-          showCancel: false
-        })
-        this.setData({
-          submitting: false,
-          submitDisabled: false
-        })
-        return
-      }
-
-      // 3. 上传跑步截图
+      // 准备上传参数
       const runningTempPath = this.data.images[0]
       const runningCloudPath = `running-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
-      const runningUploadRes = await wx.cloud.uploadFile({
-        cloudPath: runningCloudPath,
-        filePath: runningTempPath
-      })
+
+      let stepTempPath = null
+      let stepCloudPath = null
+      if (this.data.modeIndex === 1) {
+        stepTempPath = this.data.stepImages[0]
+        stepCloudPath = `step-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
+      }
+
+      // 并行执行：获取位置 + 上传跑步截图 + (如果需要)上传步数截图
+      const tasks = [
+        this.getCurrentLocation(),
+        wx.cloud.uploadFile({
+          cloudPath: runningCloudPath,
+          filePath: runningTempPath
+        })
+      ]
+      if (stepTempPath) {
+        tasks.push(wx.cloud.uploadFile({
+          cloudPath: stepCloudPath,
+          filePath: stepTempPath
+        }))
+      }
+
+      const results = await Promise.all(tasks)
+      const location = results[0]
+      const runningUploadRes = results[1]
       const fileID = runningUploadRes.fileID
       uploadedFileIDs.push(fileID)
 
-      // 4. 若选择“任意场地跑”，上传步数截图
       let stepFileID = ''
-      if (this.data.modeIndex === 1) {
-        const stepTempPath = this.data.stepImages[0]
-        const stepCloudPath = `step-records/${Date.now()}_${Math.random().toString(16).slice(2)}.jpg`
-        const stepUploadRes = await wx.cloud.uploadFile({
-          cloudPath: stepCloudPath,
-          filePath: stepTempPath
-        })
+      if (stepTempPath) {
+        const stepUploadRes = results[2]
         stepFileID = stepUploadRes.fileID
         uploadedFileIDs.push(stepFileID)
       }
 
-      // 5. 调用正式提交的云函数
+      // 调用合并后的云函数
       const mode = this.data.modeOptions[this.data.modeIndex]
       const res = await wx.cloud.callFunction({
-        name: 'uploadRunningRecord',
+        name: 'submitRunningRecord',
         data: {
           fileID,
           stepFileID,
@@ -437,10 +415,9 @@ Page({
 
       wx.hideLoading()
 
-      // 6. 处理云函数返回结果
+      // 处理返回结果
       switch (res.result.code) {
         case 200:
-          // 提交成功，清空表单
           this.setData({
             images: [],
             stepImages: [],
@@ -451,26 +428,25 @@ Page({
             title: '提交成功'
           })
           break
-        case 500:
-        default:
-          // 提交失败，删除已上传的图片
-          if (uploadedFileIDs.length > 0) {
-            wx.cloud.deleteFile({
-              fileList: uploadedFileIDs,
-              success: (delRes) => console.log('已删除无效图片', delRes),
-              fail: (delErr) => console.error('删除失败', delErr)
-            })
-          }
+        case 403:
+        case 405:
+        case 402:
+        case 401:
+        case 406:
           wx.showModal({
             title: '提交失败',
-            content: `错误码${res.result.code}，请稍后重试`,
+            content: res.result.message,
             showCancel: false
           })
+          if (uploadedFileIDs.length) {
+            wx.cloud.deleteFile({
+              fileList: uploadedFileIDs
+            })
+          }
       }
     } catch (error) {
       console.error('提交过程异常:', error)
       wx.hideLoading()
-      // 若有已上传文件，尝试删除（防止异常后残留）
       if (uploadedFileIDs && uploadedFileIDs.length) {
         wx.cloud.deleteFile({
           fileList: uploadedFileIDs
@@ -486,5 +462,6 @@ Page({
         submitDisabled: false
       })
     }
+    console.timeEnd('优化后总用时')
   }
 })
