@@ -66,7 +66,8 @@ Page({
       console.error('获取用户信息失败', err)
       wx.showModal({
         title: '加载错误',
-        content: '无法获取用户信息，请检查网络后重试'
+        content: '无法获取用户信息，请检查网络后重试',
+        showCancel: false
       })
     }
     return null

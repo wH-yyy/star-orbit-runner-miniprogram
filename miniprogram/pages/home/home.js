@@ -21,6 +21,12 @@ Page({
   },
 
   onLoad() {
+    this.setData({
+      userInfo: getApp().globalData.userInfo,
+    })
+  },
+
+  onShow() {
     const app = getApp()
     // 登录检查
     if (!app.globalData.userInfo.openid) {
@@ -29,7 +35,7 @@ Page({
         title: '请先登录',
       })
       setTimeout(() => {
-        wx.reLaunch({
+        wx.navigateTo({
           url: '/pages/phone-login/phone-login',
         })
       }, 1000)
@@ -42,14 +48,14 @@ Page({
         title: '请完善个人信息',
       })
       setTimeout(() => {
-        wx.reLaunch({
+        wx.navigateTo({
           url: '/pages/finish-info/finish-info',
         })
       }, 1000)
       return
     }
     this.setData({
-      userInfo: app.globalData.userInfo,
+      userInfo: getApp().globalData.userInfo,
     })
   },
 

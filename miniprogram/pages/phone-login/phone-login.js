@@ -75,21 +75,28 @@ Page({
                 this.setData({
                   loginDisabled: true
                 })
+              } else if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+                wx.showToast({
+                  icon: 'error',
+                  title: '请完善个人信息',
+                })
+                wx.redirectTo({
+                  url: '/pages/finish-info/finish-info'
+                })
               } else {
                 wx.showToast({
                   title: '登录成功',
                   icon: 'success'
                 })
                 setTimeout(() => {
-                  wx.switchTab({
-                    url: '/pages/submit/submit'
-                  })
-                }, 1500)
+                  wx.navigateBack()
+                }, 1000)
               }
 
             } else {
               // 新用户
               app.globalData.userInfo.openid = result.data.openid
+              wx.setStorageSync('openid', result.data.openid)
               wx.redirectTo({
                 url: '/pages/finish-info/finish-info'
               })
@@ -98,8 +105,8 @@ Page({
 
           case 500:
             wx.showModal({
-              title: '登录失败',
-              content: '系统内部错误,请联系管理员处理',
+              title: '系统错误',
+              content: `错误码:${result.code}，请重试或联系管理员处理`,
               showCancel: false
             })
             break;
@@ -109,7 +116,7 @@ Page({
         wx.hideLoading()
         wx.showModal({
           title: '登录失败',
-          content: '请检查网络后重试',
+          content: '请检查网络后重试或联系管理员处理',
           showCancel: false
         })
       })

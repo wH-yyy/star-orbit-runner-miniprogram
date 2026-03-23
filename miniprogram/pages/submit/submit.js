@@ -42,11 +42,7 @@ Page({
     }
   },
 
-  getTimeRange() {
-    const {
-      startTime,
-      endTime
-    } = this.data.activityInfo;
+  getTimeRange(startTime, endTime) {
     const format = (num) => {
       const hour = Math.floor(num);
       const minute = Math.round((num - hour) * 60);
@@ -77,15 +73,19 @@ Page({
         // 格式化日期显示
         const startDate = this.formatDateDisplay(activityInfo.start_date)
         const endDate = this.formatDateDisplay(activityInfo.end_date)
-
+        const startTime = activityInfo.start_time;
+        const endTime = activityInfo.end_time;
+  
+        const timeRange = this.getTimeRange(startTime, endTime);
+  
         this.setData({
           activityInfo: {
             semester: activityInfo.semester,
-            startDate: startDate,
-            endDate: endDate,
-            startTime: activityInfo.start_time,
-            endTime: activityInfo.end_time,
-            timeRange: this.getTimeRange()
+            startDate,
+            endDate,
+            startTime,
+            endTime,
+            timeRange
           }
         })
       } else {
@@ -319,7 +319,7 @@ Page({
         title: '请先登录',
       })
       setTimeout(() => {
-        wx.reLaunch({
+        wx.navigateTo({
           url: '/pages/phone-login/phone-login',
         })
       }, 1000)
@@ -332,7 +332,7 @@ Page({
         title: '请完善个人信息',
       })
       setTimeout(() => {
-        wx.reLaunch({
+        wx.navigateTo({
           url: '/pages/finish-info/finish-info',
         })
       }, 1000)
