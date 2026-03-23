@@ -26,20 +26,20 @@
       {
         "pagePath": "pages/record/record",
         "text": "记录",
-        "iconPath": "images/icons/examples.png",
-        "selectedIconPath": "images/icons/examples-active.png"
+        "iconPath": "images/record.png",
+        "selectedIconPath": "images/record-active.png"
       },
       {
         "pagePath": "pages/submit/submit",
         "text": "提交",
-        "iconPath": "images/icons/business.png",
-        "selectedIconPath": "images/icons/business-active.png"
+        "iconPath": "images/submit.png",
+        "selectedIconPath": "images/submit-active.png"
       },
       {
         "pagePath": "pages/home/home",
         "text": "我的",
-        "iconPath": "images/icons/usercenter.png",
-        "selectedIconPath": "images/icons/usercenter-active.png"
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
       }
     ]
   },

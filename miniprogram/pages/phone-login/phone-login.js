@@ -49,16 +49,14 @@ Page({
     // 调用云函数
     wx.cloud.callFunction({
         name: 'login-phone',
-        data: null
       })
       .then(res => {
         const result = res.result
+        const app = getApp()
         wx.hideLoading()
 
         switch (result.code) {
           case 200:
-
-
             if (result.data.existingStatus) {
               // 已存在账号（针对退出登录后再登录）
               const userInfo = {
@@ -66,7 +64,6 @@ Page({
                 avatar: result.data.userInfo.gender === '男' ? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
               }
               wx.setStorageSync('openid', userInfo.openid)
-              const app = getApp()
               app.globalData.userInfo = userInfo
 
               if (userInfo.status === 2) {
@@ -89,18 +86,20 @@ Page({
                   })
                 }, 1500)
               }
+
             } else {
               // 新用户
+              app.globalData.userInfo.openid = result.data.openid
               wx.redirectTo({
                 url: '/pages/finish-info/finish-info'
               })
             }
             break;
 
-          case -1:
+          case 500:
             wx.showModal({
               title: '登录失败',
-              content: '错误码40101,请联系管理员处理',
+              content: '系统内部错误,请联系管理员处理',
               showCancel: false
             })
             break;
@@ -110,7 +109,7 @@ Page({
         wx.hideLoading()
         wx.showModal({
           title: '登录失败',
-          content: '错误码40102,请检查网络后重试',
+          content: '请检查网络后重试',
           showCancel: false
         })
       })

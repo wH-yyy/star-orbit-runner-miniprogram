@@ -56,17 +56,6 @@ Page({
   },
 
   async onLoad() {
-    if (!getApp().globalData.userInfo.campus || !getApp().globalData.userInfo.class_name || !getApp().globalData.userInfo.college || !getApp().globalData.userInfo.gender || !getApp().globalData.userInfo.name) {
-      wx.showToast({
-        icon: 'error',
-        title: '请先完善个人信息',
-      })
-      setTimeout(() => {
-        wx.reLaunch({
-          url: '/pages/finish-info/finish-info',
-        })
-      }, 1500)
-    }
     await this.loadActivityInfo()
     this.checkSubmissionAvailability()
   },
@@ -141,19 +130,6 @@ Page({
   // 检查提交可用性
   async checkSubmissionAvailability() {
     const app = getApp()
-    // 完善个人信息检查
-    if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
-      wx.showToast({
-        icon: 'error',
-        title: '请完善个人信息',
-      })
-      setTimeout(() => {
-        wx.reLaunch({
-          url: '/pages/finish-info/finish-info',
-        })
-      }, 1500)
-    }
-
     // 禁跑检查
     if (app.globalData.userInfo.status === 1) {
       this.setData({
@@ -335,6 +311,34 @@ Page({
   async submitForm() {
     if (this.data.submitting) return
 
+    const app = getApp()
+    // 登录检查
+    if (!app.globalData.userInfo.openid) {
+      wx.showToast({
+        icon: 'error',
+        title: '请先登录',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/phone-login/phone-login',
+        })
+      }, 1000)
+      return
+    }
+    // 完善个人信息检查
+    if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+      wx.showToast({
+        icon: 'error',
+        title: '请完善个人信息',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/finish-info/finish-info',
+        })
+      }, 1000)
+      return
+    }
+
     // 基础校验
     if (!this.data.images || this.data.images.length === 0) {
       wx.showToast({
@@ -462,6 +466,5 @@ Page({
         submitDisabled: false
       })
     }
-    console.timeEnd('优化后总用时')
   }
 })
