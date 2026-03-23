@@ -105,7 +105,7 @@
 
       <view wx:elif="{{allRecords.length === 0}}" class="empty">
         <text>暂无跑步记录</text>
-        <button class="submit-btn" bindtap="goToSubmit">去提交记录</button>
+        <button class="submit-btn" bindtap="goToSubmit">去提交</button>
       </view>
 
       <view wx:else class="record-list-container">

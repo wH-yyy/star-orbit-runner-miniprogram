@@ -345,12 +345,12 @@ page {
 .empty .submit-btn {
   margin-top: 20rpx;
   padding: 14rpx 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #86aae1 0%, #618fd4 100%);
   color: #fff;
   border: none;
   border-radius: 16rpx;
   font-size: 26rpx;
-  width: 240rpx;
+  width: 200rpx;
   height: auto;
   line-height: normal;
 }
