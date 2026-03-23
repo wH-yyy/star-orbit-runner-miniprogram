@@ -2,7 +2,7 @@
 Page({
   data: {
     loginDisabled: false,
-    loginText: '微信一键登录',
+    loginText: '登录',
     agreementChecked: false,
   },
 
@@ -13,6 +13,10 @@ Page({
   },
 
   showAgreements() {
+    this.openPrivacyContract()
+  },
+
+  openPrivacyContract() {
     wx.openPrivacyContract({
       success: () => {
         console.log('打开隐私协议成功')

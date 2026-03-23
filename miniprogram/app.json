@@ -25,19 +25,19 @@
     "list": [
       {
         "pagePath": "pages/record/record",
-        "text": "记录",
+        "text": "历史记录",
         "iconPath": "images/record.png",
         "selectedIconPath": "images/record-active.png"
       },
       {
         "pagePath": "pages/submit/submit",
-        "text": "提交",
+        "text": "夜跑打卡",
         "iconPath": "images/submit.png",
         "selectedIconPath": "images/submit-active.png"
       },
       {
         "pagePath": "pages/home/home",
-        "text": "我的",
+        "text": "个人主页",
         "iconPath": "images/home.png",
         "selectedIconPath": "images/home-active.png"
       }
