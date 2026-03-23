@@ -2,7 +2,7 @@
 <view class="container">
   <!-- 页面标题 -->
   <view class="header">
-    <text class="title">根据您的跑步参与情况</text>
+    <text class="title">跑步参与情况</text>
   </view>
   
   <!-- 主奖项卡片 -->

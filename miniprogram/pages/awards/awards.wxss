@@ -3,7 +3,8 @@
 /* 基础容器 - 响应式设计 */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-attachment: fixed;
   padding: 40rpx 30rpx;
   box-sizing: border-box;
   display: flex;
@@ -23,11 +24,13 @@
 
 .title {
   font-size: 44rpx;
-  font-weight: 500;
-  color: #ffffff;
-  letter-spacing: 2rpx;
+  font-weight: 600;
+  color: #333333;
   margin-bottom: 12rpx;
-  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #5783c5 0%, #4276c4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1.4;
 }
 
@@ -36,13 +39,14 @@
   background: rgba(255, 255, 255, 0.95);
   border-radius: 32rpx;
   padding: 40rpx;
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 16rpx 50rpx rgba(0, 0, 0, 0.1), 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(30rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
   width: 600rpx;
   max-width: 600rpx;
   margin-bottom: 24rpx;
-  animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: all 0.3s ease;
 }
 
 /* 奖项徽章 */
@@ -50,9 +54,9 @@
   text-align: center;
   margin-bottom: 40rpx;
   padding: 32rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6690ea 0%, #4b68a2 100%);
   border-radius: 24rpx;
-  box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8rpx 28rpx rgba(102, 126, 234, 0.3);
 }
 
 .award-level {
@@ -62,14 +66,12 @@
   color: #ffffff;
   margin-bottom: 8rpx;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-  animation: glow 2s ease-in-out infinite alternate;
   line-height: 1.2;
 }
 
 .award-label {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 2rpx;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.3;
 }
 
@@ -87,7 +89,7 @@
 
 .progress-text {
   font-size: 26rpx;
-  color: #555555;
+  color: #666666;
   font-weight: 500;
   line-height: 1.3;
 }
@@ -95,7 +97,7 @@
 .progress-percent {
   font-size: 30rpx;
   font-weight: 600;
-  color: #667eea;
+  color: #758ec2;
   line-height: 1.1;
 }
 
@@ -108,7 +110,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #6690ea 0%, #436ac5 100%);
   border-radius: 4rpx;
   transition: width 1s ease-in-out;
   box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
@@ -141,7 +143,7 @@
 
 .stat-label {
   font-size: 24rpx;
-  color: #777777;
+  color: #666666;
   line-height: 1.2;
 }
 
@@ -155,22 +157,30 @@
 
 /* 规则卡片 */
 .rules-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 32rpx;
   padding: 32rpx;
-  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16rpx 50rpx rgba(0, 0, 0, 0.1), 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(30rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
   width: 600rpx;
   max-width: 600rpx;
   margin-bottom: 24rpx;
+  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: all 0.3s ease;
 }
 
 .rules-title {
   display: block;
   font-size: 30rpx;
-  font-weight: 600;
-  color: #444444;
+  font-weight: 700;
+  color: #333333;
   margin-bottom: 24rpx;
   text-align: center;
+  background: linear-gradient(135deg, #5783c5 0%, #4276c4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1.3;
 }
 
@@ -185,7 +195,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 24rpx;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 20rpx;
   border: 1rpx solid rgba(102, 126, 234, 0.1);
   flex-wrap: nowrap;
@@ -210,15 +220,15 @@
 }
 
 .rule-silver {
-  background: linear-gradient(135deg, #F0F2F4 0%, #C0C0C0 100%);
+  background: linear-gradient(135deg, #d5d6d7 0%, #b7b7b7 100%);
 }
 
 .rule-bronze {
-  background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+  background: linear-gradient(135deg, #d29251 0%, #a66639 100%);
 }
 
 .rule-participation {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6690ea 0%, #4b68a2 100%);
 }
 
 .rule-desc {
@@ -240,8 +250,7 @@
 
 .tip-text {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 2rpx;
+  color: #666666;
   line-height: 1.5;
 }
 

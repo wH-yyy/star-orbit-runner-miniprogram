@@ -68,7 +68,7 @@ page {
   color: #333333;
   margin-bottom: 20rpx;
   display: block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5783c5 0%, #4276c4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -162,7 +162,7 @@ page {
   color: #333333;
   text-align: center;
   margin-bottom: 20rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5783c5 0%, #4276c4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -185,7 +185,7 @@ page {
   color: #333333;
   text-align: center;
   margin-bottom: 20rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5783c5 0%, #4276c4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -410,27 +410,93 @@ page {
   border-top: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
+.evidence-container {
+  margin-top: 12rpx;
+}
+
+.evidence-container.evidence-scrollable {
+  margin-left: -20rpx;
+  margin-right: -20rpx;
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+}
+
 .evidence-grid {
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: 12rpx;
-  margin-top: 12rpx;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(160rpx, 1fr));
+  gap: 16rpx;
   width: 100%;
 }
 
-.evidence-item {
-  width: 360rpx;
-  height: 640rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+.evidence-scroll {
+  width: 100%;
+  white-space: nowrap;
 }
 
-.evidence-image {
+.evidence-scroll-content {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 4rpx 0;
+}
+
+.evidence-thumbnail {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.evidence-thumbnail:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+}
+
+.evidence-thumbnail-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.evidence-thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* 允许点击事件穿透 */
+}
+
+.evidence-thumbnail:hover .evidence-thumbnail-overlay,
+.evidence-thumbnail:active .evidence-thumbnail-overlay {
+  opacity: 1;
+}
+
+.evidence-thumbnail-text {
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.evidence-hint {
+  margin-top: 12rpx;
+  text-align: center;
+}
+
+.evidence-hint-text {
+  font-size: 24rpx;
+  color: #999999;
+  font-style: italic;
 }
 
 /* ========== 审核结果 ========== */

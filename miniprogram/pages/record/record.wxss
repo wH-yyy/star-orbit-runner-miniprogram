@@ -43,7 +43,7 @@ page {
   font-weight: 800;
   color: #333;
   margin-bottom: 10rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5783c5 0%, #4276c4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -96,7 +96,7 @@ page {
   color: #667eea;
   margin-bottom: 10rpx;
   display: block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #86aae1 0%, #618fd4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -137,7 +137,7 @@ page {
   font-size: 36rpx;
   font-weight: 800;
   color: #333;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #669ae8 0%, #467fd4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -166,7 +166,7 @@ page {
   align-items: center;
   gap: 8rpx;
   padding: 10rpx 20rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #80a2d6 0%, #5287d7 100%);
   border-radius: 20rpx;
   color: white;
   font-size: 26rpx;
@@ -293,7 +293,7 @@ page {
 }
 
 .status-active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #86aae1 0%, #618fd4 100%);
   color: #fff;
   font-weight: 600;
   box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.3);
@@ -325,7 +325,7 @@ page {
 }
 
 .filter-apply {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #86aae1 0%, #618fd4 100%);
   color: #fff;
 }
 
@@ -368,7 +368,7 @@ page {
 
 /* 列表头部行 */
 .list-header-row {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #78a3e4 0%, #5586cf 100%);
   color: white;
   font-weight: 600;
   font-size: 32rpx;
