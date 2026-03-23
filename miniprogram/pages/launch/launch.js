@@ -2,24 +2,12 @@
 Page({
   async onLoad() {
     const app = getApp()
+    app.globalData.userInfo.openid = wx.getStorageSync('openid')
 
     try {
-      if (app.globalData.hasLogin) {
+      if (app.globalData.userInfo.openid) {
         const result = await this.fetchUserInfo(app.globalData.userInfo.openid)
         if (result) {
-          if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
-            wx.showToast({
-              icon: 'error',
-              title: '请完善个人信息',
-            })
-            setTimeout(() => {
-              wx.reLaunch({
-                url: '/pages/finish-info/finish-info',
-              })
-            }, 1000)
-            return
-          }
-          
           const status = result.status
           if (status === 2) {
             wx.showModal({
@@ -34,8 +22,8 @@ Page({
           }
         }
       } else {
-        wx.reLaunch({
-          url: '/pages/phone-login/phone-login'
+        wx.switchTab({
+          url: '/pages/submit/submit',
         })
       }
     } catch (err) {
@@ -61,19 +49,16 @@ Page({
         app.globalData.userInfo = userInfo
         return userInfo
       } else {
-        // 用户不存在，清除登录状态并跳转登录页
         app.globalData.userInfo = {}
-        app.globalData.hasLogin = false
         wx.clearStorageSync()
         wx.showModal({
           title: '提示',
-          content: '账号不存在，请重新登录',
+          content: '原账号已不存在',
           showCancel: false,
-          confirmText: '去登录',
           success() {
-            wx.reLaunch({
-              url: '/pages/phone-login/phone-login'
-            });
+            wx.switchTab({
+              url: '/pages/submit/submit',
+            })
           }
         })
       }
@@ -81,12 +66,9 @@ Page({
       console.error('获取用户信息失败', err)
       wx.showModal({
         title: '加载错误',
-        content: '无法获取用户信息，请检查网络后重试',
-        showCancel: false,
-        confirmText: '重试'
+        content: '无法获取用户信息，请检查网络后重试'
       })
     }
-
     return null
   }
 })

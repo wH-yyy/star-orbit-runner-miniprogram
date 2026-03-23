@@ -1,9 +1,8 @@
 // pages/home/home.js
 Page({
   data: {
-    userInfo : {},
-    menuItems: [
-      {
+    userInfo: {},
+    menuItems: [{
         id: 'awards',
         name: '我的奖项',
         icon: ''
@@ -22,48 +21,41 @@ Page({
   },
 
   onLoad() {
-    this.loadUserInfo()
-  },
-
-  onShow() {
-    this.loadUserInfo()
-  },
-
-  loadUserInfo() {
+    const app = getApp()
+    // 登录检查
+    if (!app.globalData.userInfo.openid) {
+      wx.showToast({
+        icon: 'error',
+        title: '请先登录',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/phone-login/phone-login',
+        })
+      }, 1000)
+      return
+    }
+    // 完善个人信息检查
+    if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+      wx.showToast({
+        icon: 'error',
+        title: '请完善个人信息',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/finish-info/finish-info',
+        })
+      }, 1000)
+      return
+    }
     this.setData({
-      userInfo: getApp().globalData.userInfo,
-    })
-  },
-
-  handleLogout() {
-    wx.showModal({
-      title: '提示',
-      content: '确定要退出登录吗？',
-      success: (res) => {
-        if (res.confirm) {
-          wx.clearStorageSync()
-          const app = getApp()
-          if (app.globalData) {
-            app.globalData.userInfo = {}
-            app.globalData.hasLogin = false
-          }
-          wx.showToast({
-            title: '已退出登录',
-            icon: 'success',
-          })
-          setTimeout(() => {
-            wx.reLaunch({
-              url: '/pages/phone-login/phone-login'
-            })
-          }, 1000)
-        }
-      }
+      userInfo: app.globalData.userInfo,
     })
   },
 
   handleMenuClick(e) {
     const id = e.currentTarget.dataset.id;
-    switch(id) {
+    switch (id) {
       case 'awards':
         wx.navigateTo({
           url: '/pages/awards/awards'
@@ -78,5 +70,28 @@ Page({
         this.handleLogout();
         break;
     }
+  },
+
+  handleLogout() {
+    wx.showModal({
+      title: '提示',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          wx.clearStorageSync()
+          const app = getApp()
+          app.globalData.userInfo = {}
+          wx.showToast({
+            title: '已退出登录',
+            icon: 'success',
+          })
+          setTimeout(() => {
+            wx.reLaunch({
+              url: '/pages/submit/submit'
+            })
+          }, 1000)
+        }
+      }
+    })
   }
 })

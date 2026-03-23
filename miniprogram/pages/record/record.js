@@ -14,7 +14,7 @@ Page({
     displayedRecords: [],
     // 加载状态
     loading: true,
-    
+
     // 筛选面板是否可见
     showFilterPanel: false,
     // 筛选条件
@@ -24,6 +24,33 @@ Page({
   },
 
   onLoad() {
+    const app = getApp()
+    // 登录检查
+    if (!app.globalData.userInfo.openid) {
+      wx.showToast({
+        icon: 'error',
+        title: '请先登录',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/phone-login/phone-login',
+        })
+      }, 1000)
+      return
+    }
+    // 完善个人信息检查
+    if (!app.globalData.userInfo.class_name || !app.globalData.userInfo.college || !app.globalData.userInfo.gender || !app.globalData.userInfo.name || !app.globalData.userInfo.campus) {
+      wx.showToast({
+        icon: 'error',
+        title: '请完善个人信息',
+      })
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/finish-info/finish-info',
+        })
+      }, 1000)
+      return
+    }
     this.loadUserInfo()
     this.loadAllRecords()
   },
@@ -41,7 +68,7 @@ Page({
       if (res.data) {
         const userInfo = {
           ...res.data,
-          avatar: res.data.gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
+          avatar: res.data.gender === '男' ? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
         }
         app.globalData.userInfo = userInfo
         wx.setStorageSync('userInfo', userInfo)
@@ -93,19 +120,19 @@ Page({
           // 转换创建时间格式为24小时制，日期和时间分行显示
           if (item.create_time) {
             const createTime = new Date(item.create_time);
-            
+
             // 获取日期部分 (YYYY-MM-DD)
             const year = createTime.getFullYear();
             const month = String(createTime.getMonth() + 1).padStart(2, '0');
             const day = String(createTime.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
-            
+
             // 获取时间部分 (HH:mm:ss) 24小时制
             const hours = String(createTime.getHours()).padStart(2, '0');
             const minutes = String(createTime.getMinutes()).padStart(2, '0');
             const seconds = String(createTime.getSeconds()).padStart(2, '0');
             const timeStr = `${hours}:${minutes}:${seconds}`;
-            
+
             // 保存日期和时间到不同的字段
             item.create_date = dateStr;
             item.create_time_24 = timeStr;
@@ -116,7 +143,12 @@ Page({
         });
 
         // 统计各状态记录数（基于全部记录）
-        const recordStats = { passed: 0, pending: 0, failed: 0, appeal: 0 }
+        const recordStats = {
+          passed: 0,
+          pending: 0,
+          failed: 0,
+          appeal: 0
+        }
         processedData.forEach(r => {
           const status = typeof r.status === 'number' ? r.status : parseInt(r.status, 10)
           if (status === 1) recordStats.passed += 1
@@ -202,23 +234,23 @@ Page({
     if (this.data.allRecords.length === 0) {
       return;
     }
-    
+
     let filteredRecords = [...this.data.allRecords];
-    
+
     // 应用状态筛选
     if (this.data.filterStatus !== '') {
       const status = parseInt(this.data.filterStatus);
       filteredRecords = filteredRecords.filter(record => record.status === status);
     }
-    
+
     // 应用日期筛选
     if (this.data.filterDateStart || this.data.filterDateEnd) {
       const startDate = this.data.filterDateStart ? new Date(this.data.filterDateStart).getTime() : null;
       const endDate = this.data.filterDateEnd ? new Date(this.data.filterDateEnd + 'T23:59:59').getTime() : null;
-      
+
       filteredRecords = filteredRecords.filter(record => {
         const recordTime = record.timestamp;
-        
+
         if (startDate && endDate) {
           return recordTime >= startDate && recordTime <= endDate;
         } else if (startDate) {
@@ -229,7 +261,7 @@ Page({
         return true;
       });
     }
-    
+
     this.setData({
       displayedRecords: filteredRecords,
       showFilterPanel: false

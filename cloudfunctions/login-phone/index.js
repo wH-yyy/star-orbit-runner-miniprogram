@@ -51,9 +51,9 @@ exports.main = async (event, context) => {
       }
     }    
   } catch (error) {
+    console.error(error)
     return {
-      code: -1,
-      message: `登录失败,${error}`
+      code: 500
     }
   }
 }
