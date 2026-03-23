@@ -142,16 +142,31 @@ page {
   border-bottom: none;
 }
 
+/* 菜单左侧内容（图标+名称） */
+.menu-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+/* 菜单图标 */
+.menu-icon {
+  width: 42rpx;
+  height: 42rpx;
+  margin-right: 12rpx;
+}
+
 /* 菜单名称 */
 .menu-name {
   font-size: 32rpx;
   color: #333333;
+  flex: 1;
 }
 
 /* 菜单箭头 */
 .menu-arrow {
   font-size: 28rpx;
   color: #999999;
+  margin-left: auto;
 }
-
 /* 底部导航栏样式会通过app.json配置，这里不需要额外添加 */

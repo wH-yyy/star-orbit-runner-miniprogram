@@ -5,17 +5,17 @@ Page({
     menuItems: [{
         id: 'awards',
         name: '我的奖项',
-        icon: ''
+        icon: '../../images/award.svg'
       },
       {
         id: 'appeal',
         name: '申诉历史',
-        icon: ''
+        icon: '../../images/appeal.svg'
       },
       {
         id: 'logout',
         name: '退出登录',
-        icon: ''
+        icon: '../../images/logout.svg'
       }
     ]
   },
