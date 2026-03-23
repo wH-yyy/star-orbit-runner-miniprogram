@@ -152,7 +152,7 @@ page {
   font-size: 36rpx;
   font-weight: 800;
   color: #333;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #669ae8 0%, #467fd4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -184,7 +184,7 @@ page {
 
 /* 列表头部行 */
 .list-header-row {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #78a3e4 0%, #5586cf 100%);
   color: white;
   font-weight: 600;
   font-size: 32rpx;

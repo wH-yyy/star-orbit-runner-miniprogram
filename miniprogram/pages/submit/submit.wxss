@@ -41,7 +41,7 @@
   font-weight: 500;
   user-select: none;
   background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(245,247,250,0.9) 100%);
-  color: #667eea;
+  color: #7295e0;
   min-height: 140rpx;
   padding: 30rpx 0;
   line-height: 1.5;
@@ -58,21 +58,21 @@
 .academic-term {
   font-size: 30rpx;
   font-weight: 500;
-  color: #6976eb;
+  color: #5e5e5e;
   line-height: 1.5;
 }
 
 .date-range {
   font-size: 32rpx;
   font-weight: 600;
-  color: #5a67d8;
+  color: #4b4b4b;
   line-height: 1.5;
 }
 
 .time-range {
   font-size: 34rpx;
   font-weight: 600;
-  color: #5a67d8;
+  color: #4b4b4b;
   line-height: 1.5;
 }
 
@@ -226,9 +226,9 @@
   font-weight: 700;
   border-radius: 28rpx;
   margin: 30rpx 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8b9fe1 0%, #5580df 100%);
   color: #ffffff;
-  box-shadow: 0 20rpx 60rpx rgba(102, 126, 234, 0.5), 0 12rpx 30rpx rgba(102, 126, 234, 0.4), inset 0 2rpx 6rpx rgba(255, 255, 255, 0.25);
+  box-shadow: 0 20rpx 60rpx rgba(176, 191, 229, 0.5), 0 12rpx 30rpx rgba(148, 173, 227, 0.4), inset 0 2rpx 6rpx rgba(255, 255, 255, 0.25);
   position: relative;
   overflow: hidden;
   display: flex;

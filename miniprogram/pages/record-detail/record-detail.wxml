@@ -88,10 +88,28 @@
       <!-- 证明材料 -->
       <view wx:if="{{appeal.appealImages && appeal.appealImages.length > 0}}" class="evidence-section">
         <text class="section-subtitle">证明材料</text>
-        <view class="evidence-grid">
-          <view wx:for="{{appeal.appealImages}}" wx:key="index" class="evidence-item">
-            <image src="{{item}}" class="evidence-image" mode="aspectFill" bindtap="previewAppealImage" data-index="{{index}}"></image>
+        <view class="evidence-container {{appeal.appealImages.length > 3 ? 'evidence-scrollable' : ''}}">
+          <scroll-view wx:if="{{appeal.appealImages.length > 3}}" class="evidence-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+            <view class="evidence-scroll-content">
+              <view wx:for="{{appeal.appealImages}}" wx:key="index" class="evidence-thumbnail" bindtap="previewAppealImage" data-index="{{index}}">
+                <image src="{{item}}" class="evidence-thumbnail-image" mode="aspectFill"></image>
+                <view class="evidence-thumbnail-overlay">
+                  <text class="evidence-thumbnail-text">查看大图</text>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+          <view wx:else class="evidence-grid">
+            <view wx:for="{{appeal.appealImages}}" wx:key="index" class="evidence-thumbnail" bindtap="previewAppealImage" data-index="{{index}}">
+              <image src="{{item}}" class="evidence-thumbnail-image" mode="aspectFill"></image>
+              <view class="evidence-thumbnail-overlay">
+                <text class="evidence-thumbnail-text">查看大图</text>
+              </view>
+            </view>
           </view>
+        </view>
+        <view wx:if="{{appeal.appealImages.length > 4}}" class="evidence-hint">
+          <text class="evidence-hint-text">左右滑动查看更多图片</text>
         </view>
       </view>
 
