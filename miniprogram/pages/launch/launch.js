@@ -1,6 +1,9 @@
 // pages/launch/launch.js
 Page({
   async onLoad() {
+    wx.showLoading({
+      title: '小程序启动中'
+    })
     const app = getApp()
     app.globalData.userInfo.openid = wx.getStorageSync('openid')
 
@@ -28,6 +31,8 @@ Page({
       }
     } catch (err) {
       console.error('启动页发生错误', err)
+    } finally {
+      wx.hideLoading()
     }
   },
 
