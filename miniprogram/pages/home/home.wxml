@@ -23,7 +23,10 @@
   <!-- 菜单选项区域 -->
   <view class="menu-section">
     <view class="menu-item" wx:for="{{menuItems}}" wx:key="id" bindtap="handleMenuClick" data-id="{{item.id}}">
-      <text class="menu-name">{{item.name}}</text>
+      <view class="menu-left">
+        <image src="{{item.icon}}" class="menu-icon"></image>
+        <text class="menu-name">{{item.name}}</text>
+      </view>
       <text class="menu-arrow">></text>
     </view>
   </view>
