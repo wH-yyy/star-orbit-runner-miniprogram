@@ -13,10 +13,6 @@ Page({
   },
 
   showAgreements() {
-    this.openPrivacyContract()
-  },
-
-  openPrivacyContract() {
     wx.openPrivacyContract({
       success: () => {
         console.log('打开隐私协议成功')
@@ -28,6 +24,12 @@ Page({
           icon: 'none'
         })
       }
+    })
+  },
+
+  cancelLogin() {
+    wx.switchTab({
+      url: '/pages/submit/submit'
     })
   },
 

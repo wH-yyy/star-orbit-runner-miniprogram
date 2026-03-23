@@ -4,27 +4,23 @@
     <view class="logo">
       <image src="/images/runner-logo.svg"></image>
     </view>
-    
+
     <view class="form">
       <view class="welcome-text">
         <text class="main-text">欢迎使用星轨Runner</text>
       </view>
-      
+
       <!-- 手机号显示区域 -->
       <view wx:if="{{phoneNumber}}" class="phone-display">
         <text class="label">当前手机号：</text>
         <text class="phone-text">{{phoneNumber}}</text>
       </view>
-      
+
       <!-- 手机号一键登录按钮 -->
-      <button 
-        class="phone-login-btn" 
-        bind:tap="login"
-        disabled="{{loginDisabled}}"
-      >
+      <button class="phone-login-btn" bind:tap="login" disabled="{{loginDisabled}}">
         {{loginText}}
       </button>
-            
+
       <!-- 用户协议 -->
       <view class="agreement">
         <view class="checkbox-item" bindtap="toggleAgreement">
@@ -33,8 +29,13 @@
               <view class="checkbox-inner" wx:if="{{agreementChecked}}"></view>
             </view>
           </view>
-          <text class="agreement-text">我已阅读并同意<text class="privacy-link" catchtap="openPrivacyContract">隐私政策</text></text>
+          <text class="agreement-text">我已阅读并同意<text class="privacy-link"
+              catchtap="openPrivacyContract">隐私政策</text></text>
         </view>
+      </view>
+
+      <view class="cancel-login" bindtap="cancelLogin">
+        <text class="cancel-text">暂不登录</text>
       </view>
     </view>
   </view>
