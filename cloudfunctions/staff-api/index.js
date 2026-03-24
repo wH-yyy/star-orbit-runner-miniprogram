@@ -352,6 +352,11 @@ async function submitAudit(event) {
       await updateUserStatistics(record)
     }
     
+    // 5. 审核不通过时增加违规次数
+    if (statusCode === 2 && record.openid) {
+      await incrementViolationCount(record)
+    }
+    
     return {
       code: 200,
       message: 'Audit submitted',
@@ -443,6 +448,15 @@ async function batchAudit(event) {
         }
         const combinedReason = [...finalReasons, remark].filter(item => item && String(item).trim() !== '').join(';')
 
+        // 获取记录详情以获取openid
+        let record = null
+        try {
+          const recordResult = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
+          record = recordResult.data
+        } catch (err) {
+          console.error('获取记录详情失败:', err)
+        }
+
         await db.collection(RECORDS_COLLECTION).doc(recordId).update({
           data: {
             status: statusCode,
@@ -450,6 +464,15 @@ async function batchAudit(event) {
             auditTime: db.serverDate()
           }
         })
+        
+        // 更新用户统计信息
+        if (record && record.openid) {
+          if (statusCode === 1) {
+            await updateUserStatistics(record)
+          } else if (statusCode === 2) {
+            await incrementViolationCount(record)
+          }
+        }
         
         successCount++
         results.push({
@@ -756,6 +779,23 @@ async function updateUserStatistics(record) {
     await db.collection(USERS_COLLECTION).doc(userDoc._id).update({
       data: {
         totalCount: _.inc(1)
+      }
+    })
+  }
+}
+
+/**
+ * 辅助函数：增加用户违规次数
+ * @param {Object} record - 跑步记录对象
+ */
+async function incrementViolationCount(record) {
+  if (!record.openid) return
+  const userResult = await db.collection(USERS_COLLECTION).where({ openid: record.openid }).get()
+  if (userResult.data && userResult.data.length > 0) {
+    const userDoc = userResult.data[0]
+    await db.collection(USERS_COLLECTION).doc(userDoc._id).update({
+      data: {
+        violationCount: _.inc(1)
       }
     })
   }

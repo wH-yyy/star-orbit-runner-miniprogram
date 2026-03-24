@@ -167,12 +167,24 @@ exports.main = async (event, context) => {
           const user = userQuery.data[0]
           const updateData = {
             totalCount: _.inc(1),
+            violationCount: _.inc(-1), // 申诉通过时减少违规次数
             updateTime: now
           }
           
-          await transaction.collection('Users').doc(user._id).update({
-            data: updateData
-          })
+          // 确保违规次数不会小于0
+          if (user.violationCount > 0) {
+            await transaction.collection('Users').doc(user._id).update({
+              data: updateData
+            })
+          } else {
+            // 如果违规次数已经是0，只更新totalCount
+            await transaction.collection('Users').doc(user._id).update({
+              data: {
+                totalCount: _.inc(1),
+                updateTime: now
+              }
+            })
+          }
           
         } else {
           console.warn(`用户记录不存在: stu_id=${appeal.stu_id}`)
