@@ -294,7 +294,7 @@ page {
 }
 
 .appeal-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8b9fe1 0%, #5580df 100%);
   color: white;
   border-radius: 16rpx;
   font-size: 28rpx;

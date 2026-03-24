@@ -36,9 +36,9 @@ Page({
       semester: '',
       startDate: '',
       endDate: '',
-      startTime: 20,
-      endTime: 22.5,
-      timeRange: '20:00~22:30'
+      startTime: 0,
+      endTime: 0,
+      timeRange: '00:00~00:00'
     }
   },
 
