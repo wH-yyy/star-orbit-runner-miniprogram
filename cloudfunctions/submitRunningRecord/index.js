@@ -185,10 +185,10 @@ exports.main = async (event) => {
       const staffQueryResult = await db.collection('staff').where({ status: 0 }).get()
       if (staffQueryResult.data && staffQueryResult.data.length > 0) {
         let staffList = staffQueryResult.data
-        // 按待办数量升序排序
+        // 按分配数量升序排序
         staffList.sort((a, b) => {
-          const pendingA = (a.assigned_count || 0) - (a.completed_count || 0)
-          const pendingB = (b.assigned_count || 0) - (b.completed_count || 0)
+          const pendingA = a.assigned_count || 0
+          const pendingB = b.assigned_count || 0
           return pendingA - pendingB
         })
         const selectedStaff = staffList[0]
