@@ -1,4 +1,4 @@
-// pages/phone-login/phone-login.js
+// pages/login/login.js
 Page({
   data: {
     loginDisabled: false,
@@ -54,7 +54,7 @@ Page({
 
     // 调用云函数
     wx.cloud.callFunction({
-        name: 'login-phone',
+        name: 'login-user',
       })
       .then(res => {
         const result = res.result

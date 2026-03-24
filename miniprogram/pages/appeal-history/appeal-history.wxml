@@ -8,9 +8,8 @@
   
   <!-- 空状态 -->
   <view wx:elif="{{!loading && appealList.length === 0}}" class="empty-container">
-    <image src="/images/empty.png" class="empty-icon" mode="aspectFit"></image>
     <text class="empty-text">暂无申诉记录</text>
-    <text class="empty-desc">您可以在跑步记录详情页提交申诉</text>
+    <text class="empty-desc">可以针对不通过的记录提交申诉</text>
   </view>
   
   <!-- 申诉记录卡片 -->

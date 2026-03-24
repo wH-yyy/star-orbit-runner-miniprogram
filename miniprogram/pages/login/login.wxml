@@ -1,4 +1,4 @@
-<!--pages/phone-login/phone-login.wxml-->
+<!--pages/login/login.wxml-->
 <view class="container">
   <view class="login-box">
     <view class="logo">
@@ -10,14 +10,8 @@
         <text class="main-text">欢迎使用星轨Runner</text>
       </view>
 
-      <!-- 手机号显示区域 -->
-      <view wx:if="{{phoneNumber}}" class="phone-display">
-        <text class="label">当前手机号：</text>
-        <text class="phone-text">{{phoneNumber}}</text>
-      </view>
-
-      <!-- 手机号一键登录按钮 -->
-      <button class="phone-login-btn" bind:tap="login" disabled="{{loginDisabled}}">
+      <!-- 登录按钮 -->
+      <button class="login-btn" bind:tap="login" disabled="{{loginDisabled}}">
         {{loginText}}
       </button>
 
