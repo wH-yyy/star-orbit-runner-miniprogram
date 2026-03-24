@@ -369,7 +369,7 @@ async function submitAudit(event) {
 }
 
 /**
- * 修改审核结果（纠错功能） - 不更新统计，仅修改状态和理由
+ * 修改审核结果（纠错功能） - 更新统计，根据状态变更调整用户数据
  */
 async function updateAuditResult(event) {
   try {
@@ -381,12 +381,22 @@ async function updateAuditResult(event) {
 
     const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
     
+    // 获取原始记录信息，包括原始状态
+    const recordResult = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
+    if (!recordResult.data) {
+      return { code: 404, message: 'Record not found', data: null }
+    }
+    
+    const originalRecord = recordResult.data
+    const originalStatus = originalRecord.status
+    
     let finalReasons = [...(reasons || [])]
     if (finalReasons.includes('其他原因')) {
       finalReasons = finalReasons.filter(r => r !== '其他原因')
     }
     const combinedReason = [...finalReasons, remark].filter(item => item && String(item).trim() !== '').join(';')
 
+    // 更新记录状态
     await db.collection(RECORDS_COLLECTION).doc(recordId).update({
       data: {
         status: statusCode,
@@ -395,10 +405,15 @@ async function updateAuditResult(event) {
       }
     })
     
+    // 根据状态变更调整用户统计数据
+    if (originalRecord.openid && originalStatus !== statusCode) {
+      await adjustUserStatistics(originalRecord, originalStatus, statusCode)
+    }
+    
     return {
       code: 200,
-      message: 'Audit updated',
-      data: { recordId, status: statusCode }
+      message: 'Audit updated' + (originalStatus !== statusCode ? '，用户数据已调整' : ''),
+      data: { recordId, status: statusCode, originalStatus }
     }
   } catch (error) {
     console.error('updateAuditResult error:', error)
@@ -797,6 +812,48 @@ async function incrementViolationCount(record) {
       data: {
         violationCount: _.inc(1)
       }
+    })
+  }
+}
+
+/**
+ * 辅助函数：调整用户统计数据（用于状态变更时）
+ * @param {Object} record - 跑步记录对象
+ * @param {number} originalStatus - 原始状态
+ * @param {number} newStatus - 新状态
+ */
+async function adjustUserStatistics(record, originalStatus, newStatus) {
+  if (!record.openid) return
+  
+  const userResult = await db.collection(USERS_COLLECTION).where({ openid: record.openid }).get()
+  if (!userResult.data || userResult.data.length === 0) return
+  
+  const userDoc = userResult.data[0]
+  const updateData = {}
+  
+  // 状态变更逻辑：
+  // 1. 通过(1) → 不通过(2): totalCount-1, violationCount+1
+  // 2. 不通过(2) → 通过(1): totalCount+1, violationCount-1
+  // 3. 其他状态变更：不调整统计数据
+  
+  if (originalStatus === 1 && newStatus === 2) {
+    // 通过改为不通过：减少总次数，增加违规次数
+    updateData.totalCount = _.inc(-1)
+    updateData.violationCount = _.inc(1)
+  } else if (originalStatus === 2 && newStatus === 1) {
+    // 不通过改为通过：增加总次数，减少违规次数
+    updateData.totalCount = _.inc(1)
+    
+    // 确保违规次数不会小于0
+    if (userDoc.violationCount > 0) {
+      updateData.violationCount = _.inc(-1)
+    }
+  }
+  
+  // 只有当有需要更新的数据时才执行更新
+  if (Object.keys(updateData).length > 0) {
+    await db.collection(USERS_COLLECTION).doc(userDoc._id).update({
+      data: updateData
     })
   }
 }

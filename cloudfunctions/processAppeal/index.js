@@ -7,56 +7,6 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 
-/**
- * 解析时间字符串 "HH:MM:SS" 为时长对象
- * @param {string} durationStr - 如 "00:12:27"
- * @returns {{hour: number, minute: number, second: number}}
- */
-function parseDuration(durationStr) {
-  if (!durationStr || typeof durationStr !== 'string') {
-    return { hour: 0, minute: 0, second: 0 }
-  }
-  
-  const parts = durationStr.split(':')
-  if (parts.length === 3) {
-    const hour = parseInt(parts[0]) || 0
-    const minute = parseInt(parts[1]) || 0
-    const second = parseInt(parts[2]) || 0
-    return { hour, minute, second }
-  } else if (parts.length === 2) {
-    // 支持 "MM:SS" 格式
-    const minute = parseInt(parts[0]) || 0
-    const second = parseInt(parts[1]) || 0
-    return { hour: 0, minute, second }
-  }
-  return { hour: 0, minute: 0, second: 0 }
-}
-
-/**
- * 将两个时长对象相加，自动处理进位
- * @param {{hour: number, minute: number, second: number}} a
- * @param {{hour: number, minute: number, second: number}} b
- * @returns {{hour: number, minute: number, second: number}}
- */
-function addDuration(a, b) {
-  let second = a.second + b.second
-  let minute = a.minute + b.minute
-  let hour = a.hour + b.hour
-
-  // 秒进位到分
-  if (second >= 60) {
-    minute += Math.floor(second / 60)
-    second = second % 60
-  }
-  // 分进位到时
-  if (minute >= 60) {
-    hour += Math.floor(minute / 60)
-    minute = minute % 60
-  }
-
-  return { hour, minute, second }
-}
-
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   
