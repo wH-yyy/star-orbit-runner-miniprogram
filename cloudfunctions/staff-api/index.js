@@ -1,8 +1,5 @@
 // 云函数入口文件 - 工作人员审核相关API
 const cloud = require('wx-server-sdk')
-console.log('staff-api cloud function initialized')
-console.log('11111111111111111111111111111111111')
-
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV,
   traceUser: true
@@ -15,12 +12,8 @@ const RECORDS_COLLECTION = 'RunningRecords'
 const USERS_COLLECTION = 'Users'
 const STAFF_COLLECTION = 'staff'
 
-exports.main = async (event, context) => {
+exports.main = async (event) => {
   const { action } = event
-  console.log('2222222222222222222222222222222222')
-
-  console.log('staff-api request:', action)
-
   try {
     switch (action) {
       case 'audit/getRecords':
@@ -31,13 +24,6 @@ exports.main = async (event, context) => {
         return await submitAudit(event)
       case 'audit/update':
         return await updateAuditResult(event)
-      case 'audit/batch':
-        return await batchAudit(event)
-      case 'audit/assignTask':
-        return await assignTaskToStaff(event)
-      case 'audit/batchAssign':
-        return await batchAssignTasks(event)
-      // 一键通过所有待审核记录
       case 'audit/batchApproveByStaff':
         return await batchApproveByStaff(event)
       default:
@@ -146,18 +132,13 @@ async function getAuditRecords(event) {
         _id: record._id,
         username: record.name || '',
         studentId: record.stu_id || '',
-        distance: record.running_distance || 0,
-        duration: record.running_duration || '',
         date: record.create_time || '',
-        running_date: record.running_date || '', // 保持原始字段用于兼容
         screenshot: record.imageFileID || '',
         status: record.status,
         assignedStaffId: record.assignedStaffId || null,
         assignedStaffName: record.assignedStaffName || '',
         assignTime: record.assignTime || null,
         auditReason: record.audit_reason || '',
-        reasons: [],
-        remark: record.audit_reason || '',
         auditTime: record.auditTime || null
       }
     })
@@ -218,8 +199,6 @@ async function getAuditRecordDetail(event) {
       _id: record._id,
       username: record.name || '',
       studentId: record.stu_id || '',
-      distance: record.running_distance || 0,
-      duration: record.running_duration || '',
       date: record.create_time || '',
       screenshot: record.imageFileID || '',
       status: record.status,
@@ -227,12 +206,7 @@ async function getAuditRecordDetail(event) {
       assignedStaffName: record.assignedStaffName || '',
       assignTime: record.assignTime || null,
       auditReason: record.audit_reason || '',
-      reasons: [],
-      remark: record.audit_reason || '',
       auditTime: record.auditTime || null,
-      ocrText: record.ocr_text || '',
-      campus: record.campus || '',
-      running_pace: record.running_pace || '', // 配速
       mode: record.mode || '',
       stepImageFileID: record.stepImageFileID || '',
       gender: '',
@@ -296,8 +270,6 @@ async function getAuditRecordDetail(event) {
 async function submitAudit(event) {
   try {
     const { recordId, result: auditResult, reasons = [], remark = '' } = event
-    const wxContext = cloud.getWXContext()
-    const staffOpenId = wxContext.OPENID // 获取当前操作的审核员的openid
 
     if (!recordId || !auditResult) {
       return { code: 400, message: 'Missing parameters', data: null }
@@ -314,12 +286,6 @@ async function submitAudit(event) {
     const record = recordResult.data
     const assignedStaffId = record.assignedStaffId
 
-    // 可选：验证当前工作人员是否匹配（如果需要更严格的权限控制，可放开注释）
-    // if (!assignedStaffId) {
-    //   return { code: 403, message: 'This record is not assigned to any staff', data: null }
-    // }
-    // 此处不强制验证，因为可能由管理员操作
-
     // 处理“其他原因”：如果包含，则移除它，后续只使用备注
     let finalReasons = [...(reasons || [])]
     if (finalReasons.includes('其他原因')) {
@@ -332,8 +298,7 @@ async function submitAudit(event) {
       data: {
         status: statusCode,
         audit_reason: combinedReason,
-        auditTime: db.serverDate(),
-        auditedByStaffId: assignedStaffId // 记录审核员ID
+        auditTime: db.serverDate()
       }
     })
 
@@ -422,286 +387,6 @@ async function updateAuditResult(event) {
 }
 
 /**
- * 批量审核
- */
-async function batchAudit(event) {
-  try {
-    const { auditList } = event
-    console.log('Received batch audit request:', auditList)
-    
-    if (!auditList || auditList.length === 0) {
-      return { code: 400, message: 'Audit list is empty', data: null }
-    }
-    
-    console.log('批量审核开始，共 ' + auditList.length + ' 条记录')
-    
-    let successCount = 0
-    let failCount = 0
-    const results = []
-    
-    // 逐条处理审核
-    for (const audit of auditList) {
-      try {
-        const { recordId, result: auditResult, reasons = [], remark = '' } = audit
-        
-        if (!recordId || !auditResult) {
-          failCount++
-          results.push({
-            recordId: recordId || 'unknown',
-            success: false,
-            error: 'Missing parameters'
-          })
-          continue
-        }
-        
-        // 将审核结果转换为状态码
-        const statusCode = auditResult === 'approved' ? 1 : auditResult === 'rejected' ? 2 : 0
-        
-        let finalReasons = [...(reasons || [])]
-        if (finalReasons.includes('其他原因')) {
-          finalReasons = finalReasons.filter(r => r !== '其他原因')
-        }
-        const combinedReason = [...finalReasons, remark].filter(item => item && String(item).trim() !== '').join(';')
-
-        // 获取记录详情以获取openid
-        let record = null
-        try {
-          const recordResult = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
-          record = recordResult.data
-        } catch (err) {
-          console.error('获取记录详情失败:', err)
-        }
-
-        await db.collection(RECORDS_COLLECTION).doc(recordId).update({
-          data: {
-            status: statusCode,
-            audit_reason: combinedReason,
-            auditTime: db.serverDate()
-          }
-        })
-        
-        // 更新用户统计信息
-        if (record && record.openid) {
-          if (statusCode === 1) {
-            await updateUserStatistics(record)
-          } else if (statusCode === 2) {
-            await incrementViolationCount(record)
-          }
-        }
-        
-        successCount++
-        results.push({
-          recordId,
-          success: true,
-          status: statusCode
-        })
-        
-      } catch (err) {
-        failCount++
-        results.push({
-          recordId: audit.recordId || 'unknown',
-          success: false,
-          error: err.message
-        })
-        console.error('单条审核失败:', err)
-      }
-    }
-    
-    console.log('批量审核完成，成功: ' + successCount + '，失败: ' + failCount)
-    
-    return {
-      code: 200,
-      message: 'Batch audit completed',
-      data: {
-        total: auditList.length,
-        successCount,
-        failCount,
-        results
-      }
-    }
-  } catch (error) {
-    console.error('batchAudit error:', error)
-    throw error
-  }
-}
-
-/**
- * 自动分配审核任务给工作人员
- * 使用轮询算法均衡分配
- */
-async function assignTaskToStaff(event) {
-  try {
-    const { recordId } = event
-    
-    if (!recordId) {
-      return { code: 400, message: 'RecordId required', data: null }
-    }
-    
-    // 检查记录是否存在
-    const recordResult = await db.collection(RECORDS_COLLECTION).doc(recordId).get()
-    if (!recordResult.data) {
-      return { code: 404, message: 'Record not found', data: null }
-    }
-    
-    // 如果已经分配过，不重复分配
-    if (recordResult.data.assignedStaffId) {
-      return {
-        code: 200,
-        message: 'Already assigned',
-        data: {
-          recordId,
-          assignedStaffId: recordResult.data.assignedStaffId
-        }
-      }
-    }
-    
-    // 获取所有激活状态的工作人员
-    const staffResult = await db.collection(STAFF_COLLECTION)
-      .where({
-        status: 'active'
-      })
-      .get()
-    
-    if (!staffResult.data || staffResult.data.length === 0) {
-      return { code: 500, message: 'No active staff available', data: null }
-    }
-    
-    // 获取每个工作人员当前的已分配任务数量（使用 assigned_count 字段）
-    const staffList = staffResult.data
-    const staffWorkload = staffList.map(staff => ({
-      staffId: staff._id,
-      workload: staff.assigned_count || 0
-    }))
-    
-    // 选择已分配任务数最少的工作人员
-    staffWorkload.sort((a, b) => a.workload - b.workload)
-    const selectedStaffId = staffWorkload[0].staffId
-    const selectedStaff = staffList.find(s => s._id === selectedStaffId)
-    
-    // 分配任务
-    await db.collection(RECORDS_COLLECTION).doc(recordId).update({
-      data: {
-        assignedStaffId: selectedStaffId,
-        assignTime: db.serverDate()
-      }
-    })
-    
-    // 更新工作人员的已分配任务数
-    await db.collection(STAFF_COLLECTION).doc(selectedStaffId).update({
-      data: {
-        assigned_count: _.inc(1)
-      }
-    })
-    
-    console.log('任务分配成功，记录ID:', recordId, '分配给工作人员:', selectedStaffId)
-    
-    return {
-      code: 200,
-      message: 'Task assigned successfully',
-      data: {
-        recordId,
-        assignedStaffId: selectedStaffId,
-        staffWorkload: staffWorkload[0].workload
-      }
-    }
-  } catch (error) {
-    console.error('assignTaskToStaff error:', error)
-    throw error
-  }
-}
-
-/**
- * 批量分配未分配的记录
- * 可以通过云函数定时触发来自动分配，也可以手动调用
- * @param {Object} event - 可选参数
- * @param {Boolean} event.onlyPending - 是否只分配待审核记录，默认为 false（分配所有未分配的记录）
- * @param {Number} event.limit - 每次处理的记录数量，默认 1000
- */
-async function batchAssignTasks(event = {}) {
-  try {
-    const { onlyPending = false, limit = 1000 } = event
-    
-    // 构建查询条件
-    const whereCondition = {
-      assignedStaffId: _.exists(false)
-    }
-    
-    // 如果只分配待审核记录
-    if (onlyPending) {
-      whereCondition.status = 0
-    }
-    
-    console.log('批量分配任务，查询条件:', whereCondition, '限制数量:', limit)
-    
-    // 获取所有未分配的记录
-    const unassignedRecords = await db.collection(RECORDS_COLLECTION)
-      .where(whereCondition)
-      .limit(limit)
-      .get()
-    
-    if (!unassignedRecords.data || unassignedRecords.data.length === 0) {
-      console.log('没有找到未分配的记录')
-      return {
-        code: 200,
-        message: 'No unassigned records found',
-        data: { 
-          total: 0,
-          assignedCount: 0,
-          failedCount: 0
-        }
-      }
-    }
-    
-    console.log('找到', unassignedRecords.data.length, '条未分配的记录')
-    
-    let successCount = 0
-    let failCount = 0
-    const failedRecords = []
-    
-    for (const record of unassignedRecords.data) {
-      try {
-        console.log('正在分配记录:', record._id)
-        const result = await assignTaskToStaff({ recordId: record._id })
-        if (result.code === 200) {
-          successCount++
-          console.log('记录', record._id, '分配成功，分配给:', result.data.assignedStaffId)
-        } else {
-          failCount++
-          failedRecords.push({
-            recordId: record._id,
-            error: result.message
-          })
-          console.log('记录', record._id, '分配失败:', result.message)
-        }
-      } catch (err) {
-        console.error('分配任务失败:', record._id, err)
-        failCount++
-        failedRecords.push({
-          recordId: record._id,
-          error: err.message
-        })
-      }
-    }
-    
-    console.log('批量分配完成，成功:', successCount, '失败:', failCount)
-    
-    return {
-      code: 200,
-      message: `Batch assignment completed: ${successCount} succeeded, ${failCount} failed`,
-      data: {
-        total: unassignedRecords.data.length,
-        assignedCount: successCount,
-        failedCount: failCount,
-        failedRecords: failedRecords.length > 0 ? failedRecords : undefined
-      }
-    }
-  } catch (error) {
-    console.error('batchAssignTasks error:', error)
-    throw error
-  }
-}
-
-/**
  * 一键通过当前工作人员的所有待审核记录
  * @param {Object} event
  * @param {string} event.staffId - 工作人员ID
@@ -743,8 +428,7 @@ async function batchApproveByStaff(event) {
           data: {
             status: 1,
             audit_reason: '',
-            auditTime: db.serverDate(),
-            auditedByStaffId: staffId
+            auditTime: db.serverDate()
           }
         })
 
