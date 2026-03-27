@@ -38,7 +38,9 @@ exports.main = async (event, context) => {
     }
 
     // 计算活动总天数（排除停跑日）- 从开始日期到当前日期
-    const totalDays = await calculateActivityDays(currentActivity.start_date, now.toISOString().split('T')[0])
+    const endDateForDays = new Date(Math.min(now.getTime(), endDate.getTime()))
+    const endDateStr = endDateForDays.toISOString().split('T')[0]
+    const totalDays = await calculateActivityDays(currentActivity.start_date, endDateStr)
 
     return {
       code: 200,
