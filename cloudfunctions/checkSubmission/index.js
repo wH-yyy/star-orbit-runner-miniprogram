@@ -28,16 +28,19 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 function checkLocationValidity(userLat, userLon, userCampus) {
   try {
     // 根据用户校区获取对应的打卡目标位置
-    let targetLat, targetLon, campusName, limitedDistance;
+    let targetLat1, targetLon1, targetLat2, targetLon2, campusName, limitedDistance;
     limitedDistance = parseFloat(process.env.DISTANCE);
     
     if (userCampus === '兴庆校区') {
-      targetLat = parseFloat(process.env.XQ_LATITUDE);
-      targetLon = parseFloat(process.env.XQ_LONGITUDE);
+      targetLat1 = parseFloat(process.env.XQ_LATITUDE);
+      targetLon1 = parseFloat(process.env.XQ_LONGITUDE);
       campusName = '兴庆校区';
     } else if (userCampus === '雁塔校区') {
-      targetLat = parseFloat(process.env.YT_LATITUDE);
-      targetLon = parseFloat(process.env.YT_LONGITUDE);
+      // 雁塔校区支持两个打卡点
+      targetLat1 = parseFloat(process.env.YT_LATITUDE1);
+      targetLon1 = parseFloat(process.env.YT_LONGITUDE1);
+      targetLat2 = parseFloat(process.env.YT_LATITUDE2);
+      targetLon2 = parseFloat(process.env.YT_LONGITUDE2);
       campusName = '雁塔校区';
     } else {
       // 未知校区，跳过位置校验
@@ -45,35 +48,90 @@ function checkLocationValidity(userLat, userLon, userCampus) {
       return { isValid: true, message: '' };
     }
     
-    if (!targetLat || !targetLon) {
-      console.log(`未配置${campusName}打卡目标位置，跳过位置校验`);
-      return { isValid: true, message: '' };
-    }
-    
-    if (!userLat || !userLon) {
+    // 兴庆校区检查
+    if (userCampus === '兴庆校区') {
+      if (!targetLat1 || !targetLon1) {
+        console.log(`未配置${campusName}打卡目标位置，跳过位置校验`);
+        return { isValid: true, message: '' };
+      }
+      
+      if (!userLat || !userLon) {
+        return { 
+          isValid: false, 
+          message: '未获取到定位信息，请开启定位权限' 
+        };
+      }
+      
+      // 计算距离
+      const distance = calculateDistance(userLat, userLon, targetLat1, targetLon1);
+      console.log(`当前位置距离${campusName}打卡点：${distance.toFixed(2)}米`);
+      
+      if (distance > limitedDistance) {
+        return { 
+          isValid: false, 
+          message: `未在${campusName}打卡指定范围内` 
+        };
+      }
+      
       return { 
-        isValid: false, 
-        message: '未获取到定位信息，请开启定位权限' 
+        isValid: true, 
+        message: `${campusName}位置校验通过`,
+        distance: distance,
+        campus: campusName
       };
     }
     
-    // 计算距离
-    const distance = calculateDistance(userLat, userLon, targetLat, targetLon);
-    console.log(`当前位置距离${campusName}打卡点：${distance.toFixed(2)}米`);
-    
-    if (distance > limitedDistance) {
+    // 雁塔校区检查（支持两个打卡点）
+    if (userCampus === '雁塔校区') {
+      if ((!targetLat1 || !targetLon1) && (!targetLat2 || !targetLon2)) {
+        console.log(`未配置${campusName}打卡目标位置，跳过位置校验`);
+        return { isValid: true, message: '' };
+      }
+      
+      if (!userLat || !userLon) {
+        return { 
+          isValid: false, 
+          message: '未获取到定位信息，请开启定位权限' 
+        };
+      }
+      
+      let minDistance = Infinity;
+      let validPoint = false;
+      
+      // 检查第一个打卡点
+      if (targetLat1 && targetLon1) {
+        const distance1 = calculateDistance(userLat, userLon, targetLat1, targetLon1);
+        console.log(`当前位置距离${campusName}打卡点1：${distance1.toFixed(2)}米`);
+        if (distance1 <= limitedDistance) {
+          validPoint = true;
+          minDistance = Math.min(minDistance, distance1);
+        }
+      }
+      
+      // 检查第二个打卡点
+      if (targetLat2 && targetLon2) {
+        const distance2 = calculateDistance(userLat, userLon, targetLat2, targetLon2);
+        console.log(`当前位置距离${campusName}打卡点2：${distance2.toFixed(2)}米`);
+        if (distance2 <= limitedDistance) {
+          validPoint = true;
+          minDistance = Math.min(minDistance, distance2);
+        }
+      }
+      
+      if (!validPoint) {
+        return { 
+          isValid: false, 
+          message: `未在${campusName}打卡指定范围内` 
+        };
+      }
+      
       return { 
-        isValid: false, 
-        message: `未在${campusName}打卡指定范围内` 
+        isValid: true, 
+        message: `${campusName}位置校验通过`,
+        distance: minDistance,
+        campus: campusName
       };
     }
-    
-    return { 
-      isValid: true, 
-      message: `${campusName}位置校验通过`,
-      distance: distance,
-      campus: campusName
-    };
     
   } catch (error) {
     console.error('位置校验失败:', error);
