@@ -57,65 +57,7 @@ Page({
   },
 
   async onShow() {
-    await this.loadActivityInfo()
     this.checkSubmissionAvailability()
-  },
-
-  // 加载活动信息
-  async loadActivityInfo() {
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'getCurrentActivity'
-      })
-
-      if (res.result.code === 200) {
-        const activityInfo = res.result.data
-        // 格式化日期显示
-        const startDate = this.formatDateDisplay(activityInfo.start_date)
-        const endDate = this.formatDateDisplay(activityInfo.end_date)
-        const startTime = activityInfo.start_time;
-        const endTime = activityInfo.end_time;
-  
-        const timeRange = this.getTimeRange(startTime, endTime);
-  
-        this.setData({
-          activityInfo: {
-            semester: activityInfo.semester,
-            startDate,
-            endDate,
-            startTime,
-            endTime,
-            timeRange
-          }
-        })
-      } else {
-        console.error('获取活动信息失败:', res.result.message)
-        // 如果获取失败，使用默认值
-        this.setData({
-          activityInfo: {
-            semester: '当前无活动',
-            startDate: '',
-            endDate: '',
-            startTime: 20,
-            endTime: 22.5,
-            timeRange: '20:00~22:30'
-          }
-        })
-      }
-    } catch (error) {
-      console.error('加载活动信息失败:', error)
-      // 如果发生错误，使用默认值
-      this.setData({
-        activityInfo: {
-          semester: '加载失败',
-          startDate: '',
-          endDate: '',
-          startTime: 20,
-          endTime: 22.5,
-          timeRange: '20:00~22:30'
-        }
-      })
-    }
   },
 
   // 格式化日期显示（YYYY-MM-DD 转换为 M月D日）
