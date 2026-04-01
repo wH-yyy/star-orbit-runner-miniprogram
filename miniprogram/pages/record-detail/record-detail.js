@@ -358,7 +358,7 @@ Page({
             
             if (res.result && res.result.success) {
               wx.showToast({
-                title: res.result.message || '申诉已提交，正在重新审核',
+                title: res.result.message || '申诉已提交',
                 icon: 'success',
                 duration: 2000
               });
