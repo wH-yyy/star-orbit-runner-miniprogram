@@ -38,6 +38,7 @@ Page({
 
   async fetchUserInfo(openid) {
     try {
+      const app = getApp()
       const db = wx.cloud.database()
       const res = await db.collection('Users')
         .where({
@@ -50,7 +51,6 @@ Page({
           ...res.data[0],
           avatar: res.data[0].gender === '男'? '/images/male-avatar.jpg' : '/images/female-avatar.jpg'
         }
-        const app = getApp()
         app.globalData.userInfo = userInfo
         return userInfo
       } else {
