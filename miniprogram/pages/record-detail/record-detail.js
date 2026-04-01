@@ -378,7 +378,7 @@ Page({
               this.loadAppealDetail(record._id);
             } else {
               wx.showToast({
-                title: res.result.message || '申诉提交失败，请稍后重试',
+                title: res.result.message || '申诉提交失败',
                 icon: 'none',
                 duration: 2000
               });
