@@ -34,32 +34,68 @@ function checkLocationValidity(userLat, userLon, userCampus) {
       targetLat = parseFloat(process.env.XQ_LATITUDE)
       targetLon = parseFloat(process.env.XQ_LONGITUDE)
       campusName = '兴庆校区'
+      
+      if (!targetLat || !targetLon) {
+        console.log(`未配置${campusName}打卡目标位置，跳过位置校验`)
+        return { isValid: true, message: '' }
+      }
+
+      if (!userLat || !userLon) {
+        return { isValid: false, message: '未获取到定位信息，请开启定位权限' }
+      }
+
+      const distance = calculateDistance(userLat, userLon, targetLat, targetLon)
+      console.log(`当前位置距离${campusName}打卡点：${distance.toFixed(2)}米`)
+
+      if (distance > limitedDistance) {
+        return { isValid: false, message: `未在${campusName}打卡指定范围内` }
+      }
+
+      return { isValid: true, message: `${campusName}位置校验通过`, distance, campus: campusName }
     } else if (userCampus === '雁塔校区') {
-      targetLat = parseFloat(process.env.YT_LATITUDE)
-      targetLon = parseFloat(process.env.YT_LONGITUDE)
+      // 雁塔校区支持两个打卡点，用户位置在任意一个打卡点范围内都算有效
+      const targetLat1 = parseFloat(process.env.YT_LATITUDE1)
+      const targetLon1 = parseFloat(process.env.YT_LONGITUDE1)
+      const targetLat2 = parseFloat(process.env.YT_LATITUDE2)
+      const targetLon2 = parseFloat(process.env.YT_LONGITUDE2)
       campusName = '雁塔校区'
+      
+      // 检查是否配置了至少一个打卡点
+      if ((!targetLat1 || !targetLon1) && (!targetLat2 || !targetLon2)) {
+        console.log(`未配置${campusName}打卡目标位置，跳过位置校验`)
+        return { isValid: true, message: '' }
+      }
+      
+      if (!userLat || !userLon) {
+        return { isValid: false, message: '未获取到定位信息，请开启定位权限' }
+      }
+      
+      // 计算与两个打卡点的距离
+      let distance1 = Infinity
+      let distance2 = Infinity
+      
+      if (targetLat1 && targetLon1) {
+        distance1 = calculateDistance(userLat, userLon, targetLat1, targetLon1)
+        console.log(`当前位置距离${campusName}打卡点1：${distance1.toFixed(2)}米`)
+      }
+      
+      if (targetLat2 && targetLon2) {
+        distance2 = calculateDistance(userLat, userLon, targetLat2, targetLon2)
+        console.log(`当前位置距离${campusName}打卡点2：${distance2.toFixed(2)}米`)
+      }
+      
+      // 取两个距离中的较小值
+      const minDistance = Math.min(distance1, distance2)
+      
+      if (minDistance > limitedDistance) {
+        return { isValid: false, message: `未在${campusName}打卡指定范围内` }
+      }
+      
+      return { isValid: true, message: `${campusName}位置校验通过`, distance: minDistance, campus: campusName }
     } else {
       console.log(`未知校区：${userCampus}，跳过位置校验`)
       return { isValid: true, message: '' }
     }
-
-    if (!targetLat || !targetLon) {
-      console.log(`未配置${campusName}打卡目标位置，跳过位置校验`)
-      return { isValid: true, message: '' }
-    }
-
-    if (!userLat || !userLon) {
-      return { isValid: false, message: '未获取到定位信息，请开启定位权限' }
-    }
-
-    const distance = calculateDistance(userLat, userLon, targetLat, targetLon)
-    console.log(`当前位置距离${campusName}打卡点：${distance.toFixed(2)}米`)
-
-    if (distance > limitedDistance) {
-      return { isValid: false, message: `未在${campusName}打卡指定范围内` }
-    }
-
-    return { isValid: true, message: `${campusName}位置校验通过`, distance, campus: campusName }
   } catch (error) {
     console.error('位置校验失败:', error)
     return { isValid: false, message: '位置校验失败，请重试' }
