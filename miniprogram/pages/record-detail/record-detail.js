@@ -186,24 +186,9 @@ Page({
    * 显示申诉模态框
    */
   showAppealModal() {
-    // 只有状态为2（不通过）且不在申诉中状态下才能申诉
-    if (this.data.record.status === 2) {
-      this.setData({
-        showAppealModal: true
-      });
-    } else if (this.data.record.status === 3) {
-      wx.showToast({
-        title: '该记录已在申诉中，请等待审核',
-        icon: 'none',
-        duration: 2000
-      });
-    } else {
-      wx.showToast({
-        title: '只有不通过的记录才能申诉',
-        icon: 'none',
-        duration: 2000
-      });
-    }
+    this.setData({
+      showAppealModal: true
+    });
   },
 
   /**
@@ -213,7 +198,7 @@ Page({
     if (this.data.appealReason.trim() || this.data.uploadedImages.length > 0) {
       wx.showModal({
         title: '确认取消',
-        content: '您的申诉内容尚未提交，确定要取消吗？',
+        content: '申诉尚未提交，确定要取消吗？',
         confirmText: '确定取消',
         cancelText: '继续编辑',
         success: (res) => {
@@ -334,7 +319,7 @@ Page({
     
     wx.showModal({
       title: '确认申诉',
-      content: '确定要提交申诉吗？提交后将重新审核您的跑步记录。',
+      content: '提交后将重新审核您的跑步记录',
       confirmText: '确认提交',
       cancelText: '取消',
       success: (res) => {
@@ -358,7 +343,7 @@ Page({
             
             if (res.result && res.result.success) {
               wx.showToast({
-                title: res.result.message || '申诉已提交',
+                title: res.result.message || '提交成功',
                 icon: 'success',
                 duration: 2000
               });
@@ -378,8 +363,8 @@ Page({
               this.loadAppealDetail(record._id);
             } else {
               wx.showToast({
-                title: res.result.message || '申诉提交失败',
-                icon: 'none',
+                title: '提交失败',
+                icon: 'error',
                 duration: 2000
               });
             }
@@ -388,8 +373,8 @@ Page({
             wx.hideLoading();
             console.error('申诉提交失败:', error);
             wx.showToast({
-              title: '网络错误，请稍后重试',
-              icon: 'none',
+              title: '请稍后重试',
+              icon: 'error',
               duration: 2000
             });
           });
