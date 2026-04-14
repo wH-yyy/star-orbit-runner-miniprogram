@@ -4,7 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const XLSX = require('xlsx')
 
-// ==================== 分页获取所有用户（skip + limit，兼容性好） ====================
+// ==================== 分页获取所有用户 ====================
 async function getAllUsers() {
   const MAX_LIMIT = 100
   const countRes = await db.collection('Users').count()
@@ -38,6 +38,29 @@ async function getAllRestDays() {
   return allRestDays
 }
 
+// ==================== 计算活动有效天数（参考 getCurrentActivity 云函数） ====================
+async function calculateActivityDays(startDate, endDate) {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+
+  // 获取所有停跑日（已分页）
+  const restDaysData = await getAllRestDays()
+  const restDays = restDaysData.map(day => day.date)
+
+  let totalDays = 0
+  const currentDate = new Date(start)
+
+  while (currentDate <= end) {
+    const dateStr = currentDate.toISOString().split('T')[0]
+    if (!restDays.includes(dateStr)) {
+      totalDays++
+    }
+    currentDate.setDate(currentDate.getDate() + 1)
+  }
+
+  return totalDays
+}
+
 // ==================== 获取当前活动总有效天数 ====================
 async function getCurrentActivityTotalDays() {
   try {
@@ -50,22 +73,24 @@ async function getCurrentActivityTotalDays() {
     }
 
     const currentActivity = activityRes.data[0]
-    const startDate = currentActivity.start_date
     const now = new Date()
-    const endDate = now.toISOString().split('T')[0]
+    const startDate = currentActivity.start_date
+    let endDate = currentActivity.end_date
 
-    const restDaysData = await getAllRestDays()
-    const restDaysSet = new Set(restDaysData.map(day => day.date))
-
-    let totalDays = 0
-    const currentDate = new Date(startDate)
-    const end = new Date(endDate)
-    while (currentDate <= end) {
-      const dateStr = currentDate.toISOString().split('T')[0]
-      if (!restDaysSet.has(dateStr)) totalDays++
-      currentDate.setDate(currentDate.getDate() + 1)
+    // 如果没有设置结束日期，则使用当前日期
+    if (!endDate) {
+      endDate = now.toISOString().split('T')[0]
+    } else {
+      // 取当前日期和活动结束日期的较小值
+      const nowTime = now.getTime()
+      const endTime = new Date(endDate).getTime()
+      if (nowTime < endTime) {
+        endDate = now.toISOString().split('T')[0]
+      }
+      // 否则使用原 endDate（活动已结束）
     }
 
+    const totalDays = await calculateActivityDays(startDate, endDate)
     console.log(`活动总有效天数：${totalDays}（从${startDate}到${endDate}）`)
     return totalDays
   } catch (error) {
@@ -171,13 +196,12 @@ async function exportAwardList(users) {
     '获奖名单',
     'award',
     rankedUsers.length,
-    filteredByInfo.length  // 注意：totalCount 为过滤空信息后的总人数
+    filteredByInfo.length
   )
 }
 
 // ==================== 导出打卡统计 ====================
 async function exportRecordList(users) {
-  // 过滤掉姓名、书院、班级、性别均为空的用户
   const filteredUsers = users.filter(user => {
     return user.name || user.college || user.class_name || user.gender
   })
