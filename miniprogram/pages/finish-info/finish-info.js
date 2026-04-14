@@ -46,7 +46,7 @@ Page({
     const formData = this.data.formData
     try {
       const res = await wx.cloud.callFunction({
-        name: 'saveUserInfo',
+        name: 'updateUserInfo',
         data: {
           formData: formData
         }
@@ -69,12 +69,24 @@ Page({
             wx.navigateBack()
           }, 1000)
           break
-
+        case 409:
+          wx.showModal({
+            title: '学号已被注册',
+            content: '若是本人学号，请联系管理员处理',
+            showCancel: false
+          })
+          break
         case 400:
+          wx.showModal({
+            title: '无数据更新',
+            content: '未找到用户或数据未变更',
+            showCancel: false
+          })
+          break
         case 500:
           wx.showModal({
             title: '系统错误',
-            content: `错误码:${result.code}，请重试或联系管理员处理`,
+            content: '请重试或联系管理员处理',
             showCancel: false
           })
           break

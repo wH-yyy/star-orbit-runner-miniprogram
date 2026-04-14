@@ -13,6 +13,11 @@ Page({
         icon: '../../images/appeal.svg'
       },
       {
+        id: 'modify',
+        name: '修改信息',
+        icon: '../../images/modify.svg'
+      },
+      {
         id: 'logout',
         name: '退出登录',
         icon: '../../images/logout.svg'
@@ -71,6 +76,11 @@ Page({
         wx.navigateTo({
           url: '/pages/appeal-history/appeal-history'
         });
+        break;
+      case 'modify':
+        wx.navigateTo({
+          url: '/pages/finish-info/finish-info'
+        })
         break;
       case 'logout':
         this.handleLogout();
