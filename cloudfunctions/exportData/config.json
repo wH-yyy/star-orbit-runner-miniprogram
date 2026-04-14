@@ -1,8 +1,5 @@
 {
   "permissions": {
-    "openapi": [],
-    "database": {
-      "read": ["Users", "RunningRecords", "activity_config", "rest_days"]
-    }
+    "openapi": []
   }
 }
