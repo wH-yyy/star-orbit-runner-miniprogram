@@ -24,77 +24,84 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * c
 }
 
-// 位置校验
-function checkLocationValidity(userLat, userLon, userCampus) {
+/**
+ * 统一位置校验：用户只要在兴庆校区 或 雁塔校区（任一点）范围内即可通过
+ * @param {number} userLat - 用户纬度
+ * @param {number} userLon - 用户经度
+ * @returns {Object} { isValid, message, distance, campus }
+ */
+function checkLocationValidity(userLat, userLon) {
   try {
-    let targetLat, targetLon, campusName, limitedDistance
-    limitedDistance = parseFloat(process.env.DISTANCE)
+    const limitedDistance = parseFloat(process.env.DISTANCE)
+    if (!limitedDistance || isNaN(limitedDistance)) {
+      console.warn('未配置 DISTANCE 环境变量，使用默认距离 500 米')
+      limitedDistance = 500
+    }
 
-    if (userCampus === '兴庆校区') {
-      targetLat = parseFloat(process.env.XQ_LATITUDE)
-      targetLon = parseFloat(process.env.XQ_LONGITUDE)
-      campusName = '兴庆校区'
-      
-      if (!targetLat || !targetLon) {
-        console.log(`未配置${campusName}打卡目标位置，跳过位置校验`)
-        return { isValid: true, message: '' }
-      }
+    // 收集所有已配置的打卡点（校区名, 纬度, 经度）
+    const checkPoints = []
 
-      if (!userLat || !userLon) {
-        return { isValid: false, message: '未获取到定位信息，请开启定位权限' }
-      }
+    // 兴庆校区打卡点
+    const xqLat = parseFloat(process.env.XQ_LATITUDE)
+    const xqLon = parseFloat(process.env.XQ_LONGITUDE)
+    if (xqLat && xqLon && !isNaN(xqLat) && !isNaN(xqLon)) {
+      checkPoints.push({ campus: '兴庆校区', lat: xqLat, lon: xqLon })
+    }
 
-      const distance = calculateDistance(userLat, userLon, targetLat, targetLon)
-      console.log(`当前位置距离${campusName}打卡点：${distance.toFixed(2)}米`)
+    // 雁塔校区打卡点1
+    const ytLat1 = parseFloat(process.env.YT_LATITUDE1)
+    const ytLon1 = parseFloat(process.env.YT_LONGITUDE1)
+    if (ytLat1 && ytLon1 && !isNaN(ytLat1) && !isNaN(ytLon1)) {
+      checkPoints.push({ campus: '雁塔校区', lat: ytLat1, lon: ytLon1 })
+    }
 
-      if (distance > limitedDistance) {
-        return { isValid: false, message: `未在${campusName}打卡指定范围内` }
-      }
+    // 雁塔校区打卡点2
+    const ytLat2 = parseFloat(process.env.YT_LATITUDE2)
+    const ytLon2 = parseFloat(process.env.YT_LONGITUDE2)
+    if (ytLat2 && ytLon2 && !isNaN(ytLat2) && !isNaN(ytLon2)) {
+      checkPoints.push({ campus: '雁塔校区', lat: ytLat2, lon: ytLon2 })
+    }
 
-      return { isValid: true, message: `${campusName}位置校验通过`, distance, campus: campusName }
-    } else if (userCampus === '雁塔校区') {
-      // 雁塔校区支持两个打卡点，用户位置在任意一个打卡点范围内都算有效
-      const targetLat1 = parseFloat(process.env.YT_LATITUDE1)
-      const targetLon1 = parseFloat(process.env.YT_LONGITUDE1)
-      const targetLat2 = parseFloat(process.env.YT_LATITUDE2)
-      const targetLon2 = parseFloat(process.env.YT_LONGITUDE2)
-      campusName = '雁塔校区'
-      
-      // 检查是否配置了至少一个打卡点
-      if ((!targetLat1 || !targetLon1) && (!targetLat2 || !targetLon2)) {
-        console.log(`未配置${campusName}打卡目标位置，跳过位置校验`)
-        return { isValid: true, message: '' }
-      }
-      
-      if (!userLat || !userLon) {
-        return { isValid: false, message: '未获取到定位信息，请开启定位权限' }
-      }
-      
-      // 计算与两个打卡点的距离
-      let distance1 = Infinity
-      let distance2 = Infinity
-      
-      if (targetLat1 && targetLon1) {
-        distance1 = calculateDistance(userLat, userLon, targetLat1, targetLon1)
-        console.log(`当前位置距离${campusName}打卡点1：${distance1.toFixed(2)}米`)
-      }
-      
-      if (targetLat2 && targetLon2) {
-        distance2 = calculateDistance(userLat, userLon, targetLat2, targetLon2)
-        console.log(`当前位置距离${campusName}打卡点2：${distance2.toFixed(2)}米`)
-      }
-      
-      // 取两个距离中的较小值
-      const minDistance = Math.min(distance1, distance2)
-      
-      if (minDistance > limitedDistance) {
-        return { isValid: false, message: `未在${campusName}打卡指定范围内` }
-      }
-      
-      return { isValid: true, message: `${campusName}位置校验通过`, distance: minDistance, campus: campusName }
-    } else {
-      console.log(`未知校区：${userCampus}，跳过位置校验`)
+    // 没有配置任何打卡点 -> 跳过校验
+    if (checkPoints.length === 0) {
+      console.log('未配置任何校区打卡点，跳过位置校验')
       return { isValid: true, message: '' }
+    }
+
+    // 用户未提供定位
+    if (!userLat || !userLon) {
+      return { isValid: false, message: '未获取到定位信息，请开启定位权限' }
+    }
+
+    // 遍历所有打卡点，找到最近的且在范围内的即可
+    let bestDistance = Infinity
+    let matchedCampus = null
+
+    for (const point of checkPoints) {
+      const dist = calculateDistance(userLat, userLon, point.lat, point.lon)
+      console.log(`当前位置距离 ${point.campus} 打卡点: ${dist.toFixed(2)} 米`)
+      if (dist <= limitedDistance) {
+        // 只要在任意一个有效范围内即通过
+        bestDistance = dist
+        matchedCampus = point.campus
+        break
+      }
+      // 记录最小距离用于最后提示（如果均超范围）
+      if (dist < bestDistance) bestDistance = dist
+    }
+
+    if (matchedCampus) {
+      return {
+        isValid: true,
+        message: `${matchedCampus}位置校验通过`,
+        distance: bestDistance,
+        campus: matchedCampus
+      }
+    } else {
+      return {
+        isValid: false,
+        message: `当前位置不在任何校区的打卡范围内`
+      }
     }
   } catch (error) {
     console.error('位置校验失败:', error)
@@ -102,7 +109,7 @@ function checkLocationValidity(userLat, userLon, userCampus) {
   }
 }
 
-// 检查活动状态（每次直接查询数据库，无缓存）
+// 检查活动状态
 async function checkActivityStatus(todayStr) {
   try {
     const activityRes = await db.collection('activity_config')
@@ -146,7 +153,7 @@ exports.main = async (event) => {
   }
 
   try {
-    // 1. 获取用户信息（只查询一次）
+    // 1. 获取用户信息
     const userRes = await db.collection('Users').where({ openid }).get()
     if (userRes.data.length === 0) {
       return { code: 404, message: '用户不存在' }
@@ -183,7 +190,7 @@ exports.main = async (event) => {
     // 6. 位置校验
     const userLat = coordinates?.latitude
     const userLon = coordinates?.longitude
-    const locationCheck = checkLocationValidity(userLat, userLon, user.campus)
+    const locationCheck = checkLocationValidity(userLat, userLon)
     if (!locationCheck.isValid) {
       return { code: 406, message: locationCheck.message }
     }
@@ -221,7 +228,6 @@ exports.main = async (event) => {
       const staffQueryResult = await db.collection('staff').where({ status: 0 }).get()
       if (staffQueryResult.data && staffQueryResult.data.length > 0) {
         let staffList = staffQueryResult.data
-        // 按分配数量升序排序
         staffList.sort((a, b) => {
           const pendingA = a.assigned_count || 0
           const pendingB = b.assigned_count || 0
@@ -230,7 +236,6 @@ exports.main = async (event) => {
         const selectedStaff = staffList[0]
         assignedStaffId = selectedStaff._id
 
-        // 更新记录分配信息
         await db.collection('RunningRecords').doc(dbResult._id).update({
           data: {
             assignedStaffId,
@@ -239,7 +244,6 @@ exports.main = async (event) => {
           }
         })
 
-        // 更新工作人员待办计数
         await db.collection('staff').doc(assignedStaffId).update({
           data: { assigned_count: db.command.inc(1) }
         })
