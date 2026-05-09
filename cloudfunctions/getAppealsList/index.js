@@ -7,11 +7,40 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 
+// 分页获取指定工作人员的所有跑步记录ID
+async function getAllRunningRecordIds(staffId) {
+  let allIds = []
+  let page = 1
+  const pageSize = 100
+  let hasMore = true
+
+  while (hasMore) {
+    const res = await db.collection('RunningRecords')
+      .where({ assignedStaffId: staffId })
+      .field({ _id: true })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .get()
+    
+    const ids = res.data.map(record => record._id)
+    allIds = allIds.concat(ids)
+    
+    if (ids.length < pageSize) {
+      hasMore = false
+    } else {
+      page++
+    }
+  }
+  return allIds
+}
+
 exports.main = async (event, context) => {
   try {
     const { status, page = 1, pageSize = 10, staffId } = event
     const offset = (page - 1) * pageSize
-    
+
+    console.log("getAppealsList 传入参数:", { status, page, pageSize, staffId })
+
     if (!staffId) {
       return {
         code: 400,
@@ -19,18 +48,10 @@ exports.main = async (event, context) => {
         message: '缺少工作人员ID'
       }
     }
-    
-    // 1. 首先获取该工作人员审核的所有跑步记录ID
-    const runningRecordsResult = await db.collection('RunningRecords')
-      .where({
-        assignedStaffId: staffId
-      })
-      .field({ _id: true }) // 只获取_id字段
-      .get()
-    
-    const runningRecordIds = runningRecordsResult.data.map(record => record._id)
-    
-    // 如果没有审核的跑步记录，直接返回空列表
+
+    // 1. 获取该工作人员审核的所有跑步记录ID（分页获取全部）
+    const runningRecordIds = await getAllRunningRecordIds(staffId)
+
     if (runningRecordIds.length === 0) {
       return {
         code: 200,
@@ -46,36 +67,33 @@ exports.main = async (event, context) => {
         message: '获取申诉列表成功'
       }
     }
-    
+
     // 2. 构建申诉查询条件
     let query = {
-      runningRecordId: _.in(runningRecordIds)  // 只查询该工作人员审核的跑步记录对应的申诉
+      runningRecordId: _.in(runningRecordIds)
     }
-    
     if (status && status !== 'all') {
       query.status = parseInt(status)
     }
-    
-    // 获取总数
+
+    // 3. 获取总数并分页查询
     const countResult = await db.collection('Appeals').where(query).count()
     const total = countResult.total
-    
-    // 分页查询
+
     const listResult = await db.collection('Appeals')
       .where(query)
       .orderBy('createTime', 'desc')
       .skip(offset)
       .limit(pageSize)
       .get()
-    
-    // 获取每条申诉对应的跑步记录基本信息
+
+    // 4. 附加跑步记录基本信息
     const appealsWithRecord = await Promise.all(
       listResult.data.map(async (appeal) => {
         try {
           const recordResult = await db.collection('RunningRecords')
             .doc(appeal.runningRecordId)
             .get()
-          
           return {
             ...appeal,
             runningRecord: recordResult.data || null
@@ -88,7 +106,7 @@ exports.main = async (event, context) => {
         }
       })
     )
-    
+
     return {
       code: 200,
       data: {

@@ -387,43 +387,81 @@ async function updateAuditResult(event) {
 }
 
 /**
- * 一键通过当前工作人员的所有待审核记录
+ * 一键通过当前工作人员的所有待审核记录（支持日期范围筛选）
  * @param {Object} event
  * @param {string} event.staffId - 工作人员ID
+ * @param {string} event.startDate - 开始日期 YYYY-MM-DD
+ * @param {string} event.endDate - 结束日期 YYYY-MM-DD
  */
 async function batchApproveByStaff(event) {
   try {
-    const { staffId } = event
+    const { staffId, startDate, endDate } = event
     if (!staffId) {
       return { code: 400, message: 'staffId is required', data: null }
     }
 
-    // 查询分配给该工作人员且状态为待审核（0）的记录
-    const recordsResult = await db.collection(RECORDS_COLLECTION)
-      .where({
-        assignedStaffId: staffId,
-        status: 0
-      })
-      .get()
+    // 构建查询条件
+    let query = { assignedStaffId: staffId, status: 0 }
 
-    const records = recordsResult.data
-    if (!records || records.length === 0) {
-      return {
-        code: 200,
-        message: 'No pending records found',
-        data: { total: 0, successCount: 0 }
+    // 日期范围处理（基于 create_time）
+    if (startDate || endDate) {
+      const timeQuery = {}
+      if (startDate) {
+        const start = new Date(`${startDate}T00:00:00+08:00`)
+        if (!isNaN(start.getTime())) timeQuery.$gte = start
+      }
+      if (endDate) {
+        const end = new Date(`${endDate}T23:59:59.999+08:00`)
+        if (!isNaN(end.getTime())) timeQuery.$lte = end
+      }
+      if (Object.keys(timeQuery).length) {
+        query.create_time = timeQuery
       }
     }
 
-    console.log(`找到 ${records.length} 条待审核记录，准备一键通过`)
+    // 先获取总数，如果超过安全限制则提示
+    const countRes = await db.collection(RECORDS_COLLECTION).where(query).count()
+    const totalRecords = countRes.total
+    const MAX_LIMIT = 1000  // 单次最大处理记录数，避免云函数超时
+
+    if (totalRecords > MAX_LIMIT) {
+      return {
+        code: 400,
+        message: `当前筛选条件下有 ${totalRecords} 条待审核记录，超过单次处理上限 ${MAX_LIMIT} 条。请缩小日期范围后重试。`,
+        data: null
+      }
+    }
+
+    if (totalRecords === 0) {
+      return {
+        code: 200,
+        message: 'No pending records found',
+        data: { total: 0, successCount: 0, failedCount: 0 }
+      }
+    }
+
+    console.log(`找到 ${totalRecords} 条待审核记录，准备一键通过`)
+
+    // 分页获取所有记录
+    const pageSize = 100
+    let allRecords = []
+    for (let skip = 0; skip < totalRecords; skip += pageSize) {
+      const res = await db.collection(RECORDS_COLLECTION)
+        .where(query)
+        .skip(skip)
+        .limit(pageSize)
+        .get()
+      allRecords.push(...res.data)
+    }
 
     let successCount = 0
+    let failedCount = 0
     const failedRecords = []
 
-    // 遍历更新每条记录
-    for (const record of records) {
+    // 逐条更新（可考虑使用 Promise.allSettled 并行提升速度，但注意云函数并发限制，这里保持串行更稳定）
+    for (const record of allRecords) {
       try {
-        // 更新记录状态为通过（1）
+        // 更新记录
         await db.collection(RECORDS_COLLECTION).doc(record._id).update({
           data: {
             status: 1,
@@ -431,32 +469,31 @@ async function batchApproveByStaff(event) {
             auditTime: db.serverDate()
           }
         })
-
-        // 更新工作人员完成数
+        // 工作人员完成数 +1
         await db.collection(STAFF_COLLECTION).doc(staffId).update({
-          data: {
-            completed_count: _.inc(1)
-          }
+          data: { completed_count: _.inc(1) }
         })
-
-        // 更新用户统计（如果记录有 openid）
+        // 用户统计
         if (record.openid) {
           await updateUserStatistics(record)
         }
-
         successCount++
       } catch (err) {
         console.error(`记录 ${record._id} 一键通过失败:`, err)
-        failedRecords.push({ recordId: record._id, error: err.message })
+        failedCount++
+        if (failedRecords.length < 20) { // 只记录前20条失败信息，避免返回体过大
+          failedRecords.push({ recordId: record._id, error: err.message })
+        }
       }
     }
 
     return {
       code: 200,
-      message: `Batch approve completed: ${successCount} succeeded, ${failedRecords.length} failed`,
+      message: `批量通过完成，成功 ${successCount} 条，失败 ${failedCount} 条`,
       data: {
-        total: records.length,
+        total: totalRecords,
         successCount,
+        failedCount,
         failedRecords: failedRecords.length > 0 ? failedRecords : undefined
       }
     }
