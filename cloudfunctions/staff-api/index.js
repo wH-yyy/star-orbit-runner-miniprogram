@@ -49,7 +49,8 @@ exports.main = async (event) => {
  */
 async function getAuditRecords(event) {
   try {
-    let { page = 1, pageSize = 20, status, username, studentId, date, staffId } = event
+    let { page = 1, pageSize = 20, status, username, studentId, date, staffId, sortOrder = 'desc' } = event
+    const normalizedSortOrder = sortOrder === 'asc' ? 'asc' : 'desc'
     
     // 构建查询条件
     let query = {}
@@ -119,7 +120,7 @@ async function getAuditRecords(event) {
     
     const result = await db.collection(RECORDS_COLLECTION)
       .where(query)
-      .orderBy('create_time', 'desc')
+      .orderBy('create_time', normalizedSortOrder)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .get()
