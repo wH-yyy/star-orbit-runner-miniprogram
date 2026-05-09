@@ -7,33 +7,6 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 
-// 分页获取指定工作人员的所有跑步记录ID
-async function getAllRunningRecordIds(staffId) {
-  let allIds = []
-  let page = 1
-  const pageSize = 100
-  let hasMore = true
-
-  while (hasMore) {
-    const res = await db.collection('RunningRecords')
-      .where({ assignedStaffId: staffId })
-      .field({ _id: true })
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .get()
-    
-    const ids = res.data.map(record => record._id)
-    allIds = allIds.concat(ids)
-    
-    if (ids.length < pageSize) {
-      hasMore = false
-    } else {
-      page++
-    }
-  }
-  return allIds
-}
-
 exports.main = async (event, context) => {
   try {
     const { status, page = 1, pageSize = 10, staffId } = event
@@ -49,68 +22,94 @@ exports.main = async (event, context) => {
       }
     }
 
-    // 1. 获取该工作人员审核的所有跑步记录ID（分页获取全部）
-    const runningRecordIds = await getAllRunningRecordIds(staffId)
+    // 1. 构建申诉基础查询（仅按 status 过滤）
+    let query = {}
+    if (status && status !== 'all') {
+      query.status = parseInt(status)
+    }
 
-    if (runningRecordIds.length === 0) {
+    // 2. 分页获取所有符合条件的申诉（分批，避免一次拉取过量）
+    //    由于申诉总数只有 100+，实际上一次就能取完，但为通用性保留分页循环
+    let allAppeals = []
+    let skip = 0
+    const limit = 100
+    let hasMore = true
+
+    while (hasMore) {
+      const res = await db.collection('Appeals')
+        .where(query)
+        .field({ 
+          _id: true, 
+          runningRecordId: true, 
+          stu_id: true, 
+          name: true, 
+          appealReason: true,
+          createTime: true,
+          status: true,
+          appealImages: true
+        })
+        .orderBy('createTime', 'desc')
+        .skip(skip)
+        .limit(limit)
+        .get()
+      
+      allAppeals = allAppeals.concat(res.data)
+      if (res.data.length < limit) {
+        hasMore = false
+      } else {
+        skip += limit
+      }
+    }
+
+    if (allAppeals.length === 0) {
       return {
         code: 200,
         data: {
           list: [],
-          pagination: {
-            page,
-            pageSize,
-            total: 0,
-            totalPages: 0
-          }
+          pagination: { page, pageSize, total: 0, totalPages: 0 }
         },
         message: '获取申诉列表成功'
       }
     }
 
-    // 2. 构建申诉查询条件
-    let query = {
-      runningRecordId: _.in(runningRecordIds)
-    }
-    if (status && status !== 'all') {
-      query.status = parseInt(status)
-    }
+    // 3. 收集所有 runningRecordId，去重
+    const runningRecordIds = [...new Set(allAppeals.map(a => a.runningRecordId).filter(id => id))]
 
-    // 3. 获取总数并分页查询
-    const countResult = await db.collection('Appeals').where(query).count()
-    const total = countResult.total
-
-    const listResult = await db.collection('Appeals')
-      .where(query)
-      .orderBy('createTime', 'desc')
-      .skip(offset)
-      .limit(pageSize)
-      .get()
-
-    // 4. 附加跑步记录基本信息
-    const appealsWithRecord = await Promise.all(
-      listResult.data.map(async (appeal) => {
-        try {
-          const recordResult = await db.collection('RunningRecords')
-            .doc(appeal.runningRecordId)
-            .get()
-          return {
-            ...appeal,
-            runningRecord: recordResult.data || null
-          }
-        } catch (error) {
-          return {
-            ...appeal,
-            runningRecord: null
-          }
-        }
+    // 4. 批量查询 RunningRecords（使用 _.in，一次请求）
+    let recordsMap = new Map()
+    if (runningRecordIds.length > 0) {
+      // 注意：_.in 有数量限制，但 100+ 条正常。若超过 1000 则需分批。
+      const recordsRes = await db.collection('RunningRecords')
+        .where({
+          _id: _.in(runningRecordIds)
+        })
+        .get()
+      
+      recordsRes.data.forEach(record => {
+        recordsMap.set(record._id, record)
       })
-    )
+    }
+
+    // 5. 过滤：只保留 assignedStaffId === staffId 的申诉，并附加跑步记录信息
+    const matchedAppeals = []
+    for (const appeal of allAppeals) {
+      const record = recordsMap.get(appeal.runningRecordId)
+      if (record && record.assignedStaffId === staffId) {
+        matchedAppeals.push({
+          ...appeal,
+          runningRecord: record
+        })
+      }
+    }
+
+    // 6. 手动分页
+    const total = matchedAppeals.length
+    const list = matchedAppeals.slice(offset, offset + pageSize)
 
     return {
       code: 200,
       data: {
-        list: appealsWithRecord,
+        list,
         pagination: {
           page,
           pageSize,
