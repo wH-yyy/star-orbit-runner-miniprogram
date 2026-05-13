@@ -1,4 +1,4 @@
-// getUserHistory/index.js
+// cloudfunctions/getUserRunningHistory/index.js
 const cloud = require('wx-server-sdk')
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
@@ -6,20 +6,19 @@ cloud.init({
 const db = cloud.database()
 
 exports.main = async (event, context) => {
-  const { studentId } = event // 接收 Web 端传来的学号
+  const { studentId } = event 
 
   if (!studentId) {
     return { code: 400, success: false, message: '学号不能为空' }
   }
 
   try {
-    // 1. 直接在 RunningRecords 集合中按 stu_id 查询
-    // 注意：集合名称 RunningRecords 必须严格对齐截图中的大写
+    // 1. 获取该学生所有的打卡记录
     const recordsResult = await db.collection('RunningRecords')
       .where({
         stu_id: studentId
       })
-      .orderBy('create_time', 'desc') // 按截图中的 create_time 排序
+      .orderBy('create_time', 'desc') 
       .get()
 
     let records = recordsResult.data
@@ -28,38 +27,66 @@ exports.main = async (event, context) => {
       return { code: 200, success: true, data: [], message: '暂无打卡记录' }
     }
 
-    // 2. 图片本地化转换 (将 cloud:// 转换为 https://)
-    // 提取所有有效的 imageFileID
-    const fileList = records
-      .map(r => r.imageFileID)
-      .filter(id => id && id.startsWith('cloud://'))
+    // 2. 收集并转换所有云存储图片 ID
+    let fileIDs = []
+    records.forEach(r => {
+      if (r.imageFileID && r.imageFileID.startsWith('cloud://')) fileIDs.push(r.imageFileID)
+      const stepId = r.stepImageFileID || r.stepImageId
+      if (stepId && stepId.startsWith('cloud://')) fileIDs.push(stepId)
+    })
 
     let tempURLMap = {}
-    if (fileList.length > 0) {
-      const urlRes = await cloud.getTempFileURL({
-        fileList: fileList
-      })
-      // 建立 ID 与 真实URL 的映射表
-      urlRes.fileList.forEach(item => {
-        tempURLMap[item.fileID] = item.tempFileURL
+    if (fileIDs.length > 0) {
+      const urlRes = await cloud.getTempFileURL({ fileList: fileIDs })
+      urlRes.fileList.forEach(item => { tempURLMap[item.fileID] = item.tempFileURL })
+    }
+
+    // 3. 【绝对稳妥的连表查询】直接提取所有打卡记录的 _id，去匹配 Appeals 表的 runningRecordId
+    const allRecordIds = records.map(r => r._id)
+    let appealReasonMap = {}
+
+    if (allRecordIds.length > 0) {
+      const _ = db.command
+      // 只要申诉表的 runningRecordId 在这批打卡记录的 ID 里，就全部抓出来！
+      const appealsResult = await db.collection('Appeals')
+        .where({
+          runningRecordId: _.in(allRecordIds) 
+        })
+        .get()
+      
+      // 建立精准的映射关系： runningRecordId -> appealReason
+      appealsResult.data.forEach(appealDoc => {
+        if (appealDoc.runningRecordId) {
+          appealReasonMap[appealDoc.runningRecordId] = appealDoc.appealReason
+        }
       })
     }
 
-    // 3. 格式化数据并返回
+    // 4. 组装数据并返回给前端
     return {
       code: 200,
       success: true,
       message: '查询成功',
-      data: records.map(record => ({
-        _id: record._id,
-        // 将截图中的 Date 对象或字符串进行处理
-        timestamp: record.create_time, 
-        status: record.status, // 0:待审, 1:已过, 2:驳回
-        // 使用转换后的 HTTPS URL
-        image_url: tempURLMap[record.imageFileID] || record.imageFileID, 
-        mode: record.mode || '未知模式',
-        audit_reason: record.audit_reason || ''
-      }))
+      data: records.map(record => {
+        const stepFileID = record.stepImageFileID || record.stepImageId
+        
+        return {
+          _id: record._id,
+          timestamp: record.create_time, 
+          status: record.status, // 0:待审, 1:已过, 2:驳回, 3:申诉中
+          mode: record.mode || (record.type === 'playground' ? '全程在操场' : '自由跑'),
+          
+          image_url: tempURLMap[record.imageFileID] || record.imageFileID,
+          step_image_url: stepFileID ? (tempURLMap[stepFileID] || stepFileID) : '',
+          
+          assignedStaffName: record.assignedStaffName || '系统',
+          auditTime: record.auditTime || record.audit_time || '', 
+          audit_reason: record.audit_reason || record.audit_remark || '', 
+          
+          // 这次绝对能精准匹配上了！
+          appealReason: appealReasonMap[record._id] || '' 
+        }
+      })
     }
   } catch (error) {
     console.error('查询记录失败:', error)
