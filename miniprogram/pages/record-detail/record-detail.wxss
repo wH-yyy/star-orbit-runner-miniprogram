@@ -738,6 +738,28 @@ page {
   }
 }
 
+
+/* ========== 修改按钮 ========== */
+.modify-action-row {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modify-image-button {
+  margin: 0;
+  padding: 0 28rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 18rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #305fa8;
+  background: linear-gradient(135deg, rgba(87, 131, 197, 0.14) 0%, rgba(66, 118, 196, 0.2) 100%);
+  border: 1rpx solid rgba(66, 118, 196, 0.25);
+}
+
+
 /* ========== 响应式设计 ========== */
 @media (max-width: 375px) {
   .evidence-grid {

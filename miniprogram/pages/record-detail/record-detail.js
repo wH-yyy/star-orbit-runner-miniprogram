@@ -5,7 +5,9 @@ Page({
     loading: true, // 加载状态
     appealReason: '', // 申诉理由
     uploadedImages: [], // 已上传图片列表
-    showAppealModal: false // 申诉模态框显示状态
+    showAppealModal: false, // 申诉模态框显示状态
+    canModifyImage: false,//是否可修改图片
+    hasLoadedOnce: false//是否加载过图片
   },
 
   onLoad(options) {
@@ -30,6 +32,10 @@ Page({
         loading: false
       });
       this.loadAppealDetail(record._id);
+      this.setData({
+        canModifyImage: this.canModifyImage(record),
+        hasLoadedOnce: true
+      })
     } else {
       this.showErrorAndBack('无法获取记录信息');
     }
@@ -70,6 +76,10 @@ Page({
           record: record,
           loading: false
         });
+        this.setData({
+          canModifyImage: this.canModifyImage(record),
+          hasLoadedOnce: true
+        })
         
         // 加载申诉详情
         this.loadAppealDetail(recordId);
@@ -381,5 +391,56 @@ Page({
         }
       }
     });
-  }
+  },
+  //判断是否可以修改截图
+  canModifyImage(record) {
+    if (!record) return false
+    if (record.status !== 0) return false
+    if (!record.create_time) return false
+  
+    // 1. 将记录的创建时间转换为北京时间
+    const createTime = new Date(record.create_time)
+    if (Number.isNaN(createTime.getTime())) return false
+  
+    // 获取北京时间
+    const utcOffset = createTime.getTimezoneOffset() * 60 * 1000
+    const beijingOffset = 8 * 60 * 60 * 1000
+    const beijingCreateTime = new Date(createTime.getTime() + utcOffset + beijingOffset)
+  
+    // 2. 计算截止时间（基于北京时间）
+    const deadline = new Date(beijingCreateTime)
+    deadline.setDate(deadline.getDate() + 1)
+    deadline.setHours(8, 0, 0, 0)
+  
+    // 3. 获取当前北京时间进行比较
+    const now = new Date()
+    const beijingNow = new Date(now.getTime() + now.getTimezoneOffset() * 60 * 1000 + beijingOffset)
+  
+    return beijingNow.getTime() <= deadline.getTime()
+  },
+  
+  //跳转修改界面
+  goToModifyImage() {
+    const { record, canModifyImage } = this.data
+  
+    if (!record || !record._id || !canModifyImage) {
+      wx.showToast({
+        title: '当前记录不可修改',
+        icon: 'none'
+      })
+      return
+    }
+  
+    wx.navigateTo({
+      url: `/pages/record-image-edit/record-image-edit?recordId=${record._id}`
+    })
+  },
+  
+  onShow() {
+    if (this.data.hasLoadedOnce && this.data.record && this.data.record._id) {
+      this.loadFromCloud(this.data.record._id)
+    }
+  },
+  
+  
 });
