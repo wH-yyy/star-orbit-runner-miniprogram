@@ -33,7 +33,7 @@
     </view>
     <!-- 当前截图 -->
     <view class="image-container">
-      <text class="step-image-title">当前截图</text>
+      <text class="step-image-title">当前跑步截图</text>
       <image
         wx:if="{{record.imageFileID}}"
         src="{{record.imageFileID}}"
@@ -43,7 +43,7 @@
     </view>
     <!-- 上传新截图 -->
     <view class="image-container">
-      <text class="step-image-title">新截图</text>
+      <text class="step-image-title">新跑步截图</text>
 
       <image
         wx:if="{{newImageTempPath}}"

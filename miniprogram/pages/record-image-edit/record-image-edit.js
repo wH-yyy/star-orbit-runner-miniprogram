@@ -5,7 +5,7 @@ Page({
     newImageTempPath: '',// 新图片临时路径
     newStepImageTempPath: '',// 新步数截图临时路径
     submitting: false,//是否提交中
-    modeOptions: ['全程在操场，在操场跑四圈', '在任意场地跑，提供步数截图'],// 模式选项
+    modeOptions: ['全程在操场', '在任意场地跑，提供步数截图'],// 模式选项
     modeIndex: 0,// 当前模式索引
     originalMode: '',// 原始模式
     dropdownOpen: false// 下拉菜单是否打开

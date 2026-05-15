@@ -10,7 +10,7 @@ Page({
     maxStepImages: 1,
 
     // 跑步方式选择
-    modeOptions: ['全程在操场/在操场跑四圈', '在任意场地跑，提供步数截图'],
+    modeOptions: ['全程在操场', '在任意场地跑，提供步数截图'],
     modeIndex: 0,
     dropdownOpen: false,
 
