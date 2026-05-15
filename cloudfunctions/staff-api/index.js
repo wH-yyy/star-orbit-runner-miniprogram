@@ -455,37 +455,58 @@ async function batchApproveByStaff(event) {
       allRecords.push(...res.data)
     }
 
-    let successCount = 0
-    let failedCount = 0
-    const failedRecords = []
+    // 分批并行处理参数
+    const BATCH_SIZE = 20; // 每批并发数，可根据实际情况调整（建议 10~20）
 
-    // 逐条更新（可考虑使用 Promise.allSettled 并行提升速度，但注意云函数并发限制，这里保持串行更稳定）
-    for (const record of allRecords) {
-      try {
-        // 更新记录
-        await db.collection(RECORDS_COLLECTION).doc(record._id).update({
-          data: {
-            status: 1,
-            audit_reason: '',
-            auditTime: db.serverDate()
-          }
-        })
-        // 工作人员完成数 +1
-        await db.collection(STAFF_COLLECTION).doc(staffId).update({
-          data: { completed_count: _.inc(1) }
-        })
-        // 用户统计
-        if (record.openid) {
-          await updateUserStatistics(record)
+    let successCount = 0;
+    let failedCount = 0;
+    const failedRecords = [];
+
+    // 将 allRecords 分批次
+    for (let i = 0; i < allRecords.length; i += BATCH_SIZE) {
+        const batch = allRecords.slice(i, i + BATCH_SIZE);
+        // 为每条记录创建一个异步任务
+        const tasks = batch.map(async (record) => {
+            try {
+                // 1. 更新跑步记录状态
+                await db.collection(RECORDS_COLLECTION).doc(record._id).update({
+                    data: {
+                        status: 1,
+                        audit_reason: '',
+                        auditTime: db.serverDate()
+                    }
+                });
+                // 2. 更新工作人员完成数
+                await db.collection(STAFF_COLLECTION).doc(staffId).update({
+                    data: { completed_count: _.inc(1) }
+                });
+                // 3. 更新用户统计
+                if (record.openid) {
+                    await updateUserStatistics(record);
+                }
+                return { recordId: record._id, success: true };
+            } catch (err) {
+                console.error(`记录 ${record._id} 一键通过失败:`, err);
+                return { recordId: record._id, success: false, error: err.message };
+            }
+        });
+      
+        // 等待当前批次所有任务完成（使用 allSettled 避免单条失败中断整个批次）
+        const results = await Promise.allSettled(tasks);
+      
+        // 统计本批次结果
+        for (const res of results) {
+            if (res.status === 'fulfilled' && res.value.success) {
+                successCount++;
+            } else {
+                failedCount++;
+                // 获取失败信息（可能来自 reject 或返回的失败对象）
+                const failInfo = (res.status === 'fulfilled') ? res.value : { recordId: 'unknown', error:     res.reason?.message || 'unknown' };
+                if (failedRecords.length < 20) {
+                    failedRecords.push({ recordId: failInfo.recordId, error: failInfo.error });
+                }
+            }
         }
-        successCount++
-      } catch (err) {
-        console.error(`记录 ${record._id} 一键通过失败:`, err)
-        failedCount++
-        if (failedRecords.length < 20) { // 只记录前20条失败信息，避免返回体过大
-          failedRecords.push({ recordId: record._id, error: err.message })
-        }
-      }
     }
 
     return {
