@@ -19,6 +19,11 @@
           <text class="status-text">{{record.status === 1 ? '已通过' : record.status === 0 ? '待审核' : record.status === 2 ? '不通过' : '申诉中'}}</text>
         </view>
       </view>
+      <!-- 修改夜跑截图按钮 -->
+      <view wx:if="{{canModifyImage}}" class="modify-action-row">
+        <button class="modify-image-button" bindtap="goToModifyImage">修改夜跑截图</button>
+      </view>
+      
     </view>
 
     <!-- 打卡图片 -->

@@ -1,0 +1,97 @@
+<view class="container">
+  <view class="detail-container">
+    <!-- 打卡时间 -->
+    <view class="header-card">
+      <view class="time-status-row">
+        <view class="time-info">
+          <text class="time-label">打卡时间</text>
+          <text class="time-value">{{record.create_date}} {{record.create_time_24}}</text>
+        </view>
+      </view>
+    </view>
+    <!-- 选择跑步方式 -->
+    <view class="header-card">
+      <text class="field-title">跑步方式</text>
+      <view class="dropdown-container">
+        <view class="dropdown-select" bindtap="toggleDropdown">
+          <text class="dropdown-selected">{{modeOptions[modeIndex]}}</text>
+          <view class="dropdown-arrow {{dropdownOpen ? 'open' : ''}}">▼</view>
+        </view>
+        <view class="dropdown-options {{dropdownOpen ? 'show' : ''}}">
+          <view
+            class="dropdown-option {{modeIndex === index ? 'selected' : ''}}"
+            wx:for="{{modeOptions}}"
+            wx:key="index"
+            bindtap="selectMode"
+            data-index="{{index}}"
+          >
+            <text class="option-text">{{item}}</text>
+            <view class="option-check" wx:if="{{modeIndex === index}}">✓</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- 当前截图 -->
+    <view class="image-container">
+      <text class="step-image-title">当前截图</text>
+      <image
+        wx:if="{{record.imageFileID}}"
+        src="{{record.imageFileID}}"
+        class="step-image"
+        mode="widthFix"
+      />
+    </view>
+    <!-- 上传新截图 -->
+    <view class="image-container">
+      <text class="step-image-title">新截图</text>
+
+      <image
+        wx:if="{{newImageTempPath}}"
+        src="{{newImageTempPath}}"
+        class="step-image"
+        mode="widthFix"
+      />
+      
+      <view class="upload-btn-wrap">
+        <view class="upload-btn" bindtap="chooseNewImage">
+          <text>{{newImageTempPath ? '重新选择图片' : '选择新图片'}}</text>
+        </view>
+      </view>
+    </view>
+    <!-- 当前步数截图 -->
+    <block wx:if="{{modeIndex === 1}}">
+      <view class="image-container" wx:if="{{record.stepImageFileID}}">
+        <text class="step-image-title">当前步数截图</text>
+        <image
+          src="{{record.stepImageFileID}}"
+          class="step-image"
+          mode="widthFix"
+        />
+      </view>
+      <!-- 上传新步数截图 -->
+      <view class="image-container">
+        <text class="step-image-title">新步数截图</text>
+
+        <image
+          wx:if="{{newStepImageTempPath}}"
+          src="{{newStepImageTempPath}}"
+          class="step-image"
+          mode="widthFix"
+        />
+
+        <view class="upload-btn-wrap">
+          <view class="upload-btn" bindtap="chooseNewStepImage">
+            <text>{{newStepImageTempPath ? '重新选择步数截图' : '选择步数截图'}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+    <!-- 确认与取消按钮 -->
+    <view class="actions">
+      <button class="cancel-btn" bindtap="goBack">取消</button>
+      <button class="submit-btn" bindtap="submitNewImage" disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '确认修改'}}
+      </button>
+    </view>
+  </view>
+</view>
