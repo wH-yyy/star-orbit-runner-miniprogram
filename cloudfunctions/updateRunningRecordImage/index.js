@@ -43,7 +43,7 @@ exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
   const { recordId, newImageFileID, newStepImageFileID, newMode } = event
-  const allowedModes = ['全程在操场，在操场跑四圈', '在任意场地跑，提供步数截图']
+  const allowedModes = ['全程在操场', '在任意场地跑，提供步数截图']
 
   if (!recordId) {
     return {
@@ -111,7 +111,7 @@ exports.main = async (event) => {
     if (now.getTime() > deadline.getTime()) {
       return {
         code: 411,
-        message: '已超过修改截止时间（次日08:00）',
+        message: '已超过修改截止时间',
         data: null
       }
     }

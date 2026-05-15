@@ -410,7 +410,7 @@ Page({
     // 2. 计算截止时间（基于北京时间）
     const deadline = new Date(beijingCreateTime)
     deadline.setDate(deadline.getDate() + 1)
-    deadline.setHours(8, 0, 0, 0)
+    deadline.setHours(20, 0, 0, 0)
   
     // 3. 获取当前北京时间进行比较
     const now = new Date()
